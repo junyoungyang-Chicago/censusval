@@ -284,22 +284,25 @@ select:focus {
 }
 
 .winner-cell {
-    position: relative;
     color: var(--primary-color) !important;
     font-weight: 800 !important;
+    white-space: nowrap;
 }
 
 .winner-cell::after {
     content: '★';
-    position: absolute;
-    top: -8px;
-    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2rem;
+    height: 1.2rem;
     font-size: 0.7rem;
     background: var(--primary-color);
     color: white;
-    padding: 2px 4px;
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     line-height: 1;
 }
 
