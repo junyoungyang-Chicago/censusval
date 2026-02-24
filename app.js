@@ -40,7 +40,6 @@ const marketMapping = {
     miami: { state: '12', place: '45000', label: 'Miami, FL (Heat)', avg_attendance: 19600 },
     milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', avg_attendance: 17500 },
     minneapolis: { state: '27', place: '43000', label: 'Minneapolis, MN (Timberwolves)', avg_attendance: 18024 },
-    newjersey: { state: '34', place: '51000', label: 'Newark, NJ (Nets)', avg_attendance: 16500 },
     neworleans: { state: '22', place: '55000', label: 'New Orleans, LA (Pelicans)', avg_attendance: 16800 },
     newyork: { state: '36', place: '51000', label: 'New York, NY (Knicks)', avg_attendance: 19812 },
     oklahomacity: { state: '40', place: '55000', label: 'Oklahoma City, OK (Thunder)', avg_attendance: 18203 },
