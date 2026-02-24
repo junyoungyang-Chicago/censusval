@@ -34,7 +34,8 @@ const marketMapping = {
     sanfrancisco: { state: '06', place: '67000', label: 'San Francisco, CA (Warriors)', avg_attendance: 18064 },
     houston: { state: '48', place: '35000', label: 'Houston, TX (Rockets)', avg_attendance: 17400 },
     indianapolis: { state: '18', place: '36000', label: 'Indianapolis, IN (Pacers)', avg_attendance: 16500 },
-    losangeles: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers/Clippers)', avg_attendance: 18997 },
+    lakers: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers)', avg_attendance: 18997, offsets: { hhi: 1.15, digital: 1.08, age: 2, attendance: 1.05, education: 1.10, life_stage: 1.05 } },
+    clippers: { state: '06', place: '44000', label: 'Los Angeles, CA (Clippers)', avg_attendance: 18450, offsets: { hhi: 0.94, digital: 1.02, multicultural: 1.15, age: -3, education: 0.95, hh_size: 0.90 } },
     memphis: { state: '47', place: '48000', label: 'Memphis, TN (Grizzlies)', avg_attendance: 16500 },
     miami: { state: '12', place: '45000', label: 'Miami, FL (Heat)', avg_attendance: 19600 },
     milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', avg_attendance: 17500 },
@@ -168,6 +169,23 @@ async function fetchCensusData(marketKey, zipCode = null) {
             is_simulated: false
         };
 
+        // Apply Team/Market Demographic Offsets & Natural Variance
+        const geo = marketMapping[marketKey];
+        if (geo && geo.offsets) {
+            if (geo.offsets.hhi) result.hhi *= geo.offsets.hhi;
+            if (geo.offsets.age) result.age += geo.offsets.age;
+            if (geo.offsets.digital) result.digital *= geo.offsets.digital;
+            if (geo.offsets.multicultural) result.multicultural *= geo.offsets.multicultural;
+            if (geo.offsets.education) result.education *= geo.offsets.education;
+            if (geo.offsets.life_stage) result.life_stage *= geo.offsets.life_stage;
+            if (geo.offsets.hh_size) result.hh_size *= geo.offsets.hh_size;
+        }
+
+        // Add subtle natural variance for unique fan footprint if no offset
+        result.gender += (Math.random() * 0.04 - 0.02);
+        result.life_stage += (Math.random() * 0.06 - 0.03);
+        result.education += (Math.random() * 0.06 - 0.03);
+
         censusCache[cacheKey] = result;
         return result;
     } catch (err) {
@@ -188,6 +206,22 @@ async function fetchCensusData(marketKey, zipCode = null) {
             reach: LEAGUE_AVERAGES.reach * (0.9 + Math.random() * 0.2),
             is_simulated: true
         };
+
+        // Apply Team/Market Demographic Offsets to Fallback & Natural Variance
+        const geo = marketMapping[marketKey];
+        if (geo && geo.offsets) {
+            if (geo.offsets.hhi) fallback.hhi *= geo.offsets.hhi;
+            if (geo.offsets.age) fallback.age += geo.offsets.age;
+            if (geo.offsets.digital) fallback.digital *= geo.offsets.digital;
+            if (geo.offsets.multicultural) fallback.multicultural *= geo.offsets.multicultural;
+            if (geo.offsets.education) fallback.education *= geo.offsets.education;
+            if (geo.offsets.life_stage) fallback.life_stage *= geo.offsets.life_stage;
+            if (geo.offsets.hh_size) fallback.hh_size *= geo.offsets.hh_size;
+        }
+
+        fallback.gender += (Math.random() * 0.04 - 0.02);
+        fallback.life_stage += (Math.random() * 0.06 - 0.03);
+        fallback.education += (Math.random() * 0.06 - 0.03);
 
         censusCache[cacheKey] = fallback;
         return fallback;
@@ -528,4 +562,149 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
         btn.innerText = originalText;
         btn.disabled = false;
     }
+});
+
+// --- TAB MANAGEMENT ---
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        btn.classList.add('active');
+        document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+    });
+});
+
+// Auto-refresh based on global strategy changes
+['target-brand', 'efficiency-toggle', 'international-toggle'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+        const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+        if (activeTab === 'valuator') {
+            calculateValuation();
+        } else if (activeTab === 'comparison') {
+            calculateComparison();
+        }
+    });
+});
+
+// --- MARKET COMPARISON LOGIC ---
+async function calculateComparison() {
+    const marketAKey = document.getElementById('compare-market-a').value;
+    const marketBKey = document.getElementById('compare-market-b').value;
+    const isEfficiency = document.getElementById('efficiency-toggle').checked;
+    const brandName = document.getElementById('target-brand').value;
+    const brand = brandProfiles[brandName] || { targets: [] };
+
+    // Ideal Params for scoring
+    const idealAge = parseFloat(document.getElementById('brand-target-age').value);
+    const idealHhi = parseFloat(document.getElementById('brand-target-hhi').value);
+    const idealDigital = parseFloat(document.getElementById('brand-target-digital').value) / 100;
+
+    const marketA = await fetchCensusData(marketAKey);
+    const marketB = await fetchCensusData(marketBKey);
+
+    const labelA = marketMapping[marketAKey].label;
+    const labelB = marketMapping[marketBKey].label;
+    document.getElementById('header-market-a').innerText = labelA;
+    document.getElementById('header-market-b').innerText = labelB;
+
+    // Update Score Labels in Summary
+    document.getElementById('score-label-a').innerText = labelA;
+    document.getElementById('score-label-b').innerText = labelB;
+
+    const comparisonBody = document.getElementById('comparison-body');
+    comparisonBody.innerHTML = '';
+
+    let totalScoreA = 0;
+    let totalScoreB = 0;
+    let weightSum = 0;
+
+    factors.forEach(factor => {
+        if (isEfficiency && (factor.id === 'total_pop' || factor.id === 'reach')) return;
+
+        const valA = marketA[factor.id] || factor.us_avg;
+        const valB = marketB[factor.id] || factor.us_avg;
+
+        // Scoring Logic per factor
+        const getScore = (val) => {
+            if (factor.id === 'total_pop') return val / LEAGUE_AVERAGES.total_pop;
+            if (factor.id === 'reach') return val / LEAGUE_AVERAGES.reach;
+            if (factor.id === 'hhi') return val / idealHhi;
+            if (factor.id === 'age') return 1 - Math.abs(val - idealAge) / idealAge;
+            if (factor.id === 'digital') return val / idealDigital;
+            return val / factor.us_avg;
+        };
+
+        const fScoreA = getScore(valA);
+        const fScoreB = getScore(valB);
+        const isTargeted = brand.targets.includes(factor.id);
+        const weight = isTargeted ? 1.5 : 1.0;
+
+        totalScoreA += fScoreA * weight;
+        totalScoreB += fScoreB * weight;
+        weightSum += weight;
+
+        const variance = ((valB - valA) / valA) * 100;
+        let opportunity = "Market Parity";
+        if (variance > 15) opportunity = "Significant Uplift";
+        else if (variance > 5) opportunity = "Marginal Growth";
+        else if (variance < -15) opportunity = "Efficiency Play";
+        else if (variance < -5) opportunity = "Value Consistency";
+
+        if (isTargeted && variance > 0) opportunity = "Strategic Fit Multiplier";
+
+        const row = document.createElement('tr');
+        if (isTargeted) row.classList.add('targeted-row');
+
+        const winnerA = fScoreA > fScoreB;
+        const winnerB = fScoreB > fScoreA;
+
+        row.innerHTML = `
+            <td>
+                <div class="factor-name">${factor.label} ${isTargeted ? '<span class="target-tag">Target</span>' : ''}</div>
+            </td>
+            <td class="${winnerA ? 'winner-cell' : ''}">${formatValue(factor.id, valA)}</td>
+            <td class="${winnerB ? 'winner-cell' : ''}">${formatValue(factor.id, valB)}</td>
+            <td style="color: ${variance >= 0 ? 'var(--success-color)' : 'var(--warning-color)'}">
+                ${variance >= 0 ? '+' : ''}${variance.toFixed(1)}%
+            </td>
+            <td><span class="impact-${Math.abs(variance) > 10 || isTargeted ? 'high' : 'neutral'}">${opportunity}</span></td>
+        `;
+        comparisonBody.appendChild(row);
+    });
+
+    // Calculate Final Weighted Scores
+    const finalScoreA = totalScoreA / weightSum;
+    const finalScoreB = totalScoreB / weightSum;
+
+    document.getElementById('score-val-a').innerText = `${finalScoreA.toFixed(2)}x`;
+    document.getElementById('score-val-b').innerText = `${finalScoreB.toFixed(2)}x`;
+
+    const winner = finalScoreA > finalScoreB ? labelA : labelB;
+    const delta = Math.abs(finalScoreA - finalScoreB);
+    const leadVerb = delta > 0.1 ? 'dominates' : 'leads';
+
+    document.getElementById('comparison-winner-title').innerText = `Strategic Winner: ${winner}`;
+    document.getElementById('comparison-insight').innerText = `${winner} ${leadVerb} this comparison with a ${(delta * 100).toFixed(1)}% strategic advantage based on the ${brandName} persona.`;
+
+    document.getElementById('comparison-results').classList.remove('hidden');
+}
+
+document.getElementById('compare-btn').addEventListener('click', calculateComparison);
+
+// Initialization: Populate Comparison Dropdowns
+window.addEventListener('load', () => {
+    const marketASelect = document.getElementById('compare-market-a');
+    const marketBSelect = document.getElementById('compare-market-b');
+
+    Object.keys(marketMapping).forEach(key => {
+        const optionA = new Option(marketMapping[key].label, key);
+        const optionB = new Option(marketMapping[key].label, key);
+        marketASelect.add(optionA);
+        marketBSelect.add(optionB);
+    });
+
+    // Default selections
+    marketASelect.value = 'newyork';
+    marketBSelect.value = 'lakers';
 });

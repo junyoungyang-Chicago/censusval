@@ -2,7 +2,7 @@
     --bg-color: #050507;
     --surface-color: rgba(255, 255, 255, 0.03);
     --surface-border: rgba(255, 255, 255, 0.1);
-    --primary-color: #00f2ff;
+    --primary-color: #1667E9;
     --accent-color: #7000ff;
     --text-primary: #ffffff;
     --text-secondary: #a0a0ab;
@@ -169,6 +169,181 @@ select:focus {
 
 .currency-input input {
     padding-left: 2rem;
+}
+
+.global-strategy-bar {
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem !important;
+    background: linear-gradient(135deg, rgba(112, 0, 255, 0.05) 0%, rgba(22, 103, 233, 0.05) 100%);
+    border: 1px solid rgba(0, 242, 255, 0.2);
+}
+
+.strategy-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+/* Tabs Navigation */
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--surface-border);
+    padding-bottom: 1rem;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: color 0.3s, border-bottom 0.3s;
+    position: relative;
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1rem;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Comparison Layout */
+.compare-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.compare-vs {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    margin-top: 1rem;
+}
+
+/* Comparison Summary Styling */
+.compare-scores {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    margin: 1.5rem 0;
+}
+
+.score-card {
+    text-align: center;
+}
+
+.score-card label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.score-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    color: var(--primary-color);
+}
+
+.score-vs-small {
+    font-size: 1.2rem;
+    font-weight: 800;
+    opacity: 0.3;
+}
+
+.winner-cell {
+    position: relative;
+    color: var(--primary-color) !important;
+    font-weight: 800 !important;
+}
+
+.winner-cell::after {
+    content: '★';
+    position: absolute;
+    top: -8px;
+    right: 4px;
+    font-size: 0.7rem;
+    background: var(--primary-color);
+    color: white;
+    padding: 2px 4px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1;
+}
+
+.targeted-row {
+    background: rgba(22, 103, 233, 0.05) !important;
+}
+
+.target-tag {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    background: var(--primary-color);
+    color: black;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+    font-weight: 800;
+}
+
+.action-bar {
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+    padding: 2rem 3rem !important;
+    background: linear-gradient(135deg, rgba(22, 103, 233, 0.05) 0%, rgba(112, 0, 255, 0.05) 100%);
+    border: 1px solid rgba(22, 103, 233, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.action-bar .button-group {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+.action-bar .primary-btn,
+.action-bar .secondary-btn {
+    flex: 1;
+    margin-top: 0 !important;
+}
+
+.secondary-btn:hover {
+    background: rgba(0, 242, 255, 0.2) !important;
 }
 
 .primary-btn {
