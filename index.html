@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trajektory Sponsorship Valuator | NBA Market Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-theme">
+    <div class="app-container">
+        <header>
+            <div class="logo-container">
+                <div class="logo-icon">TR</div>
+                <h1>Trajektory <span>Sponsorship Valuator</span></h1>
+            </div>
+            <p class="tagline">Strategic NBA Market Valuation powered by US Census Data</p>
+        </header>
+
+        <main>
+            <section class="input-grid">
+                <div class="card glass-card">
+                    <h2><span class="step-num">01</span> Asset Baseline</h2>
+                    <div class="input-group">
+                        <label for="asset-name">Asset Type / Category</label>
+                        <select id="asset-name">
+                            <option value="Broadcast">Broadcast (TV/Digital)</option>
+                            <option value="In-Venue" selected>In-Venue (Signage/LED)</option>
+                            <option value="Social">Social / Digital Halo</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="baseline-value">Raw Market Value ($)</label>
+                        <div class="currency-input">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="baseline-value" value="200000">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="target-brand">Target Brand Persona</label>
+                        <select id="target-brand">
+                            <option value="Luxury Automotive">Luxury Automotive</option>
+                            <option value="Fintech / Crypto">Fintech / Crypto</option>
+                            <option value="Mass Market Retail" selected>Mass Market Retail</option>
+                            <option value="Health & Wellness">Health & Wellness</option>
+                            <option value="Global Beverage">Global Beverage</option>
+                            <option value="International Brand">International Brand</option>
+                        </select>
+                    </div>
+                    <div class="toggle-group">
+                        <span class="toggle-label">Efficiency Value Mode</span>
+                        <label class="switch">
+                            <input type="checkbox" id="efficiency-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card glass-card">
+                    <h2><span class="step-num">02</span> Brand Persona Focus</h2>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="brand-target-age">Target Age</label>
+                            <input type="number" id="brand-target-age" value="34" placeholder="e.g., 34">
+                        </div>
+                        <div class="input-group">
+                            <label for="brand-target-hhi">Ideal Min. HHI ($)</label>
+                            <input type="number" id="brand-target-hhi" value="70000" step="5000">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="brand-target-digital">Digital Affinity Focus (%)</label>
+                        <input type="range" id="brand-target-digital" min="0" max="100" value="85">
+                        <span id="digital-focus-val" class="range-val">85%</span>
+                    </div>
+                    <div class="toggle-group"
+                        style="border-top: none; margin-top: 0; padding-top: 0; margin-bottom: 1.5rem;">
+                        <span class="toggle-label">Non-US Based Brand (Global)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="international-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label>Strategic Priority Multiplier</label>
+                        <select id="brand-priority">
+                            <option value="1.2">Aggressive Growth (1.2x base)</option>
+                            <option value="1.0" selected>Standard Alignment (1.0x base)</option>
+                            <option value="0.8">Niche / Discovery (0.8x base)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card glass-card">
+                    <h2><span class="step-num">03</span> NBA Market Context</h2>
+                    <div class="input-group">
+                        <label for="market-dma">Target NBA Market</label>
+                        <select id="market-dma">
+                            <option value="atlanta">Atlanta, GA (Hawks)</option>
+                            <option value="boston">Boston, MA (Celtics)</option>
+                            <option value="brooklyn">Brooklyn, NY (Nets)</option>
+                            <option value="charlotte">Charlotte, NC (Hornets)</option>
+                            <option value="chicago" selected>Chicago, IL (Bulls)</option>
+                            <option value="cleveland">Cleveland, OH (Cavaliers)</option>
+                            <option value="dallas">Dallas, TX (Mavericks)</option>
+                            <option value="denver">Denver, CO (Nuggets)</option>
+                            <option value="detroit">Detroit, MI (Pistons)</option>
+                            <option value="sanfrancisco">San Francisco, CA (Warriors)</option>
+                            <option value="houston">Houston, TX (Rockets)</option>
+                            <option value="indianapolis">Indianapolis, IN (Pacers)</option>
+                            <option value="losangeles">Los Angeles, CA (Lakers/Clippers)</option>
+                            <option value="memphis">Memphis, TN (Grizzlies)</option>
+                            <option value="miami">Miami, FL (Heat)</option>
+                            <option value="milwaukee">Milwaukee, WI (Bucks)</option>
+                            <option value="minneapolis">Minneapolis, MN (Timberwolves)</option>
+                            <option value="neworleans">New Orleans, LA (Pelicans)</option>
+                            <option value="newyork">New York, NY (Knicks)</option>
+                            <option value="oklahomacity">Oklahoma City, OK (Thunder)</option>
+                            <option value="orlando">Orlando, FL (Magic)</option>
+                            <option value="philadelphia">Philadelphia, PA (76ers)</option>
+                            <option value="phoenix">Phoenix, AZ (Suns)</option>
+                            <option value="portland">Portland, OR (Trail Blazers)</option>
+                            <option value="sacramento">Sacramento, CA (Kings)</option>
+                            <option value="sanantonio">San Antonio, TX (Spurs)</option>
+                            <option value="saltlakecity">Salt Lake City, UT (Jazz)</option>
+                            <option value="washingtondc">Washington, DC (Wizards)</option>
+                        </select>
+                    </div>
+                    <div id="zip-code-container" class="input-group hidden">
+                        <label for="zip-code">Target Zip Code (Efficiency Mode)</label>
+                        <input type="text" id="zip-code" placeholder="e.g. 10001" maxlength="5">
+                    </div>
+                    <div class="input-group">
+                        <label for="team-name">Sports Team</label>
+                        <input type="text" id="team-name" placeholder="Auto-fills from market" disabled>
+                    </div>
+                    <div id="attendance-container" class="input-group">
+                        <label for="team-attendance">Avg Game Attendance</label>
+                        <input type="number" id="team-attendance" value="18324">
+                    </div>
+                    <div class="button-group">
+                        <button id="calculate-btn" class="primary-btn">Recalculate Strategic Value</button>
+                        <button id="find-best-fit-btn" class="secondary-btn"
+                            style="margin-top: 1rem; width: 100%; padding: 1.2rem; border-radius: 12px; background: rgba(0, 242, 255, 0.1); border: 1px solid var(--primary-color); color: var(--primary-color); cursor: pointer; font-weight: 700; transition: all 0.3s; font-family: 'Outfit', sans-serif;">
+                            Find Best Strategic Fit (AI Discovery)
+                        </button>
+                    </div>
+                    <div id="discovery-results" class="hidden"
+                        style="margin-top: 2rem; padding: 1.5rem; border-radius: 16px; background: rgba(0, 242, 255, 0.05); border: 1px dashed var(--primary-color); text-align: center;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">Discovery Complete</h4>
+                        <div id="winner-text" style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;"></div>
+                        <p id="winner-reason" style="font-size: 0.9rem; color: var(--text-secondary);"></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="results-section" class="hidden">
+                <div class="valuation-summary">
+                    <div class="final-value-card">
+                        <label>Strategic Market Value</label>
+                        <div id="final-strategic-value" class="value-amount">$0</div>
+                        <div class="multiplier-badge" id="total-multiplier">1.0x total multiplier</div>
+                    </div>
+                    <div class="persona-delta-card">
+                        <h3>Persona Delta</h3>
+                        <p id="persona-delta-text">Calculating influence...</p>
+                    </div>
+                </div>
+
+                <div class="matrix-container card glass-card">
+                    <h2>11-Factor Decision Matrix</h2>
+                    <div class="table-wrapper">
+                        <table id="valuation-table">
+                            <thead>
+                                <tr>
+                                    <th>Factor</th>
+                                    <th>Census Table</th>
+                                    <th>Local Demo</th>
+                                    <th>Fan Demo</th>
+                                    <th>League/US Avg</th>
+                                    <th>Multiplier</th>
+                                    <th>Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matrix-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Trajektory. B2B Confidential.</p>
+        </footer>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
