@@ -189,8 +189,18 @@
                             <div class="multiplier-badge" id="total-multiplier">1.0x total multiplier</div>
                         </div>
                         <div class="persona-delta-card">
-                            <h3>Persona Delta</h3>
-                            <p id="persona-delta-text">Calculating influence...</p>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <h3 style="margin: 0;">Persona Delta</h3>
+                                <span class="ai-status-badge" id="ai-status">Ready</span>
+                            </div>
+                            <div id="persona-delta-text" contenteditable="true"
+                                title="Click to edit strategy. AI will interpret your text."
+                                style="font-size: 1.1rem; color: var(--text-primary); font-weight: 300; line-height: 1.6; min-height: 80px; padding: 10px; border-radius: 8px; border: 1px solid transparent; transition: all 0.3s; cursor: text; outline: none;"
+                                onfocus="this.style.border='1px solid var(--primary-color)'; this.style.background='rgba(255,255,255,0.03)';"
+                                onblur="this.style.border='1px solid transparent'; this.style.background='transparent';">
+                                Loading dynamic strategy...
+                            </div>
                         </div>
                     </div>
 

@@ -122,6 +122,8 @@ document.getElementById('calculate-btn').addEventListener('click', async () => {
 });
 
 const censusCache = {};
+let currentPersonaTargets = null;
+let aiDebounceTimer = null;
 
 async function fetchCensusData(marketKey, zipCode = null) {
     const cacheKey = zipCode ? `zip_${zipCode}` : marketKey;
@@ -249,6 +251,9 @@ async function calculateValuation() {
     const market = await fetchCensusData(marketKey, zipCode && zipCode.length === 5 ? zipCode : null);
     const brand = brandProfiles[brandName] || { targets: ['hhi'], persona: `${brandName} seeks high-value markets.` };
 
+    // Use AI Targets if available, otherwise fallback to brand profile
+    const activeTargets = currentPersonaTargets || brand.targets;
+
     const matrixBody = document.getElementById('matrix-body');
     matrixBody.innerHTML = '';
     let totalMultiplier = 1.0 * priorityMod; // Start with strategic priority
@@ -283,6 +288,9 @@ async function calculateValuation() {
             multiplier = hhiLift * (alignment > 1 ? 1.15 : alignment);
             factor.impact = alignment >= 1 ? `Premium Fit ($${Math.round(fanVal / 1000)}k fans)` : `Target Gap ($${Math.round(fanVal / 1000)}k fans)`;
             formula = "(Fan HHI / Market HHI) × Brand Alignment Multiplier";
+            if (activeTargets.includes('hhi')) {
+                formula = "Strategic Priority Target Alignment (Target Fit)";
+            }
         } else if (factor.id === 'hh_structure') {
             marketVal = market.hh_size || factor.us_avg;
             fanVal = marketVal * 1.05;
@@ -293,6 +301,9 @@ async function calculateValuation() {
             fanVal = teamAttendance;
             multiplier = fanVal / marketVal;
             formula = "Team Attendance / League Average Attendance";
+            if (activeTargets.includes('loyalty_ltv')) {
+                formula = "Strategic Priority Target Alignment (Target Fit)";
+            }
         } else if (factor.id === 'age') {
             const ageDiff = Math.abs(fanVal - idealAge);
             multiplier = ageDiff < 5 ? 1.18 : (ageDiff < 12 ? 1.0 : 0.85);
@@ -304,11 +315,14 @@ async function calculateValuation() {
             multiplier = baseDigitalMult * socialPremium;
             if (isInternational) multiplier *= 1.15; // Global Digital Lift
             formula = "(Market Digital Readiness × Platform Premium) " + (isInternational ? "× Global Lift" : "");
+            if (activeTargets.includes('digital')) {
+                formula = "Strategic Priority Target Alignment (Target Fit)";
+            }
             factor.impact = multiplier > 1.2 ? "Social Reach Premium" : "Platform Standard";
             if (isInternational) factor.impact += " (Global)";
         } else {
             // Standard target alignment for other factors
-            if (brand.targets.includes(factor.id)) {
+            if (activeTargets.includes(factor.id)) {
                 multiplier = fanVal > marketVal ? 1.25 : 1.1;
                 formula = "Strategic Priority Target Alignment (Target Fit)";
                 if (factor.id === 'multicultural') {
@@ -357,6 +371,11 @@ async function calculateValuation() {
 
     document.getElementById('final-strategic-value').innerText = formatCurrency(baseline * totalMultiplier);
     document.getElementById('total-multiplier').innerText = `${totalMultiplier.toFixed(2)}x combined multiplier`;
+
+    // Only update text if NOT edited by AI
+    if (!currentPersonaTargets) {
+        document.getElementById('persona-delta-text').innerText = brand.persona;
+    }
 
     let personaText = brand.persona + " Valuation adjusted for target demographic alignment.";
     if (zipCode && zipCode.length === 5) {
@@ -722,4 +741,55 @@ window.addEventListener('load', () => {
     // Default selections
     marketASelect.value = 'newyork';
     marketBSelect.value = 'lakers';
+
+    // Initial load
+    calculateValuation();
+});
+
+// AI Strategic Interpretation Logic
+function performAIAdjustment() {
+    const text = document.getElementById('persona-delta-text').innerText.toLowerCase();
+    const status = document.getElementById('ai-status');
+
+    status.innerText = 'Analyzing...';
+    status.classList.add('working');
+
+    setTimeout(() => {
+        const newTargets = [];
+        const keywords = {
+            hhi: ['income', 'wealth', 'rich', 'hhi', 'affluent', 'premium', 'high-end'],
+            age: ['young', 'youth', 'millennial', 'gen z', 'age', 'generation', 'old', 'senior'],
+            digital: ['digital', 'tech', 'online', 'social', 'internet', 'halo', 'engagement'],
+            multicultural: ['diverse', 'multicultural', 'race', 'global', 'diversity', 'equity', 'growth'],
+            hh_structure: ['family', 'children', 'kids', 'households', 'structure', 'density'],
+            loyalty_ltv: ['loyalty', 'attendance', 'fans', 'tickets', 'ltv', 'stadium'],
+            education: ['education', 'degree', 'smart', 'university', 'college', 'knowledge'],
+            life_stage: ['owner', 'renter', 'stage', 'intent', 'buying']
+        };
+
+        Object.keys(keywords).forEach(factorId => {
+            if (keywords[factorId].some(k => text.includes(k))) {
+                newTargets.push(factorId);
+            }
+        });
+
+        currentPersonaTargets = newTargets.length > 0 ? newTargets : null;
+        status.innerText = currentPersonaTargets ? 'AI Updated' : 'Reset';
+        status.classList.remove('working');
+
+        // Trigger recalculation with new AI targets
+        calculateValuation();
+    }, 800);
+}
+
+document.getElementById('persona-delta-text').addEventListener('blur', performAIAdjustment);
+
+document.getElementById('target-brand').addEventListener('change', (e) => {
+    currentPersonaTargets = null;
+    const brand = brandProfiles[e.target.value];
+    if (brand) {
+        document.getElementById('persona-delta-text').innerText = brand.persona;
+        document.getElementById('ai-status').innerText = 'Ready';
+        calculateValuation();
+    }
 });

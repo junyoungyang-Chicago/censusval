@@ -439,6 +439,24 @@ select:focus {
     font-weight: 300;
 }
 
+.ai-status-badge {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(22, 103, 233, 0.2);
+    color: var(--primary-color);
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-weight: 700;
+    transition: all 0.3s;
+}
+
+.ai-status-badge.working {
+    background: #7000ff;
+    color: white;
+    filter: drop-shadow(0 0 5px #7000ff);
+}
+
 /* Table Styles */
 .matrix-container {
     width: 100%;
