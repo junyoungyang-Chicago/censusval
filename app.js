@@ -134,12 +134,12 @@ async function fetchCensusData(marketKey, zipCode = null) {
 
     let url;
     if (zipCode) {
-        const variables = 'B01003_001E,B19013_001E,B01002_001E';
+        const variables = 'B01003_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E';
         url = `${CENSUS_API_BASE}?get=${variables}&for=zip%20code%20tabulation%20area:${zipCode}`;
     } else {
         const geo = marketMapping[marketKey];
         if (!geo) throw new Error(`Market key "${marketKey}" not found.`);
-        const variables = 'B01003_001E,B19013_001E,B01002_001E';
+        const variables = 'B01003_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E';
         url = `${CENSUS_API_BASE}?get=${variables}&for=place:${geo.place}&in=state:${geo.state}`;
     }
 
@@ -156,11 +156,14 @@ async function fetchCensusData(marketKey, zipCode = null) {
         const data = JSON.parse(rawData);
         const values = data[1];
 
+        const total_pop_b03002 = parseInt(values[3]) || 1;
+        const non_hispanic_white = parseInt(values[4]) || 0;
+
         const result = {
             total_pop: parseInt(values[0]),
             hhi: parseInt(values[1]),
             age: parseFloat(values[2]),
-            multicultural: 0.28,
+            multicultural: (total_pop_b03002 - non_hispanic_white) / total_pop_b03002,
             gender: 0.51,
             life_stage: 0.45,
             education: 0.42,
