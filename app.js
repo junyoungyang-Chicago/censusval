@@ -270,52 +270,65 @@ async function calculateValuation() {
         let multiplier = 1.0;
 
         // Revised Benchmarking & Ideal Demographic Alignment Logic: Market vs Goal
+        let formula = "";
         if (factor.id === 'total_pop') {
             multiplier = marketVal / LEAGUE_AVERAGES.total_pop;
+            formula = "Local Population / League Average Population";
         } else if (factor.id === 'reach') {
             multiplier = marketVal / LEAGUE_AVERAGES.reach;
+            formula = "Local Households / League Average Households";
         } else if (factor.id === 'hhi') {
             const hhiLift = fanVal / marketVal;
             const alignment = fanVal / idealHhi;
             multiplier = hhiLift * (alignment > 1 ? 1.15 : alignment);
             factor.impact = alignment >= 1 ? `Premium Fit ($${Math.round(fanVal / 1000)}k fans)` : `Target Gap ($${Math.round(fanVal / 1000)}k fans)`;
+            formula = "(Fan HHI / Market HHI) × Brand Alignment Multiplier";
         } else if (factor.id === 'hh_structure') {
             marketVal = market.hh_size || factor.us_avg;
             fanVal = marketVal * 1.05;
             multiplier = fanVal / marketVal;
+            formula = "Fan Household Size / Market Average Household Size";
         } else if (factor.id === 'loyalty_ltv') {
             marketVal = LEAGUE_AVERAGES.attendance;
             fanVal = teamAttendance;
             multiplier = fanVal / marketVal;
+            formula = "Team Attendance / League Average Attendance";
         } else if (factor.id === 'age') {
             const ageDiff = Math.abs(fanVal - idealAge);
             multiplier = ageDiff < 5 ? 1.18 : (ageDiff < 12 ? 1.0 : 0.85);
+            formula = `Age Variance: ${ageDiff.toFixed(1)} years vs Brand Target`;
             factor.impact = ageDiff < 5 ? `Generation Fit (${fanVal.toFixed(1)} fans)` : `Age Mismatch (${fanVal.toFixed(1)} fans)`;
         } else if (factor.id === 'digital') {
             const baseDigitalMult = marketVal >= idealDigital ? 1.2 : 0.85;
             const socialPremium = assetType === 'Social' ? 1.25 : 1.0;
             multiplier = baseDigitalMult * socialPremium;
             if (isInternational) multiplier *= 1.15; // Global Digital Lift
+            formula = "(Market Digital Readiness × Platform Premium) " + (isInternational ? "× Global Lift" : "");
             factor.impact = multiplier > 1.2 ? "Social Reach Premium" : "Platform Standard";
             if (isInternational) factor.impact += " (Global)";
         } else {
             // Standard target alignment for other factors
             if (brand.targets.includes(factor.id)) {
                 multiplier = fanVal > marketVal ? 1.25 : 1.1;
+                formula = "Strategic Priority Target Alignment (Target Fit)";
                 if (factor.id === 'multicultural') {
                     if (brandName === 'International Brand') {
                         multiplier = 1.45; // Enhanced diversity weight
                         factor.impact = "Diversity Power Multiplier";
+                        formula = "International Brand Strategy: Fixed Diversity Multiplier";
                     } else if (isInternational) {
                         multiplier *= 1.15; // Multicultural Strategic Lift for Global Brands
                         factor.impact = "Global Diversity Premium";
+                        formula = "Global Brand Strategic Diversity Lift";
                     }
                 }
             } else {
                 multiplier = 1.02;
+                formula = "Standard Market Base Lift";
                 if (factor.id === 'multicultural' && isInternational) {
                     multiplier = 1.15;
                     factor.impact = "Global Reach Entry";
+                    formula = "Global Brand Base Entry Weight";
                 }
             }
         }
@@ -332,7 +345,9 @@ async function calculateValuation() {
             <td>${formatValue(factor.id, marketVal)}</td>
             <td>${formatValue(factor.id, fanVal)}</td>
             <td>${formatValue(factor.id, factor.us_avg)}</td>
-            <td><span class="multiplier-val">${multiplier.toFixed(3)}x</span></td>
+            <td class="multiplier-cell">
+                <span class="multiplier-val" data-formula="${formula}">${multiplier.toFixed(3)}x</span>
+            </td>
             <td><span class="impact-${multiplier > 1.2 ? 'high' : 'neutral'}">
                 ${factor.impact || 'Standard Lift'}
             </span></td>
