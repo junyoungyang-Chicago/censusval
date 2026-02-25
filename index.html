@@ -192,8 +192,18 @@
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                 <h3 style="margin: 0;">Persona Delta</h3>
-                                <span class="ai-status-badge" id="ai-status">Ready</span>
+                                <div id="ai-status-container" style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="ai-status-badge" id="ai-status">Ready</span>
+                                </div>
                             </div>
+
+                            <div id="ai-affected-header" style="margin-bottom: 1rem; display: none;">
+                                <div
+                                    style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                    Strategic Impact Factors:</div>
+                                <div id="affected-factors-list" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                            </div>
+
                             <div id="persona-delta-text" contenteditable="true"
                                 title="Click to edit strategy. AI will interpret your text."
                                 style="font-size: 1.1rem; color: var(--text-primary); font-weight: 300; line-height: 1.6; min-height: 80px; padding: 10px; border-radius: 8px; border: 1px solid transparent; transition: all 0.3s; cursor: text; outline: none;"

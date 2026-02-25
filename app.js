@@ -350,6 +350,14 @@ async function calculateValuation() {
         totalMultiplier *= multiplier;
 
         const row = document.createElement('tr');
+        if (activeTargets.includes(factor.id)) {
+            row.classList.add('ai-affected-row');
+            // Ensure even highlighted rows show the impact if they are new strategic targets
+            if (currentPersonaTargets && currentPersonaTargets.includes(factor.id) && !brand.targets.includes(factor.id)) {
+                factor.impact = "Strategic AI Target";
+            }
+        }
+
         row.innerHTML = `
             <td>
                 <div class="factor-name">${factor.label}</div>
@@ -375,13 +383,13 @@ async function calculateValuation() {
     // Only update text if NOT edited by AI
     if (!currentPersonaTargets) {
         document.getElementById('persona-delta-text').innerText = brand.persona;
-    }
 
-    let personaText = brand.persona + " Valuation adjusted for target demographic alignment.";
-    if (zipCode && zipCode.length === 5) {
-        personaText = `[ZIP ${zipCode} Analysis] ` + personaText;
+        let personaText = brand.persona + " Valuation adjusted for target demographic alignment.";
+        if (zipCode && zipCode.length === 5) {
+            personaText = `[ZIP ${zipCode} Analysis] ` + personaText;
+        }
+        document.getElementById('persona-delta-text').innerText = personaText;
     }
-    document.getElementById('persona-delta-text').innerText = personaText;
     document.getElementById('results-section').classList.remove('hidden');
 }
 
@@ -757,18 +765,25 @@ function performAIAdjustment() {
     setTimeout(() => {
         const newTargets = [];
         const keywords = {
-            hhi: ['income', 'wealth', 'rich', 'hhi', 'affluent', 'premium', 'high-end'],
-            age: ['young', 'youth', 'millennial', 'gen z', 'age', 'generation', 'old', 'senior'],
-            digital: ['digital', 'tech', 'online', 'social', 'internet', 'halo', 'engagement'],
-            multicultural: ['diverse', 'multicultural', 'race', 'global', 'diversity', 'equity', 'growth'],
-            hh_structure: ['family', 'children', 'kids', 'households', 'structure', 'density'],
-            loyalty_ltv: ['loyalty', 'attendance', 'fans', 'tickets', 'ltv', 'stadium'],
-            education: ['education', 'degree', 'smart', 'university', 'college', 'knowledge'],
-            life_stage: ['owner', 'renter', 'stage', 'intent', 'buying']
+            total_pop: ['volume', 'scale', 'population', 'size', 'big', 'large', 'mass', 'denstiy', 'broad'],
+            reach: ['reach', 'households', 'wallets', 'delivery', 'saturation', 'coverage'],
+            hhi: ['income', 'wealth', 'rich', 'hhi', 'affluent', 'premium', 'high-end', 'money', 'stability', 'personalized', 'trust'],
+            age: ['young', 'youth', 'millennial', 'gen z', 'age', 'generation', 'old', 'senior', 'years', 'skewing', 'audience', 'demographic'],
+            digital: ['digital', 'tech', 'online', 'social', 'internet', 'halo', 'engagement', 'platform', 'modern', 'pop-culture'],
+            multicultural: ['diverse', 'multicultural', 'race', 'global', 'diversity', 'equity', 'growth', 'esg', 'culturally'],
+            hh_structure: ['family', 'families', 'children', 'kids', 'households', 'structure', 'density'],
+            loyalty_ltv: ['loyalty', 'attendance', 'fans', 'tickets', 'ltv', 'stadium', 'loyal'],
+            education: ['education', 'degree', 'smart', 'university', 'college', 'knowledge', 'degree'],
+            life_stage: ['owner', 'renter', 'stage', 'intent', 'buying', 'home']
         };
 
+        const ageRangeRegex = /\d{1,2}-\d{1,2}/;
+
         Object.keys(keywords).forEach(factorId => {
-            if (keywords[factorId].some(k => text.includes(k))) {
+            const hasKeyword = keywords[factorId].some(k => text.includes(k));
+            const isAgeRangeMatch = factorId === 'age' && ageRangeRegex.test(text);
+
+            if (hasKeyword || isAgeRangeMatch) {
                 newTargets.push(factorId);
             }
         });
@@ -777,9 +792,29 @@ function performAIAdjustment() {
         status.innerText = currentPersonaTargets ? 'AI Updated' : 'Reset';
         status.classList.remove('working');
 
+        // Show affected factors
+        const header = document.getElementById('ai-affected-header');
+        const listContainer = document.getElementById('affected-factors-list');
+        listContainer.innerHTML = '';
+
+        if (currentPersonaTargets) {
+            currentPersonaTargets.forEach(id => {
+                const f = factors.find(fact => fact.id === id);
+                if (f) {
+                    const tag = document.createElement('span');
+                    tag.innerText = f.label;
+                    tag.style.cssText = 'font-size: 0.65rem; background: rgba(0, 255, 136, 0.1); color: #00ff88; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0, 255, 136, 0.3); font-weight: 600;';
+                    listContainer.appendChild(tag);
+                }
+            });
+            header.style.display = 'block';
+        } else {
+            header.style.display = 'none';
+        }
+
         // Trigger recalculation with new AI targets
         calculateValuation();
-    }, 800);
+    }, 50);
 }
 
 document.getElementById('persona-delta-text').addEventListener('blur', performAIAdjustment);
@@ -790,6 +825,7 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
     if (brand) {
         document.getElementById('persona-delta-text').innerText = brand.persona;
         document.getElementById('ai-status').innerText = 'Ready';
+        document.getElementById('ai-affected-header').style.display = 'none';
         calculateValuation();
     }
 });

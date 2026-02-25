@@ -310,6 +310,16 @@ select:focus {
     background: rgba(22, 103, 233, 0.05) !important;
 }
 
+.ai-affected-row {
+    background: rgba(0, 255, 136, 0.05) !important;
+    border-left: 4px solid var(--success-color);
+}
+
+.ai-affected-row .factor-name {
+    color: var(--success-color);
+    font-weight: 700;
+}
+
 .target-tag {
     font-size: 0.7rem;
     text-transform: uppercase;
