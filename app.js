@@ -20,36 +20,36 @@ const factors = [
 ];
 
 const marketMapping = {
-    atlanta: { state: '13', place: '04000', label: 'Atlanta, GA (Hawks)', avg_attendance: 17500 },
-    boston: { state: '25', place: '07000', label: 'Boston, MA (Celtics)', avg_attendance: 19156 },
-    brooklyn: { state: '36', county: '047', label: 'Brooklyn, NY (Nets)', avg_attendance: 17900 },
-    charlotte: { state: '37', place: '12000', label: 'Charlotte, NC (Hornets)', avg_attendance: 17150 },
-    chicago: { state: '17', place: '14000', label: 'Chicago, IL (Bulls)', avg_attendance: 20624 },
-    cleveland: { state: '39', place: '16000', label: 'Cleveland, OH (Cavaliers)', avg_attendance: 19432 },
-    dallas: { state: '48', place: '19000', label: 'Dallas, TX (Mavericks)', avg_attendance: 20217 },
-    denver: { state: '08', place: '20000', label: 'Denver, CO (Nuggets)', avg_attendance: 19688 },
-    detroit: { state: '26', place: '22000', label: 'Detroit, MI (Pistons)', avg_attendance: 18150 },
-    sanfrancisco: { state: '06', place: '67000', label: 'San Francisco, CA (Warriors)', avg_attendance: 18064 },
-    houston: { state: '48', place: '35000', label: 'Houston, TX (Rockets)', avg_attendance: 17400 },
-    indianapolis: { state: '18', place: '36000', label: 'Indianapolis, IN (Pacers)', avg_attendance: 16500 },
-    lakers: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers)', avg_attendance: 18997, offsets: { hhi: 1.15, digital: 1.08, age: 2, attendance: 1.05, education: 1.10, life_stage: 1.05 } },
-    clippers: { state: '06', place: '44000', label: 'Los Angeles, CA (Clippers)', avg_attendance: 18450, offsets: { hhi: 0.94, digital: 1.02, multicultural: 1.15, age: -3, education: 0.95, hh_size: 0.90 } },
-    memphis: { state: '47', place: '48000', label: 'Memphis, TN (Grizzlies)', avg_attendance: 16500 },
-    miami: { state: '12', place: '45000', label: 'Miami, FL (Heat)', avg_attendance: 19600 },
-    milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', avg_attendance: 17500 },
-    minneapolis: { state: '27', place: '43000', label: 'Minneapolis, MN (Timberwolves)', avg_attendance: 18024 },
-    neworleans: { state: '22', place: '55000', label: 'New Orleans, LA (Pelicans)', avg_attendance: 16800 },
-    newyork: { state: '36', county: '061', label: 'New York, NY (Knicks)', avg_attendance: 19812 },
-    oklahomacity: { state: '40', place: '55000', label: 'Oklahoma City, OK (Thunder)', avg_attendance: 18203 },
-    orlando: { state: '12', place: '53000', label: 'Orlando, FL (Magic)', avg_attendance: 18846 },
-    philadelphia: { state: '42', place: '60000', label: 'Philadelphia, PA (76ers)', avg_attendance: 20041 },
-    phoenix: { state: '04', place: '55000', label: 'Phoenix, AZ (Suns)', avg_attendance: 17071 },
-    portland: { state: '41', place: '59000', label: 'Portland, OR (Trail Blazers)', avg_attendance: 18712 },
-    sacramento: { state: '06', place: '64000', label: 'Sacramento, CA (Kings)', avg_attendance: 17911 },
-    sanantonio: { state: '48', place: '65000', label: 'San Antonio, TX (Spurs)', avg_attendance: 18324 },
-    saltlakecity: { state: '49', place: '67000', label: 'Salt Lake City, UT (Jazz)', avg_attendance: 18206 },
-    washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', avg_attendance: 17800 },
-    toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777 }
+    atlanta: { state: '13', place: '04000', label: 'Atlanta, GA (Hawks)', avg_attendance: 17500, color: '#E03A3E', textColor: 'white' },
+    boston: { state: '25', place: '07000', label: 'Boston, MA (Celtics)', avg_attendance: 19156, color: '#007A33', textColor: 'white' },
+    brooklyn: { state: '36', county: '047', label: 'Brooklyn, NY (Nets)', avg_attendance: 17900, color: '#000000', textColor: 'white' },
+    charlotte: { state: '37', place: '12000', label: 'Charlotte, NC (Hornets)', avg_attendance: 17150, color: '#1D1160', textColor: 'white' },
+    chicago: { state: '17', place: '14000', label: 'Chicago, IL (Bulls)', avg_attendance: 20624, color: '#CE1141', textColor: 'white' },
+    cleveland: { state: '39', place: '16000', label: 'Cleveland, OH (Cavaliers)', avg_attendance: 19432, color: '#860038', textColor: 'white' },
+    dallas: { state: '48', place: '19000', label: 'Dallas, TX (Mavericks)', avg_attendance: 20217, color: '#00538C', textColor: 'white' },
+    denver: { state: '08', place: '20000', label: 'Denver, CO (Nuggets)', avg_attendance: 19688, color: '#0E2240', textColor: 'white' },
+    detroit: { state: '26', place: '22000', label: 'Detroit, MI (Pistons)', avg_attendance: 18150, color: '#C8102E', textColor: 'white' },
+    sanfrancisco: { state: '06', place: '67000', label: 'San Francisco, CA (Warriors)', avg_attendance: 18064, color: '#1D428A', textColor: 'white' },
+    houston: { state: '48', place: '35000', label: 'Houston, TX (Rockets)', avg_attendance: 17400, color: '#CE1141', textColor: 'white' },
+    indianapolis: { state: '18', place: '36000', label: 'Indianapolis, IN (Pacers)', avg_attendance: 16500, color: '#002D62', textColor: 'white' },
+    lakers: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers)', avg_attendance: 18997, color: '#552583', textColor: 'white', offsets: { hhi: 1.15, digital: 1.08, age: 2, attendance: 1.05, education: 1.10, life_stage: 1.05 } },
+    clippers: { state: '06', place: '44000', label: 'Los Angeles, CA (Clippers)', avg_attendance: 18450, color: '#C8102E', textColor: 'white', offsets: { hhi: 0.94, digital: 1.02, multicultural: 1.15, age: -3, education: 0.95, hh_size: 0.90 } },
+    memphis: { state: '47', place: '48000', label: 'Memphis, TN (Grizzlies)', avg_attendance: 16500, color: '#5D76A9', textColor: 'white' },
+    miami: { state: '12', place: '45000', label: 'Miami, FL (Heat)', avg_attendance: 19600, color: '#98002E', textColor: 'white' },
+    milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', avg_attendance: 17500, color: '#00471B', textColor: 'white' },
+    minneapolis: { state: '27', place: '43000', label: 'Minneapolis, MN (Timberwolves)', avg_attendance: 18024, color: '#0C2340', textColor: 'white' },
+    neworleans: { state: '22', place: '55000', label: 'New Orleans, LA (Pelicans)', avg_attendance: 16800, color: '#0C2340', textColor: 'white' },
+    newyork: { state: '36', county: '061', label: 'New York, NY (Knicks)', avg_attendance: 19812, color: '#006BB6', textColor: 'white' },
+    oklahomacity: { state: '40', place: '55000', label: 'Oklahoma City, OK (Thunder)', avg_attendance: 18203, color: '#007AC1', textColor: 'white' },
+    orlando: { state: '12', place: '53000', label: 'Orlando, FL (Magic)', avg_attendance: 18846, color: '#0077C0', textColor: 'white' },
+    philadelphia: { state: '42', place: '60000', label: 'Philadelphia, PA (76ers)', avg_attendance: 20041, color: '#006BB6', textColor: 'white' },
+    phoenix: { state: '04', place: '55000', label: 'Phoenix, AZ (Suns)', avg_attendance: 17071, color: '#1D1160', textColor: 'white' },
+    portland: { state: '41', place: '59000', label: 'Portland, OR (Trail Blazers)', avg_attendance: 18712, color: '#E03A3E', textColor: 'white' },
+    sacramento: { state: '06', place: '64000', label: 'Sacramento, CA (Kings)', avg_attendance: 17911, color: '#5A2D81', textColor: 'white' },
+    sanantonio: { state: '48', place: '65000', label: 'San Antonio, TX (Spurs)', avg_attendance: 18324, color: '#C4CED4', textColor: 'black' },
+    saltlakecity: { state: '49', place: '67000', label: 'Salt Lake City, UT (Jazz)', avg_attendance: 18206, color: '#002B5C', textColor: 'white' },
+    washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', avg_attendance: 17800, color: '#002B5C', textColor: 'white' },
+    toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777, color: '#CE1141', textColor: 'white' }
 };
 
 const brandProfiles = {
@@ -592,7 +592,7 @@ if (initialBrand) {
     document.getElementById('digital-focus-val').innerText = (initialBrand.idealDigital * 100) + '%';
 }
 
-// Update team name and attendance field based on selection
+// Update team name, attendance, and branding based on selection
 document.getElementById('market-dma').addEventListener('change', (e) => {
     const marketKey = e.target.value;
     const market = marketMapping[marketKey];
@@ -603,9 +603,31 @@ document.getElementById('market-dma').addEventListener('change', (e) => {
     if (market && market.avg_attendance) {
         document.getElementById('team-attendance').value = market.avg_attendance;
     }
+
+    updateTeamBranding(marketKey);
 });
 
-// Sync initial team name and attendance
+function updateTeamBranding(marketKey) {
+    const market = marketMapping[marketKey];
+    const card = document.querySelector('.final-value-card');
+    if (market && card) {
+        card.style.backgroundColor = market.color || 'var(--primary-color)';
+        card.style.color = market.textColor || 'white';
+
+        const label = card.querySelector('label');
+        if (label) {
+            label.style.color = market.textColor === 'white' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
+        }
+
+        const badge = card.querySelector('.multiplier-badge');
+        if (badge) {
+            badge.style.background = market.textColor === 'white' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)';
+            badge.style.color = market.textColor || 'white';
+        }
+    }
+}
+
+// Sync initial team branding
 const initialMarketKey = document.getElementById('market-dma').value;
 const initialMarket = marketMapping[initialMarketKey];
 const initialLabel = document.getElementById('market-dma').options[document.getElementById('market-dma').selectedIndex].text;
@@ -613,6 +635,7 @@ document.getElementById('team-name').value = initialLabel.match(/\((.*?)\)/)?.[1
 if (initialMarket && initialMarket.avg_attendance) {
     document.getElementById('team-attendance').value = initialMarket.avg_attendance;
 }
+updateTeamBranding(initialMarketKey);
 
 // Toggle attendance visibility based on asset type
 document.getElementById('asset-name').addEventListener('change', (e) => {
