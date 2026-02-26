@@ -22,7 +22,7 @@ const factors = [
 const marketMapping = {
     atlanta: { state: '13', place: '04000', label: 'Atlanta, GA (Hawks)', avg_attendance: 17500 },
     boston: { state: '25', place: '07000', label: 'Boston, MA (Celtics)', avg_attendance: 19156 },
-    brooklyn: { state: '36', place: '51000', label: 'Brooklyn, NY (Nets)', avg_attendance: 17900 },
+    brooklyn: { state: '36', county: '047', label: 'Brooklyn, NY (Nets)', avg_attendance: 17900 },
     charlotte: { state: '37', place: '12000', label: 'Charlotte, NC (Hornets)', avg_attendance: 17150 },
     chicago: { state: '17', place: '14000', label: 'Chicago, IL (Bulls)', avg_attendance: 20624 },
     cleveland: { state: '39', place: '16000', label: 'Cleveland, OH (Cavaliers)', avg_attendance: 19432 },
@@ -39,7 +39,7 @@ const marketMapping = {
     milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', avg_attendance: 17500 },
     minneapolis: { state: '27', place: '43000', label: 'Minneapolis, MN (Timberwolves)', avg_attendance: 18024 },
     neworleans: { state: '22', place: '55000', label: 'New Orleans, LA (Pelicans)', avg_attendance: 16800 },
-    newyork: { state: '36', place: '51000', label: 'New York, NY (Knicks)', avg_attendance: 19812 },
+    newyork: { state: '36', county: '061', label: 'New York, NY (Knicks)', avg_attendance: 19812 },
     oklahomacity: { state: '40', place: '55000', label: 'Oklahoma City, OK (Thunder)', avg_attendance: 18203 },
     orlando: { state: '12', place: '53000', label: 'Orlando, FL (Magic)', avg_attendance: 18846 },
     philadelphia: { state: '42', place: '60000', label: 'Philadelphia, PA (76ers)', avg_attendance: 20041 },
@@ -157,7 +157,11 @@ async function fetchCensusData(marketKey, zipCode = null) {
         }
 
         const variables = 'B11001_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E,B19001_001E,B19001_017E,B24011_001E,B24011_002E';
-        url = `${CENSUS_API_BASE}?get=${variables}&for=place:${geo.place}&in=state:${geo.state}`;
+        if (geo.county) {
+            url = `${CENSUS_API_BASE}?get=${variables}&for=county:${geo.county}&in=state:${geo.state}`;
+        } else {
+            url = `${CENSUS_API_BASE}?get=${variables}&for=place:${geo.place}&in=state:${geo.state}`;
+        }
     }
 
     try {
