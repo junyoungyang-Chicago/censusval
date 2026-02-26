@@ -156,7 +156,7 @@ async function fetchCensusData(marketKey, zipCode = null) {
             return result;
         }
 
-        const variables = 'B11001_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E,B19001_001E,B19001_017E,B24011_001E,B24011_002E';
+        const variables = 'B11001_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E,B19001_001E,B19001_017E,B24011_001E,B24011_002E,B25003_001E,B25003_002E';
         if (geo.county) {
             url = `${CENSUS_API_BASE}?get=${variables}&for=county:${geo.county}&in=state:${geo.state}`;
         } else {
@@ -183,13 +183,15 @@ async function fetchCensusData(marketKey, zipCode = null) {
         const hh_200k = parseInt(values[6]) || 0;
         const workforce_total = parseInt(values[7]) || 1;
         const workforce_mgmt = parseInt(values[8]) || 0;
+        const tenure_total = parseInt(values[9]) || 1;
+        const tenure_owner = parseInt(values[10]) || 0;
 
         const result = {
             hhi: parseInt(values[1]),
             age: parseFloat(values[2]),
             multicultural: (total_pop_b03002 - non_hispanic_white) / total_pop_b03002,
             gender: 0.51,
-            life_stage: 0.45,
+            life_stage: tenure_owner / tenure_total,
             education: 0.42,
             digital: 0.85 + (Math.random() * 0.1),
             hh_size: 2.6,
@@ -230,7 +232,7 @@ async function fetchCensusData(marketKey, zipCode = null) {
             age: 32 + (Math.random() * 8),
             multicultural: 0.45,
             gender: 0.50,
-            life_stage: 0.45,
+            life_stage: 0.65,
             education: 0.35,
             digital: 0.82,
             hh_size: 2.5,
@@ -307,11 +309,11 @@ async function calculateValuation() {
         let marketVal = market[factor.id] || factor.us_avg;
         if (factor.id === 'hh_structure') marketVal = market.hh_size || factor.us_avg;
         if (factor.id === 'strategic_affluence') {
-            marketVal = ((market.hhi / 75000) * 0.7) + ((market.affluence_burst / 0.095) * 0.2) + 0.1;
+            marketVal = ((market.hhi / 75000) * 0.7) + ((market.affluence_burst / 0.06) * 0.2) + 0.1;
         }
 
         let fanVal = factor.id === 'strategic_affluence' ?
-            (((market.hhi * 1.18) / 75000) * 0.8) + (((market.affluence_burst * 1.05) / 0.095) * 0.1) + 0.1 :
+            (((market.hhi * 1.18) / 75000) * 0.8) + (((market.affluence_burst * 1.05) / 0.06) * 0.1) + 0.1 :
             (factor.id === 'strategic_life_stage' ? 1.0 : (factor.id === 'age' ? marketVal * 0.96 : marketVal * 1.08));
 
         if (factor.id === 'hh_structure') fanVal = marketVal * 1.05;
@@ -329,7 +331,7 @@ async function calculateValuation() {
             const w2 = Math.log(fanHhi / idealHhi);        // Brand Fit
             const hhiMult = Math.exp((0.6 * w2) + (0.4 * w1));
 
-            const affLift = (market.affluence_burst * 1.05) / 0.055;
+            const affLift = (market.affluence_burst * 1.05) / 0.06;
 
             currentHhiMult = hhiMult;
             currentAffMult = affLift;
