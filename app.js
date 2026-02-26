@@ -738,6 +738,7 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
     } finally {
         btn.innerText = originalText;
         btn.disabled = false;
+        btn.style.setProperty('--progress', '0%');
     }
 });
 
