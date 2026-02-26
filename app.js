@@ -48,7 +48,8 @@ const marketMapping = {
     sacramento: { state: '06', place: '64000', label: 'Sacramento, CA (Kings)', avg_attendance: 17911 },
     sanantonio: { state: '48', place: '65000', label: 'San Antonio, TX (Spurs)', avg_attendance: 18324 },
     saltlakecity: { state: '49', place: '67000', label: 'Salt Lake City, UT (Jazz)', avg_attendance: 18206 },
-    washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', avg_attendance: 17800 }
+    washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', avg_attendance: 17800 },
+    toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777 }
 };
 
 const brandProfiles = {
@@ -137,6 +138,24 @@ async function fetchCensusData(marketKey, zipCode = null) {
     } else {
         const geo = marketMapping[marketKey];
         if (!geo) throw new Error(`Market key "${marketKey}" not found.`);
+
+        if (geo.isCanada) {
+            // Toronto static data (US-normalized estimates from CDA Census 2021)
+            const result = {
+                population: 2794356,
+                hh_size: 2.6,
+                hhi: 65000,
+                age: 39.2,
+                multicultural: 0.515,
+                affluence_burst: 0.068,
+                life_stage: 0.53,
+                digital: 0.88,
+                education: 0.44
+            };
+            censusCache[cacheKey] = result;
+            return result;
+        }
+
         const variables = 'B11001_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E,B19001_001E,B19001_017E,B24011_001E,B24011_002E';
         url = `${CENSUS_API_BASE}?get=${variables}&for=place:${geo.place}&in=state:${geo.state}`;
     }
