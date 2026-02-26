@@ -268,7 +268,9 @@ async function calculateValuation() {
 
     const matrixBody = document.getElementById('matrix-body');
     matrixBody.innerHTML = '';
-    let totalMultiplier = 1.0 * priorityMod; // Start with strategic priority
+    let totalMultiplier = 1.0 * priorityMod;
+    let currentHhiMult = 1.0;
+    let currentAffMult = 1.0;
 
     factors.forEach(factor => {
         // Exclusion logic: skip LTV (if not Venue), Digital (if Broadcast), Scale (if Efficiency), Reach (if Zip)
@@ -303,6 +305,9 @@ async function calculateValuation() {
             const hhiMult = hhiLift * (hhiAlignment > 1 ? 1.15 : hhiAlignment);
 
             const affLift = (market.affluence_burst * 1.05) / 0.055;
+
+            currentHhiMult = hhiMult;
+            currentAffMult = affLift;
 
             multiplier = (hhiMult * 0.7) + (affLift * 0.2) + 0.1;
 
@@ -428,7 +433,7 @@ async function calculateValuation() {
                 <td>${formatCurrency(market.hhi)}</td>
                 <td>${formatCurrency(market.hhi * 1.18)}</td>
                 <td>$75,000</td>
-                <td>-</td>
+                <td><span class="multiplier-val">${currentHhiMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
             matrixBody.appendChild(hhiRow);
@@ -441,7 +446,7 @@ async function calculateValuation() {
                 <td>${(market.affluence_burst * 100).toFixed(1)}%</td>
                 <td>${(market.affluence_burst * 1.05 * 100).toFixed(1)}%</td>
                 <td>5.5%</td>
-                <td>-</td>
+                <td><span class="multiplier-val">${currentAffMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
             matrixBody.appendChild(burstRow);
