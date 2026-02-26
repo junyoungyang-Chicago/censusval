@@ -789,3 +789,15 @@ input:focus+.slider {
     transition: width 0.3s ease;
     z-index: -1;
 }
+
+#discovery-results {
+    animation: fadeInUp 0.5s ease-out;
+    background: linear-gradient(180deg, rgba(22, 103, 233, 0.08) 0%, rgba(5, 5, 7, 0) 100%) !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+#chart-container canvas {
+    filter: drop-shadow(0 0 10px rgba(22, 103, 233, 0.1));
+}

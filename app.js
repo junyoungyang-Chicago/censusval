@@ -329,14 +329,17 @@ async function calculateValuation() {
             const fanHhi = market.hhi * 1.18;
             const w1 = Math.log(fanHhi / (market.hhi || 1)); // Wealth Position
             const w2 = Math.log(fanHhi / idealHhi);        // Brand Fit
-            const hhiMult = Math.exp((0.6 * w2) + (0.4 * w1));
+            const w2Capped = Math.max(-0.35, Math.min(0.40, w2)); // Capped Brand Fit
+            const hhiMult = Math.exp((0.6 * w2Capped) + (0.4 * w1));
 
-            const affLift = (market.affluence_burst * 1.05) / 0.06;
+            const affLiftRaw = (market.affluence_burst * 1.05) / 0.06;
+            const affLift = Math.max(0.7, Math.min(1.75, affLiftRaw));
 
             currentHhiMult = hhiMult;
             currentAffMult = affLift;
 
             multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
+            multiplier = Math.max(0.85, Math.min(1.35, multiplier));
 
             factor.impact = hhiMult > 1.2 ? "High-Net-Worth Concentration" : "Affluence Precision";
             formula = "(80% Median HHI Lift + 10% Luxury Conc.) + 10% Baseline";
@@ -707,10 +710,15 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDigital, pr
             const fanHhi = market.hhi * 1.18;
             const w1 = Math.log(fanHhi / (market.hhi || 1));
             const w2 = Math.log(fanHhi / idealHhi);
-            const hhiMult = Math.exp((0.6 * w2) + (0.4 * w1));
-            const affLift = (market.affluence_burst * 1.05) / 0.06;
+            const w2Capped = Math.max(-0.35, Math.min(0.40, w2));
+            const hhiMult = Math.exp((0.6 * w2Capped) + (0.4 * w1));
+
+            const affLiftRaw = (market.affluence_burst * 1.05) / 0.06;
+            const affLift = Math.max(0.7, Math.min(1.75, affLiftRaw));
 
             multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
+            multiplier = Math.max(0.85, Math.min(1.35, multiplier));
+
             if (activeTargets.includes('strategic_affluence')) multiplier *= 1.10;
         } else if (factor.id === 'hh_structure') {
             const lsVal = market.hh_size || factor.us_avg;
@@ -755,6 +763,8 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDigital, pr
     return totalMultiplier;
 }
 
+let topFitChart = null;
+
 document.getElementById('find-best-fit-btn').addEventListener('click', async () => {
     const btn = document.getElementById('find-best-fit-btn');
     const resultsDiv = document.getElementById('discovery-results');
@@ -770,8 +780,7 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
     const priorityMod = parseFloat(document.getElementById('brand-priority').value);
     const assetType = document.getElementById('asset-name').value;
 
-    let bestScore = -1;
-    let winner = null;
+    let marketScores = [];
 
     try {
         const keys = Object.keys(marketMapping);
@@ -785,21 +794,26 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
             btn.innerText = `Analyzing ${i + 1}/${total} Markets...`;
 
             const score = await getMultiplierOnly(key, idealAge, idealHhi, idealDigital, priorityMod, assetType);
-            if (score > bestScore) {
-                bestScore = score;
-                winner = key;
-            }
+            marketScores.push({ key, score, label: marketMapping[key].label, color: marketMapping[key].color });
         }
 
+        // Sort and get Top 10
+        marketScores.sort((a, b) => b.score - a.score);
+        const top10 = marketScores.slice(0, 10);
+        const winner = top10[0];
+
         if (winner) {
-            const winningMarket = marketMapping[winner];
-            document.getElementById('market-dma').value = winner;
+            const winningMarket = marketMapping[winner.key];
+            document.getElementById('market-dma').value = winner.key;
             document.getElementById('market-dma').dispatchEvent(new Event('change'));
 
             const isEfficiency = document.getElementById('efficiency-toggle').checked;
-            document.getElementById('winner-text').innerText = winningMarket.label;
-            document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment with a ${bestScore.toFixed(2)}x combined multiplier.`;
+            document.getElementById('winner-text').innerText = `Primary Match: ${winningMarket.label}`;
+            document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment with a ${winner.score.toFixed(2)}x combined multiplier.`;
             resultsDiv.classList.remove('hidden');
+
+            // Render Chart
+            renderTopFitChart(top10);
 
             await calculateValuation();
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
@@ -813,6 +827,64 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
         btn.style.setProperty('--progress', '0%');
     }
 });
+
+function renderTopFitChart(top10) {
+    const ctx = document.getElementById('topFitChart').getContext('2d');
+
+    if (topFitChart) {
+        topFitChart.destroy();
+    }
+
+    topFitChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: top10.map(m => m.label.split(',')[0]), // Just city name for brevity
+            datasets: [{
+                label: 'Strategic Multiplier',
+                data: top10.map(m => m.score),
+                backgroundColor: top10.map(m => m.color || '#1667e9'),
+                borderRadius: 8,
+                borderWidth: 0,
+                barThickness: 25
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // Horizontal bar chart
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 15, 30, 0.95)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: (context) => `Multiplier: ${context.parsed.x.toFixed(2)}x`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                    ticks: { color: 'rgba(255, 255, 255, 0.6)', font: { size: 10 } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#fff',
+                        font: { size: 11, weight: '600' },
+                        autoSkip: false
+                    }
+                }
+            }
+        }
+    });
+}
+
 
 // --- TAB MANAGEMENT ---
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -935,8 +1007,65 @@ async function calculateComparison() {
     document.getElementById('comparison-winner-title').innerText = `Strategic Winner: ${winner}`;
     document.getElementById('comparison-insight').innerText = `${winner} ${leadVerb} this comparison with a ${(delta * 100).toFixed(1)}% strategic advantage based on the ${brandName} persona.`;
 
+    renderComparisonChart(marketA, marketB, labelA, labelB, brand.targets);
+
     document.getElementById('comparison-results').classList.remove('hidden');
 }
+
+let comparisonChart = null;
+function renderComparisonChart(marketA, marketB, labelA, labelB, targets) {
+    const ctx = document.getElementById('comparisonChart').getContext('2d');
+    if (comparisonChart) comparisonChart.destroy();
+
+    const chartFactors = factors.filter(f => f.id !== 'total_pop');
+
+    // Shorten labels for chart
+    const labels = chartFactors.map(f => f.label.replace('Strategic ', ''));
+
+    comparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: labelA.split(',')[0],
+                    data: chartFactors.map(f => marketA[f.id] || 1),
+                    backgroundColor: marketMapping[document.getElementById('compare-market-a').value].color || '#1667e9',
+                    borderRadius: 4,
+                },
+                {
+                    label: labelB.split(',')[0],
+                    data: chartFactors.map(f => marketB[f.id] || 1),
+                    backgroundColor: marketMapping[document.getElementById('compare-market-b').value].color || '#7000ff',
+                    borderRadius: 4,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // HORIZONTAL
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: '#fff', font: { family: 'Outfit', size: 10 } }
+                },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: '#fff', font: { weight: '600', size: 11 } }
+                }
+            }
+        }
+    });
+}
+
 
 document.getElementById('compare-btn').addEventListener('click', calculateComparison);
 

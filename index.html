@@ -11,6 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="dark-theme">
@@ -173,11 +174,26 @@
                         </button>
                     </div>
                     <div id="discovery-results" class="hidden"
-                        style="margin-top: 2rem; padding: 1.5rem; border-radius: 16px; background: rgba(22, 103, 233, 0.05); border: 1px dashed var(--primary-color); text-align: center;">
-                        <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">Discovery Complete</h4>
-                        <div id="winner-text" style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">
+                        style="margin-top: 2rem; padding: 2rem; border-radius: 24px; background: rgba(22, 103, 233, 0.05); border: 1px solid var(--primary-color); text-align: left;">
+                        <h4
+                            style="color: var(--primary-color); margin-bottom: 1.5rem; font-size: 1rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 800;">
+                            Strategic Ranking: Top 10 Fits</h4>
+                        <div style="display: flex; gap: 3rem; align-items: flex-start;">
+                            <div id="chart-container" style="height: 350px; flex: 2; min-width: 0;">
+                                <canvas id="topFitChart"></canvas>
+                            </div>
+                            <div
+                                style="flex: 1; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; min-height: 350px;">
+                                <span
+                                    style="font-size: 0.7rem; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 1rem; display: block;">Primary
+                                    Strategic Match</span>
+                                <div id="winner-text"
+                                    style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: #fff; line-height: 1.2;">
+                                </div>
+                                <p id="winner-reason"
+                                    style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;"></p>
+                            </div>
                         </div>
-                        <p id="winner-reason" style="font-size: 0.9rem; color: var(--text-secondary);"></p>
                     </div>
                 </div>
 
@@ -215,7 +231,7 @@
                     </div>
 
                     <div class="matrix-container card glass-card">
-                        <h2>11-Factor Decision Matrix</h2>
+                        <h2>Factor Decision Matrix</h2>
                         <div class="table-wrapper">
                             <table id="valuation-table">
                                 <thead>
@@ -262,11 +278,15 @@
                                 <label id="score-label-a">Market A</label>
                                 <div id="score-val-a" class="score-num">0.00x</div>
                             </div>
-                            <div class="score-vs-small">VS</div>
+                            <div class="compare-vs-small" style="margin-top: 2rem;">VS</div>
                             <div class="score-card">
                                 <label id="score-label-b">Market B</label>
                                 <div id="score-val-b" class="score-num">0.00x</div>
                             </div>
+                        </div>
+                        <div id="compare-chart-container"
+                            style="height: 300px; width: 100%; margin: 2rem 0; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px;">
+                            <canvas id="comparisonChart"></canvas>
                         </div>
                         <p id="comparison-insight"
                             style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-secondary);"></p>
