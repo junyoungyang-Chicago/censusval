@@ -350,7 +350,8 @@ select:focus {
 }
 
 .action-bar .primary-btn,
-.action-bar .secondary-btn {
+.action-bar .secondary-btn,
+.action-bar .discovery-btn {
     flex: 1;
     margin-top: 0 !important;
 }

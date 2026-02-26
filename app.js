@@ -430,7 +430,7 @@ async function calculateValuation() {
         row.innerHTML = `
             <td>
                 <div class="factor-name">
-                    ${(factor.id === 'strategic_affluence' || factor.id === 'strategic_life_stage') ? `<span class="expand-toggle" onclick="toggleSubRows('${factor.id}', this)">▶</span>` : ''}
+                    ${(factor.id === 'strategic_affluence' || factor.id === 'strategic_life_stage') ? `<span class="expand-toggle expanded" onclick="toggleSubRows('${factor.id}', this)">▼</span>` : ''}
                     ${factor.label}
                 </div>
                 <small style="color: var(--text-secondary)">${factor.calculation}</small>
@@ -450,7 +450,7 @@ async function calculateValuation() {
 
         if (factor.id === 'strategic_affluence') {
             const hhiRow = document.createElement('tr');
-            hhiRow.className = 'sub-row strategic_affluence-detail hidden-sub-row';
+            hhiRow.className = 'sub-row strategic_affluence-detail';
             hhiRow.innerHTML = `
                 <td><div class="factor-name">└ Median Household Income</div></td>
                 <td><span class="census-tag">B19013</span></td>
@@ -463,7 +463,7 @@ async function calculateValuation() {
             matrixBody.appendChild(hhiRow);
 
             const burstRow = document.createElement('tr');
-            burstRow.className = 'sub-row strategic_affluence-detail hidden-sub-row';
+            burstRow.className = 'sub-row strategic_affluence-detail';
             burstRow.innerHTML = `
                 <td><div class="factor-name">└ Affluence Burst ($200k+)</div></td>
                 <td><span class="census-tag">B19001</span></td>
@@ -478,7 +478,7 @@ async function calculateValuation() {
 
         if (factor.id === 'strategic_life_stage') {
             const ageRow = document.createElement('tr');
-            ageRow.className = 'sub-row strategic_life_stage-detail hidden-sub-row';
+            ageRow.className = 'sub-row strategic_life_stage-detail';
             ageRow.innerHTML = `
                 <td><div class="factor-name">└ Age Alignment (Fans)</div></td>
                 <td><span class="census-tag">S0101</span></td>
@@ -491,7 +491,7 @@ async function calculateValuation() {
             matrixBody.appendChild(ageRow);
 
             const lsRow = document.createElement('tr');
-            lsRow.className = 'sub-row strategic_life_stage-detail hidden-sub-row';
+            lsRow.className = 'sub-row strategic_life_stage-detail';
             lsRow.innerHTML = `
                 <td><div class="factor-name">└ Home Ownership Index</div></td>
                 <td><span class="census-tag">B25003</span></td>
