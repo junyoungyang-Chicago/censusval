@@ -301,9 +301,10 @@ async function calculateValuation() {
             multiplier = marketVal / LEAGUE_AVERAGES.reach;
             formula = "Local Households / League Average Households";
         } else if (factor.id === 'strategic_affluence') {
-            const hhiLift = (market.hhi * 1.18) / (market.hhi || 1);
-            const hhiAlignment = (market.hhi * 1.18) / idealHhi;
-            const hhiMult = hhiLift * (hhiAlignment > 1 ? 1.15 : hhiAlignment);
+            const fanHhi = market.hhi * 1.18;
+            const w1 = Math.log(fanHhi / (market.hhi || 1)); // Wealth Position
+            const w2 = Math.log(fanHhi / idealHhi);        // Brand Fit
+            const hhiMult = Math.exp((0.6 * w2) + (0.4 * w1));
 
             const affLift = (market.affluence_burst * 1.05) / 0.055;
 
