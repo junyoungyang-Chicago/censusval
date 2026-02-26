@@ -9,7 +9,7 @@ const LEAGUE_AVERAGES = {
 
 const factors = [
     { id: 'reach', label: 'Household Reach', table: 'B11001', calculation: 'Local HH ÷ League Average HH', impact: 'Wallet Premium', us_avg: 450000 },
-    { id: 'strategic_affluence', label: 'Strategic Affluence Index', table: 'B19013/B19001', calculation: '70% HHI Lift + 20% Luxury Conc.', impact: 'Affluence Precision', us_avg: 1.0 },
+    { id: 'strategic_affluence', label: 'Strategic Affluence Index', table: 'B19013/B19001', calculation: '80% HHI Lift + 10% Luxury Conc.', impact: 'Affluence Precision', us_avg: 1.0 },
     { id: 'strategic_life_stage', label: 'Strategic Life Stage Index', table: 'S0101/B25003', calculation: 'Age Alignment + Home/Intent Lift', impact: 'Household Stability', us_avg: 1.0 },
     { id: 'hh_structure', label: 'Household Structure', table: 'B11001', calculation: 'Fan HH Size ÷ DMA Avg HH Size', impact: 'Family Density Lift', us_avg: 2.5 },
     { id: 'loyalty_ltv', label: 'Loyalty (LTV)', table: 'Internal Data', calculation: 'Team Attendance ÷ League Avg Attendance', impact: 'Attendance Premium', us_avg: 18324 },
@@ -288,7 +288,7 @@ async function calculateValuation() {
         }
 
         let fanVal = factor.id === 'strategic_affluence' ?
-            (((market.hhi * 1.18) / 75000) * 0.7) + (((market.affluence_burst * 1.05) / 0.095) * 0.2) + 0.1 :
+            (((market.hhi * 1.18) / 75000) * 0.8) + (((market.affluence_burst * 1.05) / 0.095) * 0.1) + 0.1 :
             (factor.id === 'strategic_life_stage' ? 1.0 : (factor.id === 'age' ? marketVal * 0.96 : marketVal * 1.08));
 
         if (factor.id === 'hh_structure') fanVal = marketVal * 1.05;
@@ -311,13 +311,13 @@ async function calculateValuation() {
             currentHhiMult = hhiMult;
             currentAffMult = affLift;
 
-            multiplier = (hhiMult * 0.7) + (affLift * 0.2) + 0.1;
+            multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
 
             factor.impact = hhiMult > 1.2 ? "High-Net-Worth Concentration" : "Affluence Precision";
-            formula = "(70% Median HHI Lift + 20% Luxury Conc.) + 10% Baseline";
+            formula = "(80% Median HHI Lift + 10% Luxury Conc.) + 10% Baseline";
             if (activeTargets.includes('strategic_affluence')) {
                 multiplier *= 1.10; // Strategic priority boost
-                formula = "(70/20 Composite) + Strategic Alignment";
+                formula = "(80/10 Composite) + Strategic Alignment";
             }
         } else if (factor.id === 'hh_structure') {
             marketVal = market.hh_size || factor.us_avg;
