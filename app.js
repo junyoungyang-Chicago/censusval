@@ -1144,25 +1144,33 @@ document.getElementById('export-pdf').addEventListener('click', () => {
     const brandName = document.getElementById('target-brand').value;
     const marketName = document.getElementById('market-dma').options[document.getElementById('market-dma').selectedIndex].text;
 
-    // Notification for user
+    // Explicit themes for PDF
+    const isDark = document.body.classList.contains('dark-theme');
+    const bgColor = isDark ? '#050507' : '#f5f7fb';
+
+    // Notification
     const originalText = document.getElementById('export-pdf').innerHTML;
     document.getElementById('export-pdf').innerHTML = '<span>⏳</span><span>Generating...</span>';
 
     const opt = {
-        margin: [10, 10, 10, 10],
+        margin: [5, 5, 5, 5],
         filename: `Trajektory_Strategic_Valuation_${brandName.replace(/\s+/g, '_')}_${marketName.split(',')[0].replace(/\s+/g, '_')}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'png', quality: 1.0 },
         html2canvas: {
             scale: 2,
             useCORS: true,
-            backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-color').trim(),
-            scrollY: 0
+            backgroundColor: bgColor,
+            scrollY: 0,
+            scrollX: 0,
+            windowWidth: 1400
         },
-        jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' }
+        jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape', compress: true }
     };
 
-    // Run export
     html2pdf().set(opt).from(element).save().then(() => {
+        document.getElementById('export-pdf').innerHTML = originalText;
+    }).catch(err => {
+        console.error('PDF Export Error:', err);
         document.getElementById('export-pdf').innerHTML = originalText;
     });
 });
