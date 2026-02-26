@@ -747,3 +747,44 @@ input:focus+.slider {
         font-size: 3rem;
     }
 }
+
+/* Discovery Button Progress Bar */
+.discovery-btn {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 1.2rem;
+    border-radius: 12px;
+    background: rgba(22, 103, 233, 0.1);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s;
+    font-family: 'Outfit', sans-serif;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.discovery-btn:hover {
+    background: rgba(22, 103, 233, 0.2);
+    transform: translateY(-2px);
+}
+
+.discovery-btn:disabled {
+    cursor: wait;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.discovery-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress, 0%);
+    background: linear-gradient(90deg, rgba(112, 0, 255, 0.2) 0%, rgba(0, 242, 255, 0.2) 100%);
+    transition: width 0.3s ease;
+    z-index: -1;
+}

@@ -703,7 +703,15 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
 
     try {
         const keys = Object.keys(marketMapping);
-        for (const key of keys) {
+        const total = keys.length;
+
+        for (let i = 0; i < total; i++) {
+            const key = keys[i];
+            const progress = Math.round(((i + 1) / total) * 100);
+
+            btn.style.setProperty('--progress', `${progress}%`);
+            btn.innerText = `Analyzing ${i + 1}/${total} Markets...`;
+
             const score = await getMultiplierOnly(key, idealAge, idealHhi, idealDigital, priorityMod, assetType);
             if (score > bestScore) {
                 bestScore = score;
