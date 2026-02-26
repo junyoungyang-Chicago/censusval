@@ -64,7 +64,7 @@ header {
     background: var(--primary-color);
     width: 50px;
     height: 50px;
-    border-radius: 12px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -101,7 +101,7 @@ h1 span {
 
 .card {
     padding: 2.5rem;
-    border-radius: 24px;
+    border-radius: 12px;
     background: var(--surface-color);
     border: 1px solid var(--surface-border);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -136,7 +136,7 @@ h2 {
     background: rgba(255, 255, 255, 0.1);
     color: var(--primary-color);
     padding: 0.2rem 0.6rem;
-    border-radius: 6px;
+    border-radius: 4px;
 }
 
 .input-group {
@@ -159,7 +159,7 @@ select {
     background: var(--surface-color);
     border: 1px solid var(--surface-border);
     padding: 1rem;
-    border-radius: 12px;
+    border-radius: 6px;
     color: var(--text-primary);
     font-size: 1rem;
     outline: none;
@@ -390,7 +390,7 @@ body.light-theme .action-bar {
     width: 100%;
     margin-top: 1rem;
     padding: 1.25rem;
-    border-radius: 14px;
+    border-radius: 7px;
     border: none;
     background: var(--primary-color);
     color: black;
@@ -425,7 +425,7 @@ body.light-theme .action-bar {
 .final-value-card {
     background: var(--primary-color);
     padding: 3rem;
-    border-radius: 24px;
+    border-radius: 12px;
     color: black;
     display: flex;
     flex-direction: column;
@@ -458,7 +458,7 @@ body.light-theme .action-bar {
     padding: 3rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--surface-border);
-    border-radius: 24px;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -565,7 +565,7 @@ td {
     background: #fff;
     color: #000;
     padding: 0.8rem 1.2rem;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
     white-space: nowrap;
@@ -666,7 +666,7 @@ footer {
     bottom: 0;
     background-color: rgba(255, 255, 255, 0.1);
     transition: .4s;
-    border-radius: 24px;
+    border-radius: 12px;
 }
 
 .slider:before {
@@ -777,7 +777,7 @@ input:focus+.slider {
     margin-top: 1rem;
     width: 100%;
     padding: 1.2rem;
-    border-radius: 12px;
+    border-radius: 6px;
     background: rgba(22, 103, 233, 0.1);
     border: 1px solid var(--primary-color);
     color: var(--primary-color);
@@ -816,7 +816,7 @@ input:focus+.slider {
 #discovery-results {
     margin-top: 2rem;
     padding: 3rem;
-    border-radius: 24px;
+    border-radius: 12px;
     border: 1px solid rgba(22, 103, 233, 0.2);
     text-align: left;
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);

@@ -875,7 +875,7 @@ function renderTopFitChart(top10) {
                     backgroundColor: top10.map(m => m.color || gradient),
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
-                    borderRadius: 6,
+                    borderRadius: 3,
                     barThickness: 22
                 }]
             },

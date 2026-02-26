@@ -26,12 +26,12 @@
                 <p class="tagline">Strategic NBA Market Valuation powered by US Census Data</p>
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <div id="export-pdf"
-                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: var(--primary-color); color: #000; padding: 0.5rem 1rem; border-radius: 12px; font-weight: 700;">
+                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: var(--primary-color); color: #000; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700;">
                         <span style="font-size: 1.2rem;">📄</span>
                         <span style="font-size: 0.8rem; text-transform: uppercase;">Export PDF</span>
                     </div>
                     <div class="theme-toggle" id="theme-switch"
-                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: var(--surface-color); padding: 0.5rem 1rem; border-radius: 12px; border: 1px solid var(--surface-border);">
+                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: var(--surface-color); padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--surface-border);">
                         <span style="font-size: 1.2rem;" id="theme-icon">🌙</span>
                         <span
                             style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Theme</span>
@@ -198,7 +198,7 @@
                                 <canvas id="top-fit-chart-canvas"></canvas>
                             </div>
                             <div
-                                style="flex: 1; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; min-height: 350px;">
+                                style="flex: 1; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; min-height: 350px;">
                                 <span
                                     style="font-size: 0.7rem; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 1rem; display: block;">Primary
                                     Strategic Match</span>
@@ -237,7 +237,7 @@
 
                             <div id="persona-delta-text" contenteditable="true"
                                 title="Click to edit strategy. AI will interpret your text."
-                                style="font-size: 1.1rem; color: var(--text-primary); font-weight: 300; line-height: 1.6; min-height: 80px; padding: 10px; border-radius: 8px; border: 1px solid transparent; transition: all 0.3s; cursor: text; outline: none;"
+                                style="font-size: 1.1rem; color: var(--text-primary); font-weight: 300; line-height: 1.6; min-height: 80px; padding: 10px; border-radius: 4px; border: 1px solid transparent; transition: all 0.3s; cursor: text; outline: none;"
                                 onfocus="this.style.border='1px solid var(--primary-color)'; this.style.background='rgba(255,255,255,0.03)';"
                                 onblur="this.style.border='1px solid transparent'; this.style.background='transparent';">
                                 Loading dynamic strategy...
@@ -300,7 +300,7 @@
                             </div>
                         </div>
                         <div id="compare-chart-container" class="hidden"
-                            style="height: 300px; width: 100%; margin: 2rem 0; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px;">
+                            style="height: 300px; width: 100%; margin: 2rem 0; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 6px;">
                             <canvas id="comparisonChart"></canvas>
                         </div>
                         <p id="comparison-insight"
