@@ -458,7 +458,7 @@ async function calculateValuation() {
         row.innerHTML = `
             <td>
                 <div class="factor-name">
-                    ${(factor.id === 'strategic_affluence' || factor.id === 'strategic_life_stage') ? `<span class="expand-toggle expanded" onclick="toggleSubRows('${factor.id}', this)">▼</span>` : ''}
+                    ${(factor.id === 'strategic_affluence' || factor.id === 'strategic_life_stage') ? `<span class="expand-toggle expanded" onclick="toggleSubRows('${factor.id}', this)">▾</span>` : ''}
                     ${factor.label}
                 </div>
                 <small style="color: var(--text-secondary)">${factor.calculation}</small>
@@ -1069,8 +1069,28 @@ function renderComparisonChart(marketA, marketB, labelA, labelB, targets) {
 
 document.getElementById('compare-btn').addEventListener('click', calculateComparison);
 
-// Initialization: Populate Comparison Dropdowns
+// --- THEME MANAGEMENT ---
+const themeSwitch = document.getElementById('theme-switch');
+const themeIcon = document.getElementById('theme-icon');
+
+function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-theme');
+    document.body.classList.toggle('dark-theme', !isLight);
+    themeIcon.innerText = isLight ? '☀️' : '🌙';
+    localStorage.setItem('census-theme', isLight ? 'light' : 'dark');
+}
+
+themeSwitch.addEventListener('click', toggleTheme);
+
+// Initialization: Populate Comparison Dropdowns & Load Theme
 window.addEventListener('load', () => {
+    const savedTheme = localStorage.getItem('census-theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        document.body.classList.remove('dark-theme');
+        themeIcon.innerText = '☀️';
+    }
+
     const marketASelect = document.getElementById('compare-market-a');
     const marketBSelect = document.getElementById('compare-market-b');
 
@@ -1168,7 +1188,6 @@ function toggleSubRows(factorId, btn) {
     const details = document.querySelectorAll(`.${factorId}-detail`);
 
     btn.classList.toggle('expanded');
-    btn.innerText = isExpanded ? '▶' : '▼';
 
     details.forEach(row => {
         row.classList.toggle('hidden-sub-row');

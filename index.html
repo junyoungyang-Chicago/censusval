@@ -21,7 +21,15 @@
                 <div class="logo-icon">TR</div>
                 <h1>Trajektory <span>Sponsorship Valuator</span></h1>
             </div>
-            <p class="tagline">Strategic NBA Market Valuation powered by US Census Data</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <p class="tagline">Strategic NBA Market Valuation powered by US Census Data</p>
+                <div class="theme-toggle" id="theme-switch"
+                    style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: var(--surface-color); padding: 0.5rem 1rem; border-radius: 12px; border: 1px solid var(--surface-border);">
+                    <span style="font-size: 1.2rem;" id="theme-icon">🌙</span>
+                    <span
+                        style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Theme</span>
+                </div>
+            </div>
         </header>
 
         <main>
@@ -284,7 +292,7 @@
                                 <div id="score-val-b" class="score-num">0.00x</div>
                             </div>
                         </div>
-                        <div id="compare-chart-container"
+                        <div id="compare-chart-container" class="hidden"
                             style="height: 300px; width: 100%; margin: 2rem 0; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px;">
                             <canvas id="comparisonChart"></canvas>
                         </div>
