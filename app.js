@@ -9,14 +9,13 @@ const LEAGUE_AVERAGES = {
 
 const factors = [
     { id: 'reach', label: 'Household Reach', table: 'B11001', calculation: 'Local HH ÷ League Average HH', impact: 'Wallet Premium', us_avg: 450000 },
-    { id: 'strategic_affluence', label: 'Strategic Affluence Index', table: 'B19013/B19001', calculation: '70% HHI Lift + 20% Luxury Conc.', impact: 'Afluence Precision', us_avg: 1.0 },
+    { id: 'strategic_affluence', label: 'Strategic Affluence Index', table: 'B19013/B19001', calculation: '70% HHI Lift + 20% Luxury Conc.', impact: 'Affluence Precision', us_avg: 1.0 },
+    { id: 'strategic_life_stage', label: 'Strategic Life Stage Index', table: 'S0101/B25003', calculation: 'Age Alignment + Home/Intent Lift', impact: 'Household Stability', us_avg: 1.0 },
     { id: 'hh_structure', label: 'Household Structure', table: 'B11001', calculation: 'Fan HH Size ÷ DMA Avg HH Size', impact: 'Family Density Lift', us_avg: 2.5 },
     { id: 'loyalty_ltv', label: 'Loyalty (LTV)', table: 'Internal Data', calculation: 'Team Attendance ÷ League Avg Attendance', impact: 'Attendance Premium', us_avg: 18324 },
     { id: 'digital', label: 'Digital Halo', table: 'B28003', calculation: 'Team Social Engagement ÷ League Avg', impact: 'Reach Multiplier', us_avg: 0.85 },
-    { id: 'age', label: 'Age Alignment', table: 'S0101', calculation: 'Fan Age vs Brand Target', impact: 'Generation Fit', us_avg: 38.5 },
     { id: 'multicultural', label: 'Multicultural Density', table: 'B03002', calculation: 'Local Minority % vs US Average', impact: 'ESG/Growth Lift', us_avg: 0.45 },
     { id: 'gender', label: 'Gender Influence', table: 'S0101', calculation: 'Primary Decision Maker Weight', impact: 'Persona Accuracy', us_avg: 0.50 },
-    { id: 'life_stage', label: 'Life Stage / Intent', table: 'B25003', calculation: 'Owner Density vs Renter Base', impact: 'Asset Liquidity', us_avg: 0.65 },
     { id: 'education', label: 'Educational Attainment', table: 'S1501', calculation: 'Degree Density Benchmarking', impact: 'Decision Power', us_avg: 0.35 }
 ];
 
@@ -54,15 +53,15 @@ const marketMapping = {
 
 const brandProfiles = {
     'Luxury Automotive': {
-        targets: ['strategic_affluence', 'education', 'loyalty_ltv'],
+        targets: ['strategic_affluence', 'education', 'loyalty_ltv', 'strategic_life_stage'],
         persona: "Luxury Auto brands target high-net-worth individuals. They value high-fidelity income concentration ($200k+) and premium median HHI lift.",
         idealAge: 45,
         idealHhi: 125000,
-        idealDigital: 0.65,
+        idealDigital: 0.85,
         priority: 1.2
     },
     'Fintech / Crypto': {
-        targets: ['digital', 'age', 'education', 'strategic_affluence'],
+        targets: ['digital', 'strategic_affluence', 'strategic_life_stage'],
         persona: "Fintech disruptors seek young, tech-savvy professionals. They prioritize digital connectivity and strategic affluence concentration for market penetration.",
         idealAge: 28,
         idealHhi: 85000,
@@ -70,7 +69,7 @@ const brandProfiles = {
         priority: 1.2
     },
     'Mass Market Retail': {
-        targets: ['reach', 'life_stage'],
+        targets: ['reach', 'strategic_life_stage', 'hh_structure'],
         persona: "Retailers value raw volume and family density. They prioritize total 'Wallets' and middle-income stability for high-frequency low-ticket sales.",
         idealAge: 38,
         idealHhi: 55000,
@@ -78,7 +77,7 @@ const brandProfiles = {
         priority: 1.0
     },
     'Health & Wellness': {
-        targets: ['age', 'multicultural', 'education'],
+        targets: ['strategic_life_stage', 'multicultural', 'education'],
         persona: "Wellness brands thrive in urban, diverse markets with high educational attainment. They target healthy, active personas with disposable income for lifestyle products.",
         idealAge: 32,
         idealHhi: 75000,
@@ -86,7 +85,7 @@ const brandProfiles = {
         priority: 1.1
     },
     'Global Beverage': {
-        targets: ['multicultural', 'digital', 'reach'],
+        targets: ['multicultural', 'digital', 'reach', 'strategic_life_stage'],
         persona: "Beverage giants seek maximum multicultural reach and social media 'Halo' impact to drive brand awareness across the broadest possible audience denominator.",
         idealAge: 24,
         idealHhi: 45000,
@@ -94,7 +93,7 @@ const brandProfiles = {
         priority: 1.0
     },
     'International Brand': {
-        targets: ['multicultural', 'digital', 'education'],
+        targets: ['multicultural', 'digital', 'education', 'strategic_life_stage'],
         persona: "International brands focus on high-growth diversity markets. They prioritize multicultural density and educational attainment as key indicators for global scalability.",
         idealAge: 30,
         idealHhi: 65000,
@@ -271,6 +270,8 @@ async function calculateValuation() {
     let totalMultiplier = 1.0 * priorityMod;
     let currentHhiMult = 1.0;
     let currentAffMult = 1.0;
+    let currentAgeMult = 1.0;
+    let currentLsMult = 1.0;
 
     factors.forEach(factor => {
         // Exclusion logic: skip LTV (if not Venue), Digital (if Broadcast), Scale (if Efficiency), Reach (if Zip)
@@ -288,7 +289,7 @@ async function calculateValuation() {
 
         let fanVal = factor.id === 'strategic_affluence' ?
             (((market.hhi * 1.18) / 75000) * 0.7) + (((market.affluence_burst * 1.05) / 0.095) * 0.2) + 0.1 :
-            (factor.id === 'age' ? marketVal * 0.96 : marketVal * 1.08);
+            (factor.id === 'strategic_life_stage' ? 1.0 : (factor.id === 'age' ? marketVal * 0.96 : marketVal * 1.08));
 
         if (factor.id === 'hh_structure') fanVal = marketVal * 1.05;
 
@@ -330,12 +331,34 @@ async function calculateValuation() {
             if (activeTargets.includes('loyalty_ltv')) {
                 formula = "Strategic Priority Target Alignment (Target Fit)";
             }
-        } else if (factor.id === 'age') {
-            const ageDiff = Math.abs(fanVal - idealAge);
-            // Sliding scale: 1.25x max, dropping 0.025 per year of gap, floor at 0.8x
-            multiplier = Math.max(0.8, 1.25 - (ageDiff * 0.025));
-            formula = `Age Variance: ${ageDiff.toFixed(1)} years vs Brand Target`;
-            factor.impact = ageDiff < 5 ? `Generation Fit (${fanVal.toFixed(1)} fans)` : `Age Mismatch (${fanVal.toFixed(1)} fans)`;
+        } else if (factor.id === 'strategic_life_stage') {
+            const ageVal = market.age || factor.us_avg;
+            const ageDiff = Math.abs((ageVal * 0.96) - idealAge);
+            const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.025));
+
+            const lsVal = market.life_stage || 0.65;
+            const lsMultiplier = (lsVal * 1.05) / 0.65;
+
+            currentAgeMult = ageMultiplier;
+            currentLsMult = lsMultiplier;
+
+            // Brand Weighting Logic
+            const stabilityKeywords = ["Insurance", "Home", "Improvement", "Stability", "Real Estate", "Mortgage", "Security"];
+            const isStabilityBrand = stabilityKeywords.some(kw =>
+                brandName.toLowerCase().includes(kw.toLowerCase()) ||
+                brand.persona.toLowerCase().includes(kw.toLowerCase())
+            );
+
+            const weightAge = isStabilityBrand ? 0.5 : 0.8;
+            const weightLs = isStabilityBrand ? 0.5 : 0.2;
+
+            multiplier = (ageMultiplier * weightAge) + (lsMultiplier * weightLs);
+            formula = isStabilityBrand ?
+                "Strategic Life Stage (50% Age Alignment / 50% Home Ownership Focus)" :
+                "Strategic Life Stage (80% Age Alignment / 20% Home Ownership Focus)";
+
+            factor.impact = isStabilityBrand ? "Stability & Intent Focus" : "Generational Alignment";
+            if (activeTargets.includes('strategic_life_stage')) multiplier *= 1.10;
         } else if (factor.id === 'digital') {
             const baseDigitalMult = marketVal >= idealDigital ? 1.2 : 0.85;
             const socialPremium = assetType === 'Social' ? 1.25 : 1.0;
@@ -406,7 +429,7 @@ async function calculateValuation() {
         row.innerHTML = `
             <td>
                 <div class="factor-name">
-                    ${factor.id === 'strategic_affluence' ? '<span class="expand-toggle" onclick="toggleAffluenceDetails(this)">▶</span>' : ''}
+                    ${(factor.id === 'strategic_affluence' || factor.id === 'strategic_life_stage') ? `<span class="expand-toggle" onclick="toggleSubRows('${factor.id}', this)">▶</span>` : ''}
                     ${factor.label}
                 </div>
                 <small style="color: var(--text-secondary)">${factor.calculation}</small>
@@ -426,7 +449,7 @@ async function calculateValuation() {
 
         if (factor.id === 'strategic_affluence') {
             const hhiRow = document.createElement('tr');
-            hhiRow.className = 'sub-row affluence-detail hidden-sub-row';
+            hhiRow.className = 'sub-row strategic_affluence-detail hidden-sub-row';
             hhiRow.innerHTML = `
                 <td><div class="factor-name">└ Median Household Income</div></td>
                 <td><span class="census-tag">B19013</span></td>
@@ -439,7 +462,7 @@ async function calculateValuation() {
             matrixBody.appendChild(hhiRow);
 
             const burstRow = document.createElement('tr');
-            burstRow.className = 'sub-row affluence-detail hidden-sub-row';
+            burstRow.className = 'sub-row strategic_affluence-detail hidden-sub-row';
             burstRow.innerHTML = `
                 <td><div class="factor-name">└ Affluence Burst ($200k+)</div></td>
                 <td><span class="census-tag">B19001</span></td>
@@ -450,6 +473,34 @@ async function calculateValuation() {
                 <td>Raw Input</td>
             `;
             matrixBody.appendChild(burstRow);
+        }
+
+        if (factor.id === 'strategic_life_stage') {
+            const ageRow = document.createElement('tr');
+            ageRow.className = 'sub-row strategic_life_stage-detail hidden-sub-row';
+            ageRow.innerHTML = `
+                <td><div class="factor-name">└ Age Alignment (Fans)</div></td>
+                <td><span class="census-tag">S0101</span></td>
+                <td>${(market.age || 38.5).toFixed(1)}</td>
+                <td>${((market.age || 38.5) * 0.96).toFixed(1)}</td>
+                <td>38.5</td>
+                <td><span class="multiplier-val">${currentAgeMult.toFixed(3)}x</span></td>
+                <td>Raw Input</td>
+            `;
+            matrixBody.appendChild(ageRow);
+
+            const lsRow = document.createElement('tr');
+            lsRow.className = 'sub-row strategic_life_stage-detail hidden-sub-row';
+            lsRow.innerHTML = `
+                <td><div class="factor-name">└ Home Ownership Index</div></td>
+                <td><span class="census-tag">B25003</span></td>
+                <td>${((market.life_stage || 0.65) * 100).toFixed(1)}%</td>
+                <td>${((market.life_stage || 0.65) * 1.05 * 100).toFixed(1)}%</td>
+                <td>65.0%</td>
+                <td><span class="multiplier-val">${currentLsMult.toFixed(3)}x</span></td>
+                <td>Raw Input</td>
+            `;
+            matrixBody.appendChild(lsRow);
         }
     });
 
@@ -840,20 +891,19 @@ function performAIAdjustment() {
         const keywords = {
             reach: ['reach', 'households', 'wallets', 'delivery', 'saturation', 'coverage'],
             strategic_affluence: ['income', 'wealth', 'rich', 'hhi', 'affluent', 'premium', 'high-end', 'money', 'stability', 'personalized', 'trust', 'luxury', '200k', 'wealthy'],
-            age: ['young', 'youth', 'millennial', 'gen z', 'age', 'generation', 'old', 'senior', 'years', 'skewing', 'audience', 'demographic'],
+            strategic_life_stage: ['young', 'youth', 'millennial', 'gen z', 'age', 'generation', 'old', 'senior', 'years', 'skewing', 'audience', 'demographic', 'owner', 'renter', 'stage', 'intent', 'buying', 'home', 'insurance', 'improvement', 'mortgage', 'stability', 'real estate', 'security'],
             digital: ['digital', 'tech', 'online', 'social', 'internet', 'halo', 'engagement', 'platform', 'modern', 'pop-culture'],
             multicultural: ['diverse', 'multicultural', 'race', 'global', 'diversity', 'equity', 'growth', 'esg', 'culturally'],
             hh_structure: ['family', 'families', 'children', 'kids', 'households', 'structure', 'density'],
             loyalty_ltv: ['loyalty', 'attendance', 'fans', 'tickets', 'ltv', 'stadium', 'loyal'],
-            education: ['education', 'degree', 'smart', 'university', 'college', 'knowledge', 'degree'],
-            life_stage: ['owner', 'renter', 'stage', 'intent', 'buying', 'home']
+            education: ['education', 'degree', 'smart', 'university', 'college', 'knowledge', 'degree']
         };
 
         const ageRangeRegex = /\d{1,2}-\d{1,2}/;
 
         Object.keys(keywords).forEach(factorId => {
             const hasKeyword = keywords[factorId].some(k => text.includes(k));
-            const isAgeRangeMatch = factorId === 'age' && ageRangeRegex.test(text);
+            const isAgeRangeMatch = factorId === 'strategic_life_stage' && ageRangeRegex.test(text);
 
             if (hasKeyword || isAgeRangeMatch) {
                 newTargets.push(factorId);
@@ -902,9 +952,9 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
     }
 });
 
-function toggleAffluenceDetails(btn) {
+function toggleSubRows(factorId, btn) {
     const isExpanded = btn.classList.contains('expanded');
-    const details = document.querySelectorAll('.affluence-detail');
+    const details = document.querySelectorAll(`.${factorId}-detail`);
 
     btn.classList.toggle('expanded');
     btn.innerText = isExpanded ? '▶' : '▼';
