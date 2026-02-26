@@ -650,6 +650,53 @@ input:focus+.slider {
     box-shadow: 0 0 1px var(--primary-color);
 }
 
+/* Expandable Sub-rows */
+.sub-row {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-left: 2px solid var(--accent-color);
+}
+
+.sub-row td {
+    padding: 0.75rem 0.75rem 0.75rem 2rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.sub-row .factor-name {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.expand-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    margin-right: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.expand-toggle:hover {
+    background: var(--primary-color);
+    color: black;
+}
+
+.expand-toggle.expanded {
+    transform: rotate(90deg);
+    background: var(--primary-color);
+    color: black;
+}
+
+.hidden-sub-row {
+    display: none !important;
+}
+
 @keyframes fadeInDown {
     from {
         opacity: 0;

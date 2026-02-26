@@ -8,14 +8,13 @@ const LEAGUE_AVERAGES = {
 };
 
 const factors = [
-    { id: 'total_pop', label: 'Market Scale', table: 'B01003', calculation: 'Local DMA Pop ÷ League Average Pop', impact: 'Volume Premium', us_avg: 1167771 },
     { id: 'reach', label: 'Household Reach', table: 'B11001', calculation: 'Local HH ÷ League Average HH', impact: 'Wallet Premium', us_avg: 450000 },
-    { id: 'hhi', label: 'Income Index', table: 'B19013', calculation: 'Fan HHI ÷ Ideal Brand HHI', impact: 'Affluence Lift', us_avg: 75000 },
+    { id: 'strategic_affluence', label: 'Strategic Affluence Index', table: 'B19013/B19001', calculation: '70% HHI Lift + 20% Luxury Conc.', impact: 'Afluence Precision', us_avg: 1.0 },
     { id: 'hh_structure', label: 'Household Structure', table: 'B11001', calculation: 'Fan HH Size ÷ DMA Avg HH Size', impact: 'Family Density Lift', us_avg: 2.5 },
     { id: 'loyalty_ltv', label: 'Loyalty (LTV)', table: 'Internal Data', calculation: 'Team Attendance ÷ League Avg Attendance', impact: 'Attendance Premium', us_avg: 18324 },
     { id: 'digital', label: 'Digital Halo', table: 'B28003', calculation: 'Team Social Engagement ÷ League Avg', impact: 'Reach Multiplier', us_avg: 0.85 },
     { id: 'age', label: 'Age Alignment', table: 'S0101', calculation: 'Fan Age vs Brand Target', impact: 'Generation Fit', us_avg: 38.5 },
-    { id: 'multicultural', label: 'Multicultural Density', table: 'B03002', calculation: 'Local Minority % vs US Average', impact: 'ESG/Growth Lift', us_avg: 0.30 },
+    { id: 'multicultural', label: 'Multicultural Density', table: 'B03002', calculation: 'Local Minority % vs US Average', impact: 'ESG/Growth Lift', us_avg: 0.45 },
     { id: 'gender', label: 'Gender Influence', table: 'S0101', calculation: 'Primary Decision Maker Weight', impact: 'Persona Accuracy', us_avg: 0.50 },
     { id: 'life_stage', label: 'Life Stage / Intent', table: 'B25003', calculation: 'Owner Density vs Renter Base', impact: 'Asset Liquidity', us_avg: 0.65 },
     { id: 'education', label: 'Educational Attainment', table: 'S1501', calculation: 'Degree Density Benchmarking', impact: 'Decision Power', us_avg: 0.35 }
@@ -55,23 +54,23 @@ const marketMapping = {
 
 const brandProfiles = {
     'Luxury Automotive': {
-        targets: ['hhi', 'education', 'loyalty_ltv'],
-        persona: "Luxury Auto brands target high-net-worth individuals in Tier 1 markets. They value premium attendance (LTV) and high HHI to justify high-ticket vehicle placements.",
+        targets: ['strategic_affluence', 'education', 'loyalty_ltv'],
+        persona: "Luxury Auto brands target high-net-worth individuals. They value high-fidelity income concentration ($200k+) and premium median HHI lift.",
         idealAge: 45,
         idealHhi: 125000,
         idealDigital: 0.65,
         priority: 1.2
     },
     'Fintech / Crypto': {
-        targets: ['digital', 'age', 'education'],
-        persona: "Fintech disruptors seek young, tech-savvy professionals. They prioritize digital connectivity and 'Digital Halo' engagement over physical market scale.",
+        targets: ['digital', 'age', 'education', 'strategic_affluence'],
+        persona: "Fintech disruptors seek young, tech-savvy professionals. They prioritize digital connectivity and strategic affluence concentration for market penetration.",
         idealAge: 28,
         idealHhi: 85000,
         idealDigital: 0.95,
         priority: 1.2
     },
     'Mass Market Retail': {
-        targets: ['total_pop', 'reach', 'life_stage'],
+        targets: ['reach', 'life_stage'],
         persona: "Retailers value raw volume and family density. They prioritize total 'Wallets' and middle-income stability for high-frequency low-ticket sales.",
         idealAge: 38,
         idealHhi: 55000,
@@ -87,7 +86,7 @@ const brandProfiles = {
         priority: 1.1
     },
     'Global Beverage': {
-        targets: ['multicultural', 'digital', 'total_pop'],
+        targets: ['multicultural', 'digital', 'reach'],
         persona: "Beverage giants seek maximum multicultural reach and social media 'Halo' impact to drive brand awareness across the broadest possible audience denominator.",
         idealAge: 24,
         idealHhi: 45000,
@@ -134,12 +133,12 @@ async function fetchCensusData(marketKey, zipCode = null) {
 
     let url;
     if (zipCode) {
-        const variables = 'B01003_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E';
+        const variables = 'B11001_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E,B19001_001E,B19001_017E,B24011_001E,B24011_002E';
         url = `${CENSUS_API_BASE}?get=${variables}&for=zip%20code%20tabulation%20area:${zipCode}`;
     } else {
         const geo = marketMapping[marketKey];
         if (!geo) throw new Error(`Market key "${marketKey}" not found.`);
-        const variables = 'B01003_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E';
+        const variables = 'B11001_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E,B19001_001E,B19001_017E,B24011_001E,B24011_002E';
         url = `${CENSUS_API_BASE}?get=${variables}&for=place:${geo.place}&in=state:${geo.state}`;
     }
 
@@ -158,9 +157,12 @@ async function fetchCensusData(marketKey, zipCode = null) {
 
         const total_pop_b03002 = parseInt(values[3]) || 1;
         const non_hispanic_white = parseInt(values[4]) || 0;
+        const hh_total = parseInt(values[5]) || 1;
+        const hh_200k = parseInt(values[6]) || 0;
+        const workforce_total = parseInt(values[7]) || 1;
+        const workforce_mgmt = parseInt(values[8]) || 0;
 
         const result = {
-            total_pop: parseInt(values[0]),
             hhi: parseInt(values[1]),
             age: parseFloat(values[2]),
             multicultural: (total_pop_b03002 - non_hispanic_white) / total_pop_b03002,
@@ -170,7 +172,9 @@ async function fetchCensusData(marketKey, zipCode = null) {
             digital: 0.85 + (Math.random() * 0.1),
             hh_size: 2.6,
             b2b: 0.30,
-            reach: parseInt(values[0]) * 0.4,
+            reach: parseInt(values[0]),
+            affluence_burst: hh_200k / hh_total,
+            executive_density: workforce_mgmt / workforce_total,
             is_simulated: false
         };
 
@@ -184,6 +188,8 @@ async function fetchCensusData(marketKey, zipCode = null) {
             if (geo.offsets.education) result.education *= geo.offsets.education;
             if (geo.offsets.life_stage) result.life_stage *= geo.offsets.life_stage;
             if (geo.offsets.hh_size) result.hh_size *= geo.offsets.hh_size;
+            if (geo.offsets.affluence_burst) result.affluence_burst *= geo.offsets.affluence_burst;
+            if (geo.offsets.executive_density) result.executive_density *= geo.offsets.executive_density;
         }
 
         // Add subtle natural variance for unique fan footprint if no offset
@@ -198,10 +204,9 @@ async function fetchCensusData(marketKey, zipCode = null) {
 
         // RESILIENCE FALLBACK: Realistic market-limit simulation based on US averages
         const fallback = {
-            total_pop: LEAGUE_AVERAGES.total_pop * (0.8 + Math.random() * 0.4),
             hhi: 68000 + (Math.random() * 40000),
             age: 32 + (Math.random() * 8),
-            multicultural: 0.30,
+            multicultural: 0.45,
             gender: 0.50,
             life_stage: 0.45,
             education: 0.35,
@@ -209,6 +214,8 @@ async function fetchCensusData(marketKey, zipCode = null) {
             hh_size: 2.5,
             b2b: 0.25,
             reach: LEAGUE_AVERAGES.reach * (0.9 + Math.random() * 0.2),
+            affluence_burst: 0.095 + (Math.random() * 0.04 - 0.02),
+            executive_density: 0.42 + (Math.random() * 0.06 - 0.03),
             is_simulated: true
         };
 
@@ -222,6 +229,8 @@ async function fetchCensusData(marketKey, zipCode = null) {
             if (geo.offsets.education) fallback.education *= geo.offsets.education;
             if (geo.offsets.life_stage) fallback.life_stage *= geo.offsets.life_stage;
             if (geo.offsets.hh_size) fallback.hh_size *= geo.offsets.hh_size;
+            if (geo.offsets.affluence_burst) fallback.affluence_burst *= geo.offsets.affluence_burst;
+            if (geo.offsets.executive_density) fallback.executive_density *= geo.offsets.executive_density;
         }
 
         fallback.gender += (Math.random() * 0.04 - 0.02);
@@ -271,28 +280,37 @@ async function calculateValuation() {
 
         let marketVal = market[factor.id] || factor.us_avg;
         if (factor.id === 'hh_structure') marketVal = market.hh_size || factor.us_avg;
+        if (factor.id === 'strategic_affluence') {
+            marketVal = ((market.hhi / 75000) * 0.7) + ((market.affluence_burst / 0.095) * 0.2) + 0.1;
+        }
 
-        let fanVal = factor.id === 'hhi' ? marketVal * 1.18 : (factor.id === 'age' ? marketVal * 0.96 : marketVal * 1.08);
+        let fanVal = factor.id === 'strategic_affluence' ?
+            (((market.hhi * 1.18) / 75000) * 0.7) + (((market.affluence_burst * 1.05) / 0.095) * 0.2) + 0.1 :
+            (factor.id === 'age' ? marketVal * 0.96 : marketVal * 1.08);
+
         if (factor.id === 'hh_structure') fanVal = marketVal * 1.05;
 
         let multiplier = 1.0;
 
         // Revised Benchmarking & Ideal Demographic Alignment Logic: Market vs Goal
         let formula = "";
-        if (factor.id === 'total_pop') {
-            multiplier = marketVal / LEAGUE_AVERAGES.total_pop;
-            formula = "Local Population / League Average Population";
-        } else if (factor.id === 'reach') {
+        if (factor.id === 'reach') {
             multiplier = marketVal / LEAGUE_AVERAGES.reach;
             formula = "Local Households / League Average Households";
-        } else if (factor.id === 'hhi') {
-            const hhiLift = fanVal / marketVal;
-            const alignment = fanVal / idealHhi;
-            multiplier = hhiLift * (alignment > 1 ? 1.15 : alignment);
-            factor.impact = alignment >= 1 ? `Premium Fit ($${Math.round(fanVal / 1000)}k fans)` : `Target Gap ($${Math.round(fanVal / 1000)}k fans)`;
-            formula = "(Fan HHI / Market HHI) × Brand Alignment Multiplier";
-            if (activeTargets.includes('hhi')) {
-                formula = "Strategic Priority Target Alignment (Target Fit)";
+        } else if (factor.id === 'strategic_affluence') {
+            const hhiLift = (market.hhi * 1.18) / (market.hhi || 1);
+            const hhiAlignment = (market.hhi * 1.18) / idealHhi;
+            const hhiMult = hhiLift * (hhiAlignment > 1 ? 1.15 : hhiAlignment);
+
+            const affLift = (market.affluence_burst * 1.05) / 0.055;
+
+            multiplier = (hhiMult * 0.7) + (affLift * 0.2) + 0.1;
+
+            factor.impact = hhiMult > 1.2 ? "High-Net-Worth Concentration" : "Affluence Precision";
+            formula = "(70% Median HHI Lift + 20% Luxury Conc.) + 10% Baseline";
+            if (activeTargets.includes('strategic_affluence')) {
+                multiplier *= 1.10; // Strategic priority boost
+                formula = "(70/20 Composite) + Strategic Alignment";
             }
         } else if (factor.id === 'hh_structure') {
             marketVal = market.hh_size || factor.us_avg;
@@ -309,7 +327,8 @@ async function calculateValuation() {
             }
         } else if (factor.id === 'age') {
             const ageDiff = Math.abs(fanVal - idealAge);
-            multiplier = ageDiff < 5 ? 1.18 : (ageDiff < 12 ? 1.0 : 0.85);
+            // Sliding scale: 1.25x max, dropping 0.025 per year of gap, floor at 0.8x
+            multiplier = Math.max(0.8, 1.25 - (ageDiff * 0.025));
             formula = `Age Variance: ${ageDiff.toFixed(1)} years vs Brand Target`;
             factor.impact = ageDiff < 5 ? `Generation Fit (${fanVal.toFixed(1)} fans)` : `Age Mismatch (${fanVal.toFixed(1)} fans)`;
         } else if (factor.id === 'digital') {
@@ -323,30 +342,48 @@ async function calculateValuation() {
             }
             factor.impact = multiplier > 1.2 ? "Social Reach Premium" : "Platform Standard";
             if (isInternational) factor.impact += " (Global)";
+        } else if (factor.id === 'multicultural') {
+            const isStrategic = activeTargets.includes('multicultural');
+            const isGlobal = isInternational || brandName === 'International Brand';
+
+            if (isStrategic || isGlobal) {
+                multiplier = fanVal / factor.us_avg;
+                formula = "Fan Minority % / US Average Benchmark";
+
+                if (isStrategic) {
+                    if (brandName === 'International Brand') {
+                        multiplier *= 1.45;
+                        factor.impact = "International Diversity Power";
+                        formula = "(Fan vs Bench) × Int'l Brand Focus";
+                    } else if (isInternational) {
+                        multiplier *= 1.15;
+                        factor.impact = "Global Diversity Premium";
+                        formula = "(Fan vs Bench) × Global Strategic Lift";
+                    } else {
+                        multiplier *= 1.10;
+                        factor.impact = "Strategic Diversity Focus";
+                        formula = "(Fan vs Bench) × Target alignment";
+                    }
+                } else if (isInternational) {
+                    multiplier *= 1.15;
+                    factor.impact = "Global Reach Entry";
+                    formula = "(Fan vs Bench) × global Base Weight";
+                } else {
+                    factor.impact = "Diversity Growth Lift";
+                }
+            } else {
+                multiplier = 1.0;
+                formula = "Standard Alignment (Domestic Focus)";
+                factor.impact = "Neutral Base (US Market)";
+            }
         } else {
-            // Standard target alignment for other factors
+            // Standard target alignment for other factors (Gender, Education, Life Stage)
             if (activeTargets.includes(factor.id)) {
                 multiplier = fanVal > marketVal ? 1.25 : 1.1;
                 formula = "Strategic Priority Target Alignment (Target Fit)";
-                if (factor.id === 'multicultural') {
-                    if (brandName === 'International Brand') {
-                        multiplier = 1.45; // Enhanced diversity weight
-                        factor.impact = "Diversity Power Multiplier";
-                        formula = "International Brand Strategy: Fixed Diversity Multiplier";
-                    } else if (isInternational) {
-                        multiplier *= 1.15; // Multicultural Strategic Lift for Global Brands
-                        factor.impact = "Global Diversity Premium";
-                        formula = "Global Brand Strategic Diversity Lift";
-                    }
-                }
             } else {
                 multiplier = 1.02;
                 formula = "Standard Market Base Lift";
-                if (factor.id === 'multicultural' && isInternational) {
-                    multiplier = 1.15;
-                    factor.impact = "Global Reach Entry";
-                    formula = "Global Brand Base Entry Weight";
-                }
             }
         }
 
@@ -363,7 +400,10 @@ async function calculateValuation() {
 
         row.innerHTML = `
             <td>
-                <div class="factor-name">${factor.label}</div>
+                <div class="factor-name">
+                    ${factor.id === 'strategic_affluence' ? '<span class="expand-toggle" onclick="toggleAffluenceDetails(this)">▶</span>' : ''}
+                    ${factor.label}
+                </div>
                 <small style="color: var(--text-secondary)">${factor.calculation}</small>
             </td>
             <td><span class="census-tag">${factor.table}</span></td>
@@ -378,6 +418,34 @@ async function calculateValuation() {
             </span></td>
         `;
         matrixBody.appendChild(row);
+
+        if (factor.id === 'strategic_affluence') {
+            const hhiRow = document.createElement('tr');
+            hhiRow.className = 'sub-row affluence-detail hidden-sub-row';
+            hhiRow.innerHTML = `
+                <td><div class="factor-name">└ Median Household Income</div></td>
+                <td><span class="census-tag">B19013</span></td>
+                <td>${formatCurrency(market.hhi)}</td>
+                <td>${formatCurrency(market.hhi * 1.18)}</td>
+                <td>$75,000</td>
+                <td>-</td>
+                <td>Raw Input</td>
+            `;
+            matrixBody.appendChild(hhiRow);
+
+            const burstRow = document.createElement('tr');
+            burstRow.className = 'sub-row affluence-detail hidden-sub-row';
+            burstRow.innerHTML = `
+                <td><div class="factor-name">└ Affluence Burst ($200k+)</div></td>
+                <td><span class="census-tag">B19001</span></td>
+                <td>${(market.affluence_burst * 100).toFixed(1)}%</td>
+                <td>${(market.affluence_burst * 1.05 * 100).toFixed(1)}%</td>
+                <td>5.5%</td>
+                <td>-</td>
+                <td>Raw Input</td>
+            `;
+            matrixBody.appendChild(burstRow);
+        }
     });
 
     document.getElementById('final-strategic-value').innerText = formatCurrency(baseline * totalMultiplier);
@@ -402,8 +470,8 @@ document.getElementById('brand-target-digital').addEventListener('input', (e) =>
 });
 
 function formatValue(id, val) {
-    if (id === 'hhi') return formatCurrency(val);
-    if (id === 'total_pop' || id === 'reach' || id === 'loyalty_ltv') return val.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    if (id === 'hhi' || id === 'strategic_affluence') return (val > 1000) ? formatCurrency(val) : val.toFixed(3);
+    if (id === 'reach' || id === 'loyalty_ltv') return val.toLocaleString(undefined, { maximumFractionDigits: 0 });
     return (val < 1 && val > 0) ? (val * 100).toFixed(0) + '%' : val.toFixed(1);
 }
 
@@ -521,20 +589,20 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDigital, pr
         const isEfficiency = document.getElementById('efficiency-toggle').checked;
         if (factor.id === 'loyalty_ltv' && assetType !== 'In-Venue') return;
         if (factor.id === 'digital' && assetType === 'Broadcast') return;
-        if (factor.id === 'total_pop' && isEfficiency) return;
         if (factor.id === 'reach' && isEfficiency) return;
 
         let multiplier = 1.0;
         let marketVal = market[factor.id] || 0;
-        let fanVal = factor.id === 'hhi' ? marketVal * 1.18 : marketVal * 1.05;
+        let fanVal = factor.id === 'strategic_affluence' ? marketVal : marketVal * 1.05;
 
         // Simplified benchmarking for discovery score
-        if (factor.id === 'total_pop') {
-            multiplier = marketVal / LEAGUE_AVERAGES.total_pop;
-        } else if (factor.id === 'reach') {
+        if (factor.id === 'reach') {
             multiplier = marketVal / LEAGUE_AVERAGES.reach;
-        } else if (factor.id === 'hhi') {
-            multiplier = (fanVal / marketVal) * (fanVal >= idealHhi ? 1.15 : 0.95);
+        } else if (factor.id === 'strategic_affluence') {
+            const hhiMult = 1.18 * (((market.hhi || 75000) * 1.18) >= idealHhi ? 1.15 : 0.95);
+            const affMult = ((market.affluence_burst || 0.055) * 1.05) / 0.055;
+            multiplier = (hhiMult * 0.7) + (affMult * 0.2) + 0.1;
+            if (activeTargets.includes('strategic_affluence')) multiplier *= 1.10;
         } else if (factor.id === 'hh_structure') {
             multiplier = 1.05;
         } else if (factor.id === 'loyalty_ltv') {
@@ -548,10 +616,9 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDigital, pr
             multiplier = baseDigitalMult * (assetType === 'Social' ? 1.25 : 1.0);
             if (isInternational) multiplier *= 1.15;
         } else if (factor.id === 'multicultural') {
-            if (brandName === 'International Brand') {
-                multiplier = 1.45;
-            } else if (isInternational) {
-                multiplier = 1.15;
+            const isGlobal = isInternational || brandName === 'International Brand';
+            if (isGlobal || activeTargets.includes('multicultural')) {
+                multiplier = (fanVal / factor.us_avg) * (isGlobal ? 1.15 : 1.0);
             }
         }
         totalMultiplier *= multiplier;
@@ -665,15 +732,13 @@ async function calculateComparison() {
     let weightSum = 0;
 
     factors.forEach(factor => {
-        if (isEfficiency && (factor.id === 'total_pop' || factor.id === 'reach')) return;
+        if (isEfficiency && (factor.id === 'reach')) return;
 
         const valA = marketA[factor.id] || factor.us_avg;
         const valB = marketB[factor.id] || factor.us_avg;
 
         // Scoring Logic per factor
         const getScore = (val) => {
-            if (factor.id === 'total_pop') return val / LEAGUE_AVERAGES.total_pop;
-            if (factor.id === 'reach') return val / LEAGUE_AVERAGES.reach;
             if (factor.id === 'hhi') return val / idealHhi;
             if (factor.id === 'age') return 1 - Math.abs(val - idealAge) / idealAge;
             if (factor.id === 'digital') return val / idealDigital;
@@ -768,9 +833,8 @@ function performAIAdjustment() {
     setTimeout(() => {
         const newTargets = [];
         const keywords = {
-            total_pop: ['volume', 'scale', 'population', 'size', 'big', 'large', 'mass', 'denstiy', 'broad'],
             reach: ['reach', 'households', 'wallets', 'delivery', 'saturation', 'coverage'],
-            hhi: ['income', 'wealth', 'rich', 'hhi', 'affluent', 'premium', 'high-end', 'money', 'stability', 'personalized', 'trust'],
+            strategic_affluence: ['income', 'wealth', 'rich', 'hhi', 'affluent', 'premium', 'high-end', 'money', 'stability', 'personalized', 'trust', 'luxury', '200k', 'wealthy'],
             age: ['young', 'youth', 'millennial', 'gen z', 'age', 'generation', 'old', 'senior', 'years', 'skewing', 'audience', 'demographic'],
             digital: ['digital', 'tech', 'online', 'social', 'internet', 'halo', 'engagement', 'platform', 'modern', 'pop-culture'],
             multicultural: ['diverse', 'multicultural', 'race', 'global', 'diversity', 'equity', 'growth', 'esg', 'culturally'],
@@ -832,3 +896,15 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
         calculateValuation();
     }
 });
+
+function toggleAffluenceDetails(btn) {
+    const isExpanded = btn.classList.contains('expanded');
+    const details = document.querySelectorAll('.affluence-detail');
+
+    btn.classList.toggle('expanded');
+    btn.innerText = isExpanded ? '▶' : '▼';
+
+    details.forEach(row => {
+        row.classList.toggle('hidden-sub-row');
+    });
+}

@@ -24,59 +24,54 @@ A premium, strategic market intelligence platform designed for NBA sponsorships.
 
 ## 📊 Demographic Factors Explained
 
-The valuation engine uses 11 core factors to determine the "Strategic Multiplier." Each factor is benchmarked against either a league average or a specific brand target.
+The valuation engine uses 10 core factors to determine the "Strategic Multiplier." Each factor is benchmarked against either a league average or a specific brand target.
 
-### 1. Market Scale (Total Population)
-- **Source**: US Census B01003
-- **Description**: The raw population volume within the city limits. 
-- **Strategic Value**: High volume drives awareness and mass-market reach. Brands like **Global Beverage** or **Mass Market Retail** prioritize this for maximum exposure.
-
-### 2. Household Reach
+### 1. Household Reach
 - **Source**: US Census B11001
 - **Description**: Total number of households in the market.
 - **Strategic Value**: Estimates the "Wallet Density" of a market. Critical for subscription-based or utility-focused sponsors.
 
-### 3. Income Index (HHI)
-- **Source**: US Census B19013
-- **Description**: Median Household Income of the fan base.
-- **Strategic Value**: Benchmarked against the Brand's "Ideal HHI." For **Luxury Automotive**, a higher HHI generates a "Premium Fit" multiplier.
+### 2. Strategic Affluence Index
+- **Source**: US Census B19013 & B19001
+- **Description**: A composite score (70/30 weight) combining Median Household Income and the concentration of $200k+ earners.
+- **Strategic Value**: Provides a high-fidelity look at market wealth. Benchmarked against **NBA Market Averages** (e.g., 5.5% for $200k+ HHs) rather than national averages for higher precision.
 
-### 4. Household Structure
+### 3. Household Structure
 - **Source**: US Census B11001
 - **Description**: Average household size and composition.
 - **Strategic Value**: Used to identify "Family Density." Sponsors like insurance or family-oriented CPG brands value high household structures.
 
-### 5. Loyalty (LTV)
+### 4. Loyalty (LTV)
 - **Source**: NBA Attendance Records
 - **Description**: Benchmarks team-specific attendance against the league average (18,324).
 - **Strategic Value**: Represents physical engagement and "In-Venue" asset value. Higher attendance indicates a more committed, high-value fan base.
 
-### 6. Digital Halo
+### 5. Digital Halo
 - **Source**: US Census B28003 & Social Engagement
 - **Description**: A composite score of high-speed internet adoption and team-specific social media engagement.
 - **Strategic Value**: Critical for **Fintech/Crypto** sponsors. A high Digital Halo allows for reach beyond the local geographic market.
 
-### 7. Age Alignment
+### 6. Age Alignment
 - **Source**: US Census S0101
 - **Description**: Median age of the fan base vs. the brand's target demographic.
 - **Strategic Value**: Calculates a "Generation Fit." A market with a median age of 28 is a stronger fit for a Fintech brand than a 45-year-old market.
 
-### 8. Multicultural Density
+### 7. Multicultural Density
 - **Source**: US Census B03002
 - **Description**: Concentration of minority populations compared to US averages.
 - **Strategic Value**: Identifies growth opportunities and ESG/Diversity alignment. High-growth sectors and international brands prioritize this for "ESG/Growth Lift."
 
-### 9. Gender Influence
+### 8. Gender Influence
 - **Source**: US Census S0101
 - **Description**: Weighting of primary decision-makers within the fan base.
 - **Strategic Value**: Refines persona accuracy for brands targeting specific decision-maker profiles.
 
-### 10. Life Stage / Intent
+### 9. Life Stage / Intent
 - **Source**: US Census B25003
 - **Description**: Home ownership density vs. renter base.
 - **Strategic Value**: Acts as a proxy for "Asset Liquidity." High ownership density indicates stability; high renter density indicates an upwardly mobile, urban professional base.
 
-### 11. Educational Attainment
+### 10. Educational Attainment
 - **Source**: US Census S1501
 - **Description**: Percentage of the market with a bachelor’s degree or higher.
 - **Strategic Value**: Indicates "Decision Power" and disposable income potential. Luxury and professional services brands seek high educational alignment.
