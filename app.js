@@ -1,4 +1,5 @@
 const CENSUS_API_BASE = 'https://api.census.gov/data/2022/acs/acs5';
+const GEMINI_API_KEY = "AIzaSyAzZU-TB1JJBwFSQVWSzccWtp6xPB4Ua1E";
 
 const LEAGUE_AVERAGES = {
     total_pop: 1167771, // Average US NBA City-Limit Population
@@ -1165,47 +1166,60 @@ window.addEventListener('load', () => {
     calculateValuation();
 });
 
-// AI Strategic Interpretation Logic
-function performAIAdjustment() {
-    const text = document.getElementById('persona-delta-text').innerText.toLowerCase();
+// --- REAL AI: Gemini Strategic Interpretation ---
+async function performAIAdjustment() {
+    const text = document.getElementById('persona-delta-text').innerText.trim();
     const status = document.getElementById('ai-status');
+    const header = document.getElementById('ai-affected-header');
+    const listContainer = document.getElementById('affected-factors-list');
 
-    status.innerText = 'Analyzing...';
+    if (!text || text.length < 5) return;
+
+    status.innerText = 'AI Thinking...';
     status.classList.add('working');
 
-    setTimeout(() => {
-        const newTargets = [];
-        const keywords = {
-            reach: ['reach', 'households', 'wallets', 'delivery', 'saturation', 'coverage'],
-            strategic_affluence: ['income', 'wealth', 'rich', 'hhi', 'affluent', 'premium', 'high-end', 'money', 'stability', 'personalized', 'trust', 'luxury', '200k', 'wealthy'],
-            strategic_life_stage: ['young', 'youth', 'millennial', 'gen z', 'age', 'generation', 'old', 'senior', 'years', 'skewing', 'audience', 'demographic', 'owner', 'renter', 'stage', 'intent', 'buying', 'home', 'insurance', 'improvement', 'mortgage', 'stability', 'real estate', 'security'],
-            digital: ['digital', 'tech', 'online', 'social', 'internet', 'halo', 'engagement', 'platform', 'modern', 'pop-culture'],
-            multicultural: ['diverse', 'multicultural', 'race', 'global', 'diversity', 'equity', 'growth', 'esg', 'culturally'],
-            hh_structure: ['family', 'families', 'children', 'kids', 'households', 'structure', 'density'],
-            loyalty_ltv: ['loyalty', 'attendance', 'fans', 'tickets', 'ltv', 'stadium', 'loyal'],
-            education: ['education', 'degree', 'smart', 'university', 'college', 'knowledge', 'degree']
-        };
+    // List of factors Gemini should know about
+    const factorContext = factors.map(f => `- ${f.id}: ${f.label} (Impact: ${f.impact})`).join('\n');
 
-        const ageRangeRegex = /\d{1,2}-\d{1,2}/;
+    const prompt = `
+        System: You are an expert sports sponsorship and demographic analyst for the NBA.
+        Task: Analyze the brand persona description below and identify which specific strategic factors from the provided list should be prioritized (targeted) for this brand's market valuation.
 
-        Object.keys(keywords).forEach(factorId => {
-            const hasKeyword = keywords[factorId].some(k => text.includes(k));
-            const isAgeRangeMatch = factorId === 'strategic_life_stage' && ageRangeRegex.test(text);
+        Brand Persona: "${text}"
 
-            if (hasKeyword || isAgeRangeMatch) {
-                newTargets.push(factorId);
-            }
+        Available Strategic Factors to choose from:
+        ${factorContext}
+
+        Instructions:
+        1. Identify the 2-4 most relevant factor IDs based on the brand's goals (e.g., if they mention "young" or "families", pick life_stage or hh_structure).
+        2. Return ONLY a valid JSON array of strings containing the 'id' of the matching factors.
+        3. Do not include any text before or after the JSON.
+        
+        Example Output: ["strategic_affluence", "digital", "loyalty_ltv"]
+    `;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
         });
 
+        if (!response.ok) throw new Error('API request failed');
+
+        const data = await response.json();
+        const rawResponse = data.candidates[0].content.parts[0].text.trim();
+
+        // Sanitize and Parse
+        const jsonMatch = rawResponse.match(/\[.*\]/s);
+        const newTargets = jsonMatch ? JSON.parse(jsonMatch[0].replace(/`/g, '')) : [];
+
         currentPersonaTargets = newTargets.length > 0 ? newTargets : null;
-        status.innerText = currentPersonaTargets ? 'AI Updated' : 'Reset';
-        status.classList.remove('working');
+        status.innerText = currentPersonaTargets ? 'Gemini Updated' : 'Reset';
 
-        // Show affected factors
-        const header = document.getElementById('ai-affected-header');
-        const listContainer = document.getElementById('affected-factors-list');
         listContainer.innerHTML = '';
-
         if (currentPersonaTargets) {
             currentPersonaTargets.forEach(id => {
                 const f = factors.find(fact => fact.id === id);
@@ -1221,9 +1235,14 @@ function performAIAdjustment() {
             header.style.display = 'none';
         }
 
-        // Trigger recalculation with new AI targets
+        // Trigger immediate recalculation
         calculateValuation();
-    }, 50);
+    } catch (err) {
+        console.error('Gemini Error:', err);
+        status.innerText = 'AI Offline';
+    } finally {
+        status.classList.remove('working');
+    }
 }
 
 document.getElementById('persona-delta-text').addEventListener('blur', performAIAdjustment);
