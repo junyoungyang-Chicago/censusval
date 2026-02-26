@@ -814,13 +814,21 @@ input:focus+.slider {
 }
 
 #discovery-results {
-    animation: fadeInUp 0.5s ease-out;
-    background: linear-gradient(180deg, rgba(22, 103, 233, 0.08) 0%, rgba(5, 5, 7, 0) 100%) !important;
-    border-style: solid !important;
-    border-width: 1px !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    margin-top: 2rem;
+    padding: 3rem;
+    border-radius: 24px;
+    border: 1px solid rgba(22, 103, 233, 0.2);
+    text-align: left;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    background: linear-gradient(180deg, rgba(22, 103, 233, 0.08) 0%, rgba(10, 15, 30, 0) 100%) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 #chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
     filter: drop-shadow(0 0 10px rgba(22, 103, 233, 0.1));
 }

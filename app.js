@@ -272,11 +272,10 @@ async function calculateValuation() {
     const brandName = document.getElementById('target-brand').value;
 
     // BRAND IDEAL INPUTS
-    const idealAge = parseFloat(document.getElementById('brand-target-age').value);
-    const idealHhi = parseFloat(document.getElementById('brand-target-hhi').value);
+    const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
+    const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDigital = parseFloat(document.getElementById('brand-target-digital').value) / 100;
     const priorityMod = parseFloat(document.getElementById('brand-priority').value);
-
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
     const assetType = document.getElementById('asset-name').value;
@@ -774,8 +773,8 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
     btn.disabled = true;
     resultsDiv.classList.add('hidden');
 
-    const idealAge = parseFloat(document.getElementById('brand-target-age').value);
-    const idealHhi = parseFloat(document.getElementById('brand-target-hhi').value);
+    const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
+    const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDigital = parseFloat(document.getElementById('brand-target-digital').value) / 100;
     const priorityMod = parseFloat(document.getElementById('brand-priority').value);
     const assetType = document.getElementById('asset-name').value;
@@ -812,8 +811,12 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
             document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment with a ${winner.score.toFixed(2)}x combined multiplier.`;
             resultsDiv.classList.remove('hidden');
 
-            // Render Chart
-            renderTopFitChart(top10);
+            // Increase delay and use requestAnimationFrame for better layout synchronization
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    renderTopFitChart(top10);
+                });
+            }, 300);
 
             await calculateValuation();
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
@@ -829,60 +832,112 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
 });
 
 function renderTopFitChart(top10) {
-    const ctx = document.getElementById('topFitChart').getContext('2d');
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js library not found. Ensure the CDN script is loaded.');
+        return;
+    }
+
+    const canvas = document.getElementById('topFitChart');
+    if (!canvas) {
+        console.error('Canvas #topFitChart element not found in DOM.');
+        return;
+    }
+
+    // Ensure the parent container has position: relative for Chart.js responsivity
+    const container = document.getElementById('chart-container');
+    if (container) {
+        container.style.position = 'relative';
+        container.style.height = '350px'; // Re-confirm height
+    }
+
+    const ctx = canvas.getContext('2d');
 
     if (topFitChart) {
         topFitChart.destroy();
     }
 
-    topFitChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: top10.map(m => m.label.split(',')[0]), // Just city name for brevity
-            datasets: [{
-                label: 'Strategic Multiplier',
-                data: top10.map(m => m.score),
-                backgroundColor: top10.map(m => m.color || '#1667e9'),
-                borderRadius: 8,
-                borderWidth: 0,
-                barThickness: 25
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y', // Horizontal bar chart
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(10, 15, 30, 0.95)',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
+    // Create a beautiful gradient for the bars
+    const gradient = ctx.createLinearGradient(0, 0, 400, 0);
+    gradient.addColorStop(0, 'rgba(22, 103, 233, 0.8)');
+    gradient.addColorStop(1, 'rgba(112, 0, 255, 0.8)');
+
+    try {
+        topFitChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: top10.map(m => m.label.split(',')[0]),
+                datasets: [{
+                    label: 'Strategic Multiplier',
+                    data: top10.map(m => m.score),
+                    backgroundColor: top10.map(m => {
+                        // Use market color if available, otherwise use gradient
+                        return m.color || gradient;
+                    }),
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
-                    padding: 12,
-                    displayColors: false,
-                    callbacks: {
-                        label: (context) => `Multiplier: ${context.parsed.x.toFixed(2)}x`
-                    }
-                }
+                    borderRadius: 6,
+                    barThickness: 22
+                }]
             },
-            scales: {
-                x: {
-                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-                    ticks: { color: 'rgba(255, 255, 255, 0.6)', font: { size: 10 } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
                 },
-                y: {
-                    grid: { display: false },
-                    ticks: {
-                        color: '#fff',
-                        font: { size: 11, weight: '600' },
-                        autoSkip: false
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(10, 15, 30, 0.95)',
+                        titleColor: '#fff',
+                        titleFont: { family: 'Outfit', size: 14, weight: 'bold' },
+                        bodyColor: '#fff',
+                        bodyFont: { family: 'Inter', size: 13 },
+                        borderColor: 'rgba(22, 103, 233, 0.3)',
+                        borderWidth: 1,
+                        padding: 15,
+                        displayColors: true,
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        boxPadding: 6,
+                        usePointStyle: true,
+                        callbacks: {
+                            label: (context) => ` Strategic Multiplier: ${context.parsed.x.toFixed(2)}x`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.5)',
+                            font: { family: 'Inter', size: 11 },
+                            callback: (val) => val.toFixed(1) + 'x'
+                        },
+                        suggestedMin: 0.8
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#fff',
+                            font: { family: 'Outfit', size: 12, weight: '600' },
+                            autoSkip: false
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+
+        // Force a layout re-calc after a short delay
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 100);
+
+    } catch (err) {
+        console.error('Critical Error in renderTopFitChart:', err);
+    }
 }
 
 
