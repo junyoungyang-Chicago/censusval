@@ -682,6 +682,7 @@ window.calculateValuation = calculateValuation;
 calculateValuation();
 
 // --- DISCOVERY ENGINE: Find Best Strategic Fit ---
+let discoveryChartInstance = null;
 
 // Helper to calculate total multiplier for scoring without updating UI
 async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDigital, priorityMod, assetType) {
@@ -811,12 +812,10 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
             document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment with a ${winner.score.toFixed(2)}x combined multiplier.`;
             resultsDiv.classList.remove('hidden');
 
-            // Increase delay and use requestAnimationFrame for better layout synchronization
+            // Increase delay and use more robust sync for layout
             setTimeout(() => {
-                requestAnimationFrame(() => {
-                    renderTopFitChart(top10);
-                });
-            }, 300);
+                renderTopFitChart(top10);
+            }, 500);
 
             await calculateValuation();
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
@@ -833,46 +832,47 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
 
 function renderTopFitChart(top10) {
     if (typeof Chart === 'undefined') {
-        console.error('Chart.js library not found. Ensure the CDN script is loaded.');
+        console.error('Chart.js library not found.');
         return;
     }
 
-    const canvas = document.getElementById('topFitChart');
+    const canvas = document.getElementById('top-fit-chart-canvas');
     if (!canvas) {
-        console.error('Canvas #topFitChart element not found in DOM.');
+        console.error('Canvas element #top-fit-chart-canvas not found.');
         return;
     }
 
-    // Ensure the parent container has position: relative for Chart.js responsivity
     const container = document.getElementById('chart-container');
     if (container) {
         container.style.position = 'relative';
-        container.style.height = '350px'; // Re-confirm height
+        container.style.display = 'block';
     }
 
     const ctx = canvas.getContext('2d');
 
-    if (topFitChart) {
-        topFitChart.destroy();
+    if (discoveryChartInstance) {
+        discoveryChartInstance.destroy();
     }
 
-    // Create a beautiful gradient for the bars
+    // Explicitly set canvas dimensions to match container
+    canvas.width = container ? container.offsetWidth : 400;
+    canvas.height = container ? container.offsetHeight : 350;
+
     const gradient = ctx.createLinearGradient(0, 0, 400, 0);
-    gradient.addColorStop(0, 'rgba(22, 103, 233, 0.8)');
-    gradient.addColorStop(1, 'rgba(112, 0, 255, 0.8)');
+    gradient.addColorStop(0, 'rgba(22, 103, 233, 0.9)');
+    gradient.addColorStop(1, 'rgba(112, 0, 255, 0.9)');
+
+    console.log('Final Chart Data Check:', top10.map(m => ({ l: m.label, s: m.score })));
 
     try {
-        topFitChart = new Chart(ctx, {
+        discoveryChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: top10.map(m => m.label.split(',')[0]),
+                labels: top10.map(m => (m.label || 'Unknown').split(',')[0]),
                 datasets: [{
                     label: 'Strategic Multiplier',
-                    data: top10.map(m => m.score),
-                    backgroundColor: top10.map(m => {
-                        // Use market color if available, otherwise use gradient
-                        return m.color || gradient;
-                    }),
+                    data: top10.map(m => isFinite(m.score) ? m.score : 0),
+                    backgroundColor: top10.map(m => m.color || gradient),
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
                     borderRadius: 6,
@@ -884,7 +884,7 @@ function renderTopFitChart(top10) {
                 maintainAspectRatio: false,
                 indexAxis: 'y',
                 animation: {
-                    duration: 1000,
+                    duration: 800,
                     easing: 'easeOutQuart'
                 },
                 plugins: {
@@ -916,7 +916,7 @@ function renderTopFitChart(top10) {
                             font: { family: 'Inter', size: 11 },
                             callback: (val) => val.toFixed(1) + 'x'
                         },
-                        suggestedMin: 0.8
+                        suggestedMin: 0
                     },
                     y: {
                         grid: { display: false },
@@ -930,13 +930,14 @@ function renderTopFitChart(top10) {
             }
         });
 
-        // Force a layout re-calc after a short delay
+        // Forced layout refresh
         setTimeout(() => {
             window.dispatchEvent(new Event('resize'));
+            discoveryChartInstance.update();
         }, 100);
 
     } catch (err) {
-        console.error('Critical Error in renderTopFitChart:', err);
+        console.error('Discovery Chart Render Error:', err);
     }
 }
 
