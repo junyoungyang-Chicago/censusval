@@ -518,6 +518,14 @@ td {
 
 .multiplier-val {
     font-weight: 700;
+    position: relative;
+    display: inline-block;
+}
+
+[data-formula]:hover::after,
+[data-formula]:hover::before {
+    opacity: 1;
+    visibility: visible;
 }
 
 .multiplier-val::after {
@@ -546,21 +554,28 @@ td {
 .multiplier-val:hover::after {
     opacity: 1;
     visibility: visible;
-    bottom: 140%;
+    transform: translateX(-50%) translateY(-10px);
 }
 
 /* Tooltip Arrow */
 .multiplier-val:hover::before {
     content: '';
     position: absolute;
-    bottom: 125%;
+    bottom: 100%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(5px);
     border-width: 8px;
     border-style: solid;
     border-color: #fff transparent transparent transparent;
     z-index: 101;
     transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.multiplier-val:hover::before {
+    opacity: 1;
+    visibility: visible;
 }
 
 .impact-high {
