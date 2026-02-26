@@ -494,8 +494,8 @@ async function calculateValuation() {
                 <td><span class="census-tag">B19001</span></td>
                 <td>${(market.affluence_burst * 100).toFixed(1)}%</td>
                 <td>${(market.affluence_burst * 1.05 * 100).toFixed(1)}%</td>
-                <td>5.5%</td>
-                <td><span class="multiplier-val" data-formula="(Market Burst * 1.05) / 0.055 Benchmark">${currentAffMult.toFixed(3)}x</span></td>
+                <td>6.0%</td>
+                <td><span class="multiplier-val" data-formula="(Market Burst * 1.05) / 0.06 Benchmark">${currentAffMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
             matrixBody.appendChild(burstRow);
@@ -685,7 +685,7 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDigital, pr
             const w1 = Math.log(fanHhi / (market.hhi || 1));
             const w2 = Math.log(fanHhi / idealHhi);
             const hhiMult = Math.exp((0.6 * w2) + (0.4 * w1));
-            const affLift = (market.affluence_burst * 1.05) / 0.055;
+            const affLift = (market.affluence_burst * 1.05) / 0.06;
 
             multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
             if (activeTargets.includes('strategic_affluence')) multiplier *= 1.10;
