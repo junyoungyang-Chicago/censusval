@@ -133,7 +133,7 @@ async function fetchCensusData(marketKey, zipCode = null) {
 
     let url;
     if (zipCode) {
-        const variables = 'B11001_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E,B19001_001E,B19001_017E,B24011_001E,B24011_002E';
+        const variables = 'B11001_001E,B19013_001E,B01002_001E,B03002_001E,B03002_003E,B19001_001E,B19001_017E,B24011_001E,B24011_002E,B25003_001E,B25003_002E';
         url = `${CENSUS_API_BASE}?get=${variables}&for=zip%20code%20tabulation%20area:${zipCode}`;
     } else {
         const geo = marketMapping[marketKey];
