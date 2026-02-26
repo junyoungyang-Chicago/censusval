@@ -637,47 +637,71 @@ calculateValuation();
 async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDigital, priorityMod, assetType) {
     const market = await fetchCensusData(marketKey);
     const isInternational = document.getElementById('international-toggle').checked;
+    const isEfficiency = document.getElementById('efficiency-toggle').checked;
     const brandName = document.getElementById('target-brand').value;
-    const brand = brandProfiles[brandName] || { targets: ['hhi'] };
+    const brand = brandProfiles[brandName] || { targets: ['hhi'], persona: "" };
+    const activeTargets = currentPersonaTargets || brand.targets;
 
     let totalMultiplier = 1.0 * priorityMod;
 
     factors.forEach(factor => {
-        const isEfficiency = document.getElementById('efficiency-toggle').checked;
         if (factor.id === 'loyalty_ltv' && assetType !== 'In-Venue') return;
         if (factor.id === 'digital' && assetType === 'Broadcast') return;
         if (factor.id === 'reach' && isEfficiency) return;
+        if (factor.id === 'total_pop' && isEfficiency) return;
 
         let multiplier = 1.0;
-        let marketVal = market[factor.id] || 0;
-        let fanVal = factor.id === 'strategic_affluence' ? marketVal : marketVal * 1.05;
+        let marketVal = market[factor.id] || factor.us_avg;
 
-        // Simplified benchmarking for discovery score
         if (factor.id === 'reach') {
             multiplier = marketVal / LEAGUE_AVERAGES.reach;
         } else if (factor.id === 'strategic_affluence') {
-            const hhiMult = 1.18 * (((market.hhi || 75000) * 1.18) >= idealHhi ? 1.15 : 0.95);
-            const affMult = ((market.affluence_burst || 0.055) * 1.05) / 0.055;
-            multiplier = (hhiMult * 0.7) + (affMult * 0.2) + 0.1;
+            const fanHhi = market.hhi * 1.18;
+            const w1 = Math.log(fanHhi / (market.hhi || 1));
+            const w2 = Math.log(fanHhi / idealHhi);
+            const hhiMult = Math.exp((0.6 * w2) + (0.4 * w1));
+            const affLift = (market.affluence_burst * 1.05) / 0.055;
+
+            multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
             if (activeTargets.includes('strategic_affluence')) multiplier *= 1.10;
         } else if (factor.id === 'hh_structure') {
-            multiplier = 1.05;
+            const lsVal = market.hh_size || factor.us_avg;
+            multiplier = (lsVal * 1.05) / lsVal;
         } else if (factor.id === 'loyalty_ltv') {
-            const teamAtt = marketMapping[marketKey].avg_attendance || 18000;
+            const teamAtt = marketMapping[marketKey].avg_attendance || LEAGUE_AVERAGES.attendance;
             multiplier = teamAtt / LEAGUE_AVERAGES.attendance;
-        } else if (factor.id === 'age') {
-            const ageDiff = Math.abs(market.age - idealAge);
-            multiplier = ageDiff < 5 ? 1.15 : (ageDiff < 10 ? 1.05 : 0.9);
+        } else if (factor.id === 'strategic_life_stage') {
+            const ageVal = market.age || factor.us_avg;
+            const ageDiff = Math.abs((ageVal * 0.96) - idealAge);
+            const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.025));
+            const lsMultiplier = ((market.life_stage || 0.65) * 1.05) / 0.65;
+
+            const stabilityKeywords = ["Insurance", "Home", "Improvement", "Stability", "Real Estate", "Mortgage", "Security"];
+            const isStabilityBrand = stabilityKeywords.some(kw =>
+                brandName.toLowerCase().includes(kw.toLowerCase()) ||
+                (brand.persona && brand.persona.toLowerCase().includes(kw.toLowerCase()))
+            );
+
+            const ageWeight = isStabilityBrand ? 0.5 : 0.8;
+            const intentWeight = 1.0 - ageWeight;
+            multiplier = (ageMultiplier * ageWeight) + (lsMultiplier * intentWeight);
+            if (activeTargets.includes('strategic_life_stage')) multiplier *= 1.10;
         } else if (factor.id === 'digital') {
-            const baseDigitalMult = market.digital >= idealDigital ? 1.2 : 0.85;
+            const baseDigitalMult = (market.digital || 0.85) / LEAGUE_AVERAGES.social_engagement;
             multiplier = baseDigitalMult * (assetType === 'Social' ? 1.25 : 1.0);
             if (isInternational) multiplier *= 1.15;
         } else if (factor.id === 'multicultural') {
             const isGlobal = isInternational || brandName === 'International Brand';
             if (isGlobal || activeTargets.includes('multicultural')) {
-                multiplier = (fanVal / factor.us_avg) * (isGlobal ? 1.15 : 1.0);
+                multiplier = ((market.multicultural || 0.45) * 1.08 / factor.us_avg) * (isGlobal ? 1.15 : 1.0);
             }
+        } else {
+            // Default alignment logic for other factors
+            const fanVal = marketVal * 1.08;
+            multiplier = fanVal / (factor.us_avg || 1);
+            if (activeTargets.includes(factor.id)) multiplier *= 1.10;
         }
+
         totalMultiplier *= multiplier;
     });
     return totalMultiplier;
