@@ -457,7 +457,7 @@ async function calculateValuation() {
                 <td>${formatCurrency(market.hhi)}</td>
                 <td>${formatCurrency(market.hhi * 1.18)}</td>
                 <td>$75,000</td>
-                <td><span class="multiplier-val">${currentHhiMult.toFixed(3)}x</span></td>
+                <td><span class="multiplier-val" data-formula="exp(0.6 * log(Fan/Target) + 0.4 * log(Fan/Local))">${currentHhiMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
             matrixBody.appendChild(hhiRow);
@@ -470,7 +470,7 @@ async function calculateValuation() {
                 <td>${(market.affluence_burst * 100).toFixed(1)}%</td>
                 <td>${(market.affluence_burst * 1.05 * 100).toFixed(1)}%</td>
                 <td>5.5%</td>
-                <td><span class="multiplier-val">${currentAffMult.toFixed(3)}x</span></td>
+                <td><span class="multiplier-val" data-formula="(Market Burst * 1.05) / 0.055 Benchmark">${currentAffMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
             matrixBody.appendChild(burstRow);
@@ -485,7 +485,7 @@ async function calculateValuation() {
                 <td>${(market.age || 38.5).toFixed(1)}</td>
                 <td>${((market.age || 38.5) * 0.96).toFixed(1)}</td>
                 <td>38.5</td>
-                <td><span class="multiplier-val">${currentAgeMult.toFixed(3)}x</span></td>
+                <td><span class="multiplier-val" data-formula="max(0.8, 1.25 - (AgeDiff * 0.025))">${currentAgeMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
             matrixBody.appendChild(ageRow);
@@ -498,7 +498,7 @@ async function calculateValuation() {
                 <td>${((market.life_stage || 0.65) * 100).toFixed(1)}%</td>
                 <td>${((market.life_stage || 0.65) * 1.05 * 100).toFixed(1)}%</td>
                 <td>65.0%</td>
-                <td><span class="multiplier-val">${currentLsMult.toFixed(3)}x</span></td>
+                <td><span class="multiplier-val" data-formula="(Market Owners * 1.05) / 0.65 Benchmark">${currentLsMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
             matrixBody.appendChild(lsRow);
