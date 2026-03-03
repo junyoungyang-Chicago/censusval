@@ -53,7 +53,25 @@ const marketMapping = {
     toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777, color: '#CE1141', textColor: 'white', lat: 43.6532, lng: -79.3832 },
     austin: { state: '48', place: '05000', label: 'Austin, TX', avg_attendance: 15000, color: '#BF5700', textColor: 'white', lat: 30.2672, lng: -97.7431 },
     lasvegas: { state: '32', place: '40000', label: 'Las Vegas, NV', avg_attendance: 18000, color: '#B29759', textColor: 'black', lat: 36.1699, lng: -115.1398 },
-    losangeles: { state: '06', place: '44000', label: 'Los Angeles, CA', avg_attendance: 18723, color: '#552583', textColor: 'white', lat: 34.0522, lng: -118.2437 }
+    losangeles: { state: '06', place: '44000', label: 'Los Angeles, CA', avg_attendance: 18723, color: '#552583', textColor: 'white', lat: 34.0522, lng: -118.2437 },
+
+    // MLB
+    yankees: { state: '36', county: '005', label: 'New York, NY (Yankees)', avg_attendance: 40862, color: '#003087', textColor: 'white', lat: 40.8296, lng: -73.9262 },
+    dodgers: { state: '06', place: '44000', label: 'Los Angeles, CA (Dodgers)', avg_attendance: 47371, color: '#005A9C', textColor: 'white', lat: 34.0739, lng: -118.2400 },
+    cubs: { state: '17', place: '14000', label: 'Chicago, IL (Cubs)', avg_attendance: 34261, color: '#0E3386', textColor: 'white', lat: 41.9484, lng: -87.6553 },
+    braves: { state: '13', county: '067', label: 'Atlanta, GA (Braves)', avg_attendance: 39401, color: '#13274F', textColor: 'white', lat: 33.8907, lng: -84.4678 },
+
+    // MLS
+    atlantaunited: { state: '13', place: '04000', label: 'Atlanta, GA (United FC)', avg_attendance: 47526, color: '#80000A', textColor: 'white', lat: 33.7553, lng: -84.4006 },
+    intermiami: { state: '12', place: '24000', label: 'Miami, FL (Inter Miami)', avg_attendance: 17643, color: '#F7B5CD', textColor: '#231F20', lat: 26.1923, lng: -80.1610 },
+    lafc: { state: '06', place: '44000', label: 'Los Angeles, CA (LAFC)', avg_attendance: 22023, color: '#000000', textColor: '#C39E6D', lat: 34.0130, lng: -118.2847 },
+    seattlesounders: { state: '53', place: '63000', label: 'Seattle, WA (Sounders FC)', avg_attendance: 31053, color: '#5D9741', textColor: 'white', lat: 47.5952, lng: -122.3316 }
+};
+
+const LEAGUES = {
+    'NBA': ['atlanta', 'boston', 'brooklyn', 'charlotte', 'chicago', 'cleveland', 'dallas', 'denver', 'detroit', 'sanfrancisco', 'houston', 'indianapolis', 'lakers', 'clippers', 'memphis', 'miami', 'milwaukee', 'minneapolis', 'neworleans', 'newyork', 'oklahomacity', 'orlando', 'philadelphia', 'phoenix', 'portland', 'sacramento', 'sanantonio', 'saltlakecity', 'toronto', 'washingtondc'],
+    'MLB': ['yankees', 'dodgers', 'cubs', 'braves'],
+    'MLS': ['atlantaunited', 'intermiami', 'lafc', 'seattlesounders']
 };
 
 const brandProfiles = {
@@ -503,7 +521,33 @@ async function calculateValuation() {
     const isInternational = document.getElementById('international-toggle').checked;
     const zipCode = isEfficiency ? document.getElementById('zip-code').value.trim() : null;
 
-    const market = await fetchCensusData(marketKey, zipCode && zipCode.length === 5 ? zipCode : null);
+    // Handle Portfolio Aggregation if multiple selected
+    let marketsToFetch = marketKey.split(',').filter(k => k);
+    let market;
+
+    if (marketsToFetch.length > 1) {
+        // Aggregate Mode
+        const results = await Promise.all(marketsToFetch.map(k => fetchCensusData(k)));
+        market = {
+            hhi: results.reduce((a, b) => a + b.hhi, 0) / results.length,
+            age: results.reduce((a, b) => a + b.age, 0) / results.length,
+            multicultural: results.reduce((a, b) => a + b.multicultural, 0) / results.length,
+            gender: results.reduce((a, b) => a + b.gender, 0) / results.length,
+            life_stage: results.reduce((a, b) => a + b.life_stage, 0) / results.length,
+            education: results.reduce((a, b) => a + b.education, 0) / results.length,
+            digital: results.reduce((a, b) => a + b.digital, 0) / results.length,
+            hh_size: results.reduce((a, b) => a + b.hh_size, 0) / results.length,
+            affluence_burst: results.reduce((a, b) => a + b.affluence_burst, 0) / results.length,
+            executive_density: results.reduce((a, b) => a + b.executive_density, 0) / results.length,
+            reach: results.reduce((a, b) => a + b.reach, 0) / results.length
+        };
+        if (mainCard) {
+            mainCard.classList.add('discovery-avg-mode');
+            document.getElementById('valuation-label').innerText = "Portfolio Strategic Index (AVG)";
+        }
+    } else {
+        market = await fetchCensusData(marketKey, zipCode && zipCode.length === 5 ? zipCode : null);
+    }
 
     // Update fanHhiInput fallback contextually if needed
     if (mode === 'nba' && !document.getElementById('fan-target-hhi').value) {
@@ -1671,6 +1715,167 @@ document.getElementById('matrix-view-toggle').addEventListener('change', (e) => 
         cardsView.classList.add('hidden');
     }
 });
+
+// --- CUSTOM MULTI-SELECT FOR TEAMS ---
+let selectedTeams = ['chicago'];
+
+function initTeamMultiSelect() {
+    const container = document.getElementById('team-multi-select-container');
+    const searchInput = document.getElementById('team-search');
+    const dropdown = document.getElementById('team-dropdown-content');
+    const leagueContainer = document.getElementById('league-list-container');
+    const tagsContainer = document.getElementById('selected-tags');
+    const hiddenInput = document.getElementById('market-dma');
+
+    // Build the dropdown structure
+    leagueContainer.innerHTML = '';
+    Object.keys(LEAGUES).forEach(leagueName => {
+        const section = document.createElement('div');
+        section.className = 'league-section';
+        section.innerHTML = `
+            <div class="league-row">
+                <input type="checkbox" id="league-check-${leagueName}" class="league-checkbox">
+                <label for="league-check-${leagueName}">${leagueName} Portfolio</label>
+                <i class="expand-icon">▼</i>
+            </div>
+            <div class="team-items"></div>
+        `;
+
+        const teamItems = section.querySelector('.team-items');
+        LEAGUES[leagueName].forEach(teamKey => {
+            const team = marketMapping[teamKey];
+            if (!team) return;
+            const teamRow = document.createElement('div');
+            teamRow.className = 'team-row';
+            teamRow.dataset.key = teamKey;
+            teamRow.innerHTML = `
+                <input type="checkbox" class="team-checkbox" ${selectedTeams.includes(teamKey) ? 'checked' : ''}>
+                <label>${team.label}</label>
+            `;
+            teamItems.appendChild(teamRow);
+        });
+
+        leagueContainer.appendChild(section);
+
+        // Expand/Collapse logic
+        section.querySelector('label').addEventListener('click', (e) => {
+            e.preventDefault();
+            section.classList.toggle('expanded');
+        });
+        section.querySelector('.expand-icon').addEventListener('click', () => {
+            section.classList.toggle('expanded');
+        });
+
+        // League Select All logic
+        const leagueCheck = section.querySelector('.league-checkbox');
+        leagueCheck.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            const teamChecks = section.querySelectorAll('.team-checkbox');
+            teamChecks.forEach(tc => {
+                tc.checked = isChecked;
+                const teamKey = tc.closest('.team-row').dataset.key;
+                toggleTeamSelection(teamKey, isChecked, false);
+            });
+            updateSelectionState();
+        });
+    });
+
+    // Delegate Team Checkbox logic
+    leagueContainer.addEventListener('change', (e) => {
+        if (e.target.classList.contains('team-checkbox')) {
+            const teamKey = e.target.closest('.team-row').dataset.key;
+            toggleTeamSelection(teamKey, e.target.checked, true);
+        }
+    });
+
+    // Search logic
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const allTeamRows = leagueContainer.querySelectorAll('.team-row');
+        allTeamRows.forEach(row => {
+            const label = row.querySelector('label').innerText.toLowerCase();
+            row.style.display = label.includes(term) ? 'flex' : 'none';
+        });
+        // Auto-expand sections that have visible items
+        const allSections = leagueContainer.querySelectorAll('.league-section');
+        allSections.forEach(sec => {
+            const hasVisible = Array.from(sec.querySelectorAll('.team-row')).some(r => r.style.display !== 'none');
+            if (term && hasVisible) sec.classList.add('expanded');
+            else if (!term) sec.classList.remove('expanded');
+        });
+    });
+
+    // Toggle dropdown
+    tagsContainer.addEventListener('click', (e) => {
+        if (e.target === searchInput || e.target.classList.contains('remove-tag')) return;
+        dropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    document.getElementById('clear-teams').addEventListener('click', () => {
+        selectedTeams = [];
+        const allChecks = leagueContainer.querySelectorAll('input[type="checkbox"]');
+        allChecks.forEach(c => c.checked = false);
+        updateSelectionState();
+    });
+
+    updateSelectionState();
+
+    function toggleTeamSelection(key, isSelected, updateUI) {
+        if (isSelected) {
+            if (!selectedTeams.includes(key)) selectedTeams.push(key);
+        } else {
+            selectedTeams = selectedTeams.filter(t => t !== key);
+        }
+        if (updateUI) updateSelectionState();
+    }
+
+    function updateSelectionState() {
+        // Update tags
+        tagsContainer.querySelectorAll('.tag-chip').forEach(tag => tag.remove());
+        selectedTeams.forEach(key => {
+            const team = marketMapping[key];
+            if (!team) return;
+            const chip = document.createElement('div');
+            chip.className = 'tag-chip';
+            chip.innerHTML = `
+                ${team.label.split('(')[1] ? team.label.split('(')[1].replace(')', '') : team.label.split(',')[0]}
+                <span class="remove-tag" data-key="${key}">×</span>
+            `;
+            chip.querySelector('.remove-tag').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleTeamSelection(key, false, true);
+                // Uncheck in dropdown
+                const check = leagueContainer.querySelector(`.team-row[data-key="${key}"] .team-checkbox`);
+                if (check) check.checked = false;
+            });
+            tagsContainer.insertBefore(chip, searchInput);
+        });
+
+        // Update hidden field for compatibility
+        hiddenInput.value = selectedTeams.join(',');
+
+        // Update League portfolio checkboxes (partial state)
+        Object.keys(LEAGUES).forEach(l => {
+            const leagueCheck = document.getElementById(`league-check-${l}`);
+            const total = LEAGUES[l].length;
+            const selectedCount = LEAGUES[l].filter(tk => selectedTeams.includes(tk)).length;
+            leagueCheck.checked = selectedCount === total && total > 0;
+            leagueCheck.indeterminate = selectedCount > 0 && selectedCount < total;
+        });
+
+        // Trigger calculation
+        calculateValuation();
+    }
+}
+
+// Initial Call
+initTeamMultiSelect();
 
 function flipCard(card) {
     card.classList.toggle('flipped');

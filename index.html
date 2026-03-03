@@ -165,39 +165,22 @@
                         <div class="context-badge">Active Context</div>
                         <h2><span class="step-num">02</span> League Context</h2>
                         <div class="input-group">
-                            <label for="market-dma">Target Team</label>
-                            <select id="market-dma">
-                                <option value="atlanta">Atlanta, GA (Hawks)</option>
-                                <option value="boston">Boston, MA (Celtics)</option>
-                                <option value="brooklyn">Brooklyn, NY (Nets)</option>
-                                <option value="charlotte">Charlotte, NC (Hornets)</option>
-                                <option value="chicago" selected>Chicago, IL (Bulls)</option>
-                                <option value="cleveland">Cleveland, OH (Cavaliers)</option>
-                                <option value="dallas">Dallas, TX (Mavericks)</option>
-                                <option value="denver">Denver, CO (Nuggets)</option>
-                                <option value="detroit">Detroit, MI (Pistons)</option>
-                                <option value="sanfrancisco">San Francisco, CA (Warriors)</option>
-                                <option value="houston">Houston, TX (Rockets)</option>
-                                <option value="indianapolis">Indianapolis, IN (Pacers)</option>
-                                <option value="lakers" selected>Los Angeles, CA (Lakers)</option>
-                                <option value="clippers">Los Angeles, CA (Clippers)</option>
-                                <option value="memphis">Memphis, TN (Grizzlies)</option>
-                                <option value="miami">Miami, FL (Heat)</option>
-                                <option value="milwaukee">Milwaukee, WI (Bucks)</option>
-                                <option value="minneapolis">Minneapolis, MN (Timberwolves)</option>
-                                <option value="neworleans">New Orleans, LA (Pelicans)</option>
-                                <option value="newyork">New York, NY (Knicks)</option>
-                                <option value="oklahomacity">Oklahoma City, OK (Thunder)</option>
-                                <option value="orlando">Orlando, FL (Magic)</option>
-                                <option value="philadelphia">Philadelphia, PA (76ers)</option>
-                                <option value="phoenix">Phoenix, AZ (Suns)</option>
-                                <option value="portland">Portland, OR (Trail Blazers)</option>
-                                <option value="sacramento">Sacramento, CA (Kings)</option>
-                                <option value="sanantonio">San Antonio, TX (Spurs)</option>
-                                <option value="saltlakecity">Salt Lake City, UT (Jazz)</option>
-                                <option value="toronto">Toronto, ON (Raptors)</option>
-                                <option value="washingtondc">Washington, DC (Wizards)</option>
-                            </select>
+                            <label>Target Properties</label>
+                            <div class="custom-multi-select" id="team-multi-select-container">
+                                <div class="selected-tags" id="selected-tags">
+                                    <input type="text" id="team-search" placeholder="Search Teams...">
+                                </div>
+                                <div class="dropdown-content hidden" id="team-dropdown-content">
+                                    <div class="dropdown-header">
+                                        <span class="clear-all" id="clear-teams">Clear All</span>
+                                    </div>
+                                    <div id="league-list-container">
+                                        <!-- Leagues and Teams injected via JS -->
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Hidden input to maintain compatibility with existing code that looks for #market-dma -->
+                            <input type="hidden" id="market-dma" value="chicago">
                         </div>
                         <div id="zip-code-container" class="input-group hidden">
                             <label for="zip-code">Target Zip Code (Efficiency Mode)</label>
