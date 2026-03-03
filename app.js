@@ -334,8 +334,9 @@ async function calculateValuation() {
         if (factor.id === 'total_pop' && isEfficiency) return;
         if (factor.id === 'reach' && isEfficiency) return;
 
-        let marketVal = market[factor.id] || factor.us_avg;
-        if (factor.id === 'hh_structure') marketVal = market.hh_size || factor.us_avg;
+        let currentUsAvg = (factor.id === 'reach' && (assetType === 'Event' || mode === 'event')) ? 200000 : factor.us_avg;
+        let marketVal = market[factor.id] || currentUsAvg;
+        if (factor.id === 'hh_structure') marketVal = market.hh_size || currentUsAvg;
 
         // Base calculation for fanVal
         let fanVal = marketVal * 1.08; // Default lift
@@ -356,7 +357,7 @@ async function calculateValuation() {
         // Revised Benchmarking & Ideal Demographic Alignment Logic: Market vs Goal
         let formula = "";
         if (factor.id === 'reach') {
-            multiplier = marketVal / LEAGUE_AVERAGES.reach;
+            multiplier = marketVal / currentUsAvg;
             formula = "Local Households / League Average Households";
         } else if (factor.id === 'strategic_affluence') {
             const currentFanHhi = fanHhiInput;
@@ -508,7 +509,7 @@ async function calculateValuation() {
             <td><span class="census-tag">${factor.table}</span></td>
             <td>${formatValue(factor.id, marketVal)}</td>
             <td>${formatValue(factor.id, fanVal)}</td>
-            <td>${formatValue(factor.id, factor.us_avg)}</td>
+            <td>${formatValue(factor.id, currentUsAvg)}</td>
             <td class="multiplier-cell">
                 <span class="multiplier-val" data-formula="${formula}">${multiplier.toFixed(3)}x</span>
             </td>
@@ -567,7 +568,7 @@ async function calculateValuation() {
                         </div>
                         <div class="detail-item">
                             <span class="label">League/US Avg</span>
-                            <span class="val">${formatValue(factor.id, factor.us_avg)}</span>
+                            <span class="val">${formatValue(factor.id, currentUsAvg)}</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Census Table</span>
@@ -897,6 +898,7 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, 
     const brand = brandProfiles[brandName] || { targets: ['hhi'], persona: "" };
     const activeTargets = currentPersonaTargets || brand.targets;
 
+    const mode = currentContext;
     let totalMultiplier = 1.0 * priorityMod;
 
     factors.forEach(factor => {
@@ -905,11 +907,11 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, 
         if (factor.id === 'reach' && isEfficiency) return;
         if (factor.id === 'total_pop' && isEfficiency) return;
 
-        let multiplier = 1.0;
-        let marketVal = market[factor.id] || factor.us_avg;
+        let currentUsAvg = (factor.id === 'reach' && (assetType === 'Event' || mode === 'event')) ? 200000 : factor.us_avg;
+        let marketVal = market[factor.id] || currentUsAvg;
 
         if (factor.id === 'reach') {
-            multiplier = marketVal / LEAGUE_AVERAGES.reach;
+            multiplier = marketVal / currentUsAvg;
         } else if (factor.id === 'strategic_affluence') {
             // Use provided fanHhi if available, otherwise estimate
             const currentFanHhi = fanHhi || market.hhi * 1.18;
