@@ -59,48 +59,42 @@ const brandProfiles = {
         persona: "Luxury Auto brands target high-net-worth individuals. They value high-fidelity income concentration ($200k+) and premium median HHI lift.",
         idealAge: 45,
         idealHhi: 125000,
-        idealDiversity: 0.85,
-        priority: 1.2
+        idealDiversity: 0.85
     },
     'Fintech / Crypto': {
-        targets: ['digital', 'strategic_affluence', 'strategic_life_stage'],
+        targets: ['diversity', 'strategic_affluence', 'strategic_life_stage'],
         persona: "Fintech disruptors seek young, tech-savvy professionals. They prioritize digital connectivity and strategic affluence concentration for market penetration.",
         idealAge: 28,
         idealHhi: 85000,
-        idealDiversity: 0.95,
-        priority: 1.2
+        idealDiversity: 0.95
     },
     'Mass Market Retail': {
         targets: ['reach', 'strategic_life_stage', 'hh_structure'],
         persona: "Retailers value raw volume and family density. They prioritize total 'Wallets' and middle-income stability for high-frequency low-ticket sales.",
         idealAge: 38,
         idealHhi: 55000,
-        idealDiversity: 0.70,
-        priority: 1.0
+        idealDiversity: 0.70
     },
     'Health & Wellness': {
         targets: ['strategic_life_stage', 'multicultural', 'education'],
         persona: "Wellness brands thrive in urban, diverse markets with high educational attainment. They target healthy, active personas with disposable income for lifestyle products.",
         idealAge: 32,
         idealHhi: 75000,
-        idealDiversity: 0.85,
-        priority: 1.1
+        idealDiversity: 0.85
     },
     'Global Beverage': {
-        targets: ['multicultural', 'digital', 'reach', 'strategic_life_stage'],
+        targets: ['multicultural', 'diversity', 'reach', 'strategic_life_stage'],
         persona: "Beverage giants seek maximum multicultural reach and social media 'Halo' impact to drive brand awareness across the broadest possible audience denominator.",
         idealAge: 24,
         idealHhi: 45000,
-        idealDiversity: 0.90,
-        priority: 1.0
+        idealDiversity: 0.90
     },
     'International Brand': {
-        targets: ['multicultural', 'digital', 'education', 'strategic_life_stage'],
+        targets: ['multicultural', 'diversity', 'education', 'strategic_life_stage'],
         persona: "International brands focus on high-growth diversity markets. They prioritize multicultural density and educational attainment as key indicators for global scalability.",
         idealAge: 30,
         idealHhi: 65000,
-        idealDiversity: 0.88,
-        priority: 1.3
+        idealDiversity: 0.88
     }
 };
 
@@ -276,7 +270,7 @@ async function calculateValuation() {
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
-    const priorityMod = parseFloat(document.getElementById('brand-priority').value);
+    const priorityMod = 1.0; // Hardcoded to 1.0 after removing UI
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
     const assetType = document.getElementById('asset-name').value;
@@ -644,14 +638,7 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
         document.getElementById('brand-target-diversity').value = brand.idealDiversity * 100;
         document.getElementById('diversity-focus-val').innerText = (brand.idealDiversity * 100) + '%';
 
-        // Find matching priority option
-        const prioritySelect = document.getElementById('brand-priority');
-        for (let i = 0; i < prioritySelect.options.length; i++) {
-            if (parseFloat(prioritySelect.options[i].value) === brand.priority) {
-                prioritySelect.selectedIndex = i;
-                break;
-            }
-        }
+        // Removed priority auto-selection logic as UI was removed
         calculateValuation();
     }
 });
@@ -848,8 +835,8 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
 
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
-    const idealDigital = parseFloat(document.getElementById('brand-target-digital').value) / 100;
-    const priorityMod = parseFloat(document.getElementById('brand-priority').value);
+    const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
+    const priorityMod = 1.0;
     const assetType = document.getElementById('asset-name').value;
 
     let marketScores = [];
