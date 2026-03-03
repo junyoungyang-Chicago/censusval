@@ -259,6 +259,164 @@ async function fetchCensusData(marketKey, zipCode = null) {
     }
 }
 
+/**
+ * Unified calculation logic for strategic multipliers and values.
+ */
+function calculateFactorImpact(factor, market, ctx) {
+    const {
+        assetType, mode, brandName, brand, activeTargets,
+        fanAgeInput, fanHhiInput, fanDiversityInput,
+        idealAge, idealHhi, idealDiversity, idealDigital,
+        benchAge, benchHhi, benchDiversity,
+        teamAttendance, isInternational, isEfficiency
+    } = ctx;
+
+    let currentUsAvg = (factor.id === 'reach' && (assetType === 'Event' || mode === 'event')) ? 200000 : factor.us_avg;
+    let marketVal = market[factor.id] || currentUsAvg;
+    if (factor.id === 'hh_structure') marketVal = market.hh_size || currentUsAvg;
+
+    // Base calculation for fanVal
+    let fanVal = marketVal * 1.08; // Default lift
+    if (factor.id === 'age') fanVal = fanAgeInput;
+    if (factor.id === 'multicultural') fanVal = fanDiversityInput;
+
+    if (factor.id === 'strategic_affluence') {
+        const calcFanHhi = fanHhiInput;
+        marketVal = ((market.hhi / 75000) * 0.7) + ((market.affluence_burst / 0.06) * 0.2) + 0.1;
+        fanVal = ((calcFanHhi / 75000) * 0.8) + (((market.affluence_burst * 1.05) / 0.06) * 0.1) + 0.1;
+    }
+
+    if (factor.id === 'hh_structure') fanVal = marketVal * 1.05;
+
+    let multiplier = 1.0;
+    let formula = "";
+    let impact = factor.impact || "Standard Lift";
+
+    if (factor.id === 'reach') {
+        multiplier = marketVal / currentUsAvg;
+        formula = "Local Households / League Average Households";
+    } else if (factor.id === 'strategic_affluence') {
+        const currentFanHhi = fanHhiInput;
+        const w1 = Math.log(currentFanHhi / (market.hhi || 1));
+        const w2 = Math.log(currentFanHhi / idealHhi);
+        const w2Capped = Math.max(-0.35, Math.min(0.40, w2));
+        const hhiMult = Math.exp((0.6 * w2Capped) + (0.4 * w1));
+
+        const affLiftRaw = (market.affluence_burst * 1.05) / 0.06;
+        const affLift = Math.max(0.7, Math.min(1.75, affLiftRaw));
+
+        multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
+        multiplier = Math.max(0.85, Math.min(1.35, multiplier));
+
+        const eventHhiAlignment = (fanHhiInput / benchHhi) * 0.4 + 0.6;
+        multiplier *= eventHhiAlignment;
+
+        impact = hhiMult > 1.2 ? "High-Net-Worth Concentration" : "Affluence Precision";
+        formula = `(HHI Fit & Alignment) × Local Benchmark Alignment (${formatCurrency(benchHhi)})`;
+        if (activeTargets.includes('strategic_affluence')) {
+            multiplier *= 1.10;
+            formula = "(80/10 Composite) + Strategic Alignment";
+        }
+    } else if (factor.id === 'hh_structure') {
+        multiplier = fanVal / marketVal;
+        formula = "Fan Household Size / Market Average Household Size";
+    } else if (factor.id === 'loyalty_ltv') {
+        marketVal = LEAGUE_AVERAGES.attendance;
+        fanVal = teamAttendance;
+        multiplier = fanVal / marketVal;
+        formula = `Team Attendance / Property Avg (${marketVal.toLocaleString()})`;
+        if (activeTargets.includes('loyalty_ltv')) {
+            formula = "Strategic Priority Target Alignment (Target Fit)";
+        }
+    } else if (factor.id === 'strategic_life_stage') {
+        const ageVal = fanAgeInput;
+        const ageDiff = Math.abs(ageVal - idealAge);
+        const eventAgeDiff = Math.abs(ageVal - benchAge);
+        const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.02) - (eventAgeDiff * 0.01));
+
+        const marketAgeDiff = Math.abs((market.age || 38) - idealAge);
+        const marketAgeMult = Math.max(0.8, 1.25 - (marketAgeDiff * 0.02));
+
+        const lsVal = market.life_stage || 0.65;
+        const lsMultiplier = (lsVal * 1.05) / 0.65;
+        const marketLsMult = lsVal / 0.65;
+
+        const stabilityKeywords = ["Insurance", "Home", "Improvement", "Stability", "Real Estate", "Mortgage", "Security"];
+        const isStabilityBrand = stabilityKeywords.some(kw =>
+            brandName.toLowerCase().includes(kw.toLowerCase()) ||
+            (brand.persona && brand.persona.toLowerCase().includes(kw.toLowerCase()))
+        );
+
+        const weightAge = isStabilityBrand ? 0.5 : 0.8;
+        const weightLs = isStabilityBrand ? 0.5 : 0.2;
+
+        fanVal = (ageMultiplier * weightAge) + (lsMultiplier * weightLs);
+        marketVal = (marketAgeMult * weightAge) + (marketLsMult * weightLs);
+        multiplier = fanVal / marketVal;
+
+        formula = isStabilityBrand ?
+            "Strategic Life Stage (50% Age Alignment / 50% Home Ownership Focus)" :
+            "Strategic Life Stage (80% Age Alignment / 20% Home Ownership Focus)";
+
+        impact = isStabilityBrand ? "Stability & Intent Focus" : "Generational Alignment";
+        if (activeTargets.includes('strategic_life_stage')) multiplier *= 1.10;
+    } else if (factor.id === 'digital') {
+        const baseDigitalMult = (market.digital || 0.85) / LEAGUE_AVERAGES.social_engagement;
+        const socialPremium = assetType === 'Social' ? 1.25 : 1.0;
+        multiplier = baseDigitalMult * socialPremium;
+        if (isInternational) multiplier *= 1.15;
+        formula = "(Market Digital Readiness × Platform Premium) " + (isInternational ? "× Global Lift" : "");
+        if (activeTargets.includes('digital')) {
+            formula = "Strategic Priority Target Alignment (Target Fit)";
+        }
+        impact = multiplier > 1.2 ? "Social Reach Premium" : "Platform Standard";
+        if (isInternational) impact += " (Global)";
+    } else if (factor.id === 'multicultural') {
+        const isStrategic = activeTargets.includes('multicultural');
+        const isGlobal = isInternational || brandName === 'International Brand';
+
+        if (isStrategic || isGlobal) {
+            const benchMulticultural = benchDiversity || factor.us_avg;
+            multiplier = fanVal / benchMulticultural;
+            formula = `Fan Diversity (${(fanVal * 100).toFixed(0)}%) / Local Benchmark (${(benchMulticultural * 100).toFixed(0)}%)`;
+
+            if (isStrategic) {
+                const alignmentMult = (fanVal / idealDiversity) * 0.5 + 0.5;
+                multiplier *= alignmentMult;
+                if (brandName === 'International Brand') {
+                    multiplier *= 1.45;
+                    impact = "International Diversity Power";
+                } else if (isInternational) {
+                    multiplier *= 1.15;
+                    impact = "Global Diversity Premium";
+                } else {
+                    multiplier *= 1.10;
+                    impact = "Strategic Diversity Focus";
+                }
+            } else if (isInternational) {
+                multiplier *= 1.15;
+                impact = "Global Reach Entry";
+            } else {
+                impact = "Diversity Growth Lift";
+            }
+        } else {
+            multiplier = 1.0;
+            formula = "Standard Alignment (Domestic Focus)";
+            impact = "Neutral Base (US Market)";
+        }
+    } else {
+        if (activeTargets.includes(factor.id)) {
+            multiplier = fanVal > marketVal ? 1.25 : 1.1;
+            formula = "Strategic Priority Target Alignment (Target Fit)";
+        } else {
+            multiplier = 1.02;
+            formula = "Standard Market Base Lift";
+        }
+    }
+
+    return { multiplier, fanVal, marketVal, currentUsAvg, formula, impact };
+}
+
 async function calculateValuation() {
     const mainCard = document.querySelector('.final-value-card');
     if (mainCard) {
@@ -298,10 +456,10 @@ async function calculateValuation() {
 
     const brandName = document.getElementById('target-brand').value;
 
-    // BRAND IDEAL INPUTS
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
+    const idealDigital = 0.85; // Default digital benchmark
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
     const assetType = document.getElementById('asset-name').value;
@@ -325,177 +483,30 @@ async function calculateValuation() {
     matrixBody.innerHTML = '';
     cardsGrid.innerHTML = '';
 
-    let totalMultiplier = 1.0;
     let currentHhiMult = 1.0;
     let currentAffMult = 1.0;
     let currentAgeMult = 1.0;
     let currentLsMult = 1.0;
 
+    let totalMultiplier = 1.0;
+
+    const ctx = {
+        assetType, mode, brandName, brand, activeTargets,
+        fanAgeInput, fanHhiInput, fanDiversityInput,
+        idealAge, idealHhi, idealDiversity, idealDigital,
+        benchAge, benchHhi, benchDiversity,
+        teamAttendance, isInternational, isEfficiency
+    };
+
     factors.forEach(factor => {
         // Exclusion logic: skip LTV (if not Venue), Digital (if Broadcast), Scale (if Efficiency), Reach (if Zip)
-        const isEfficiency = document.getElementById('efficiency-toggle').checked;
         if (factor.id === 'loyalty_ltv' && assetType !== 'In-Venue') return;
         if (factor.id === 'digital' && assetType === 'Broadcast') return;
         if (factor.id === 'total_pop' && isEfficiency) return;
         if (factor.id === 'reach' && isEfficiency) return;
 
-        let currentUsAvg = (factor.id === 'reach' && (assetType === 'Event' || mode === 'event')) ? 200000 : factor.us_avg;
-        let marketVal = market[factor.id] || currentUsAvg;
-        if (factor.id === 'hh_structure') marketVal = market.hh_size || currentUsAvg;
-
-        // Base calculation for fanVal
-        let fanVal = marketVal * 1.08; // Default lift
-        if (factor.id === 'age') fanVal = fanAgeInput;
-        if (factor.id === 'multicultural') fanVal = fanDiversityInput;
-
-        if (factor.id === 'strategic_affluence') {
-            const calcFanHhi = fanHhiInput;
-            marketVal = ((market.hhi / 75000) * 0.7) + ((market.affluence_burst / 0.06) * 0.2) + 0.1;
-            fanVal = ((calcFanHhi / 75000) * 0.8) + (((market.affluence_burst * 1.05) / 0.06) * 0.1) + 0.1;
-        }
-
-        if (factor.id === 'hh_structure') fanVal = marketVal * 1.05;
-
-        let multiplier = 1.0;
-
-        // Revised Benchmarking & Ideal Demographic Alignment Logic: Market vs Goal
-        let formula = "";
-        if (factor.id === 'reach') {
-            multiplier = marketVal / currentUsAvg;
-            formula = "Local Households / League Average Households";
-        } else if (factor.id === 'strategic_affluence') {
-            const currentFanHhi = fanHhiInput;
-            const w1 = Math.log(currentFanHhi / (market.hhi || 1)); // Wealth Position
-            const w2 = Math.log(currentFanHhi / idealHhi);        // Brand Fit
-            const w2Capped = Math.max(-0.35, Math.min(0.40, w2)); // Capped Brand Fit
-            const hhiMult = Math.exp((0.6 * w2Capped) + (0.4 * w1));
-
-            const affLiftRaw = (market.affluence_burst * 1.05) / 0.06;
-            const affLift = Math.max(0.7, Math.min(1.75, affLiftRaw));
-
-            currentHhiMult = hhiMult;
-            currentAffMult = affLift;
-
-            multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
-            multiplier = Math.max(0.85, Math.min(1.35, multiplier));
-
-            // Weight against Event Benchmark
-            const eventHhiAlignment = (fanHhiInput / benchHhi) * 0.4 + 0.6;
-            multiplier *= eventHhiAlignment;
-
-            factor.impact = hhiMult > 1.2 ? "High-Net-Worth Concentration" : "Affluence Precision";
-            formula = `(HHI Fit & Alignment) × Local Benchmark Alignment (${formatCurrency(benchHhi)})`;
-            if (activeTargets.includes('strategic_affluence')) {
-                multiplier *= 1.10; // Strategic priority boost
-                formula = "(80/10 Composite) + Strategic Alignment";
-            }
-        } else if (factor.id === 'hh_structure') {
-            marketVal = market.hh_size || factor.us_avg;
-            fanVal = marketVal * 1.05;
-            multiplier = fanVal / marketVal;
-            formula = "Fan Household Size / Market Average Household Size";
-        } else if (factor.id === 'loyalty_ltv') {
-            marketVal = LEAGUE_AVERAGES.attendance;
-            fanVal = teamAttendance;
-            multiplier = fanVal / marketVal;
-            formula = `Team Attendance / Property Avg (${marketVal.toLocaleString()})`;
-            if (activeTargets.includes('loyalty_ltv')) {
-                formula = "Strategic Priority Target Alignment (Target Fit)";
-            }
-        } else if (factor.id === 'strategic_life_stage') {
-            const ageVal = fanAgeInput;
-            const ageDiff = Math.abs(ageVal - idealAge);
-            const eventAgeDiff = Math.abs(ageVal - benchAge);
-            const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.02) - (eventAgeDiff * 0.01));
-
-            const marketAgeDiff = Math.abs((market.age || 38) - idealAge);
-            const marketAgeMult = Math.max(0.8, 1.25 - (marketAgeDiff * 0.02));
-
-            const lsVal = market.life_stage || 0.65;
-            const lsMultiplier = (lsVal * 1.05) / 0.65;
-            const marketLsMult = lsVal / 0.65;
-
-            // Brand Weighting Logic
-            const stabilityKeywords = ["Insurance", "Home", "Improvement", "Stability", "Real Estate", "Mortgage", "Security"];
-            const isStabilityBrand = stabilityKeywords.some(kw =>
-                brandName.toLowerCase().includes(kw.toLowerCase()) ||
-                brand.persona.toLowerCase().includes(kw.toLowerCase())
-            );
-
-            const weightAge = isStabilityBrand ? 0.5 : 0.8;
-            const weightLs = isStabilityBrand ? 0.5 : 0.2;
-
-            fanVal = (ageMultiplier * weightAge) + (lsMultiplier * weightLs);
-            marketVal = (marketAgeMult * weightAge) + (marketLsMult * weightLs);
-            multiplier = fanVal / marketVal;
-
-            formula = isStabilityBrand ?
-                "Strategic Life Stage (50% Age Alignment / 50% Home Ownership Focus)" :
-                "Strategic Life Stage (80% Age Alignment / 20% Home Ownership Focus)";
-
-            factor.impact = isStabilityBrand ? "Stability & Intent Focus" : "Generational Alignment";
-            if (activeTargets.includes('strategic_life_stage')) multiplier *= 1.10;
-        }
-        else if (factor.id === 'digital') {
-            const baseDigitalMult = marketVal >= idealDigital ? 1.2 : 0.85;
-            const socialPremium = assetType === 'Social' ? 1.25 : 1.0;
-            multiplier = baseDigitalMult * socialPremium;
-            if (isInternational) multiplier *= 1.15; // Global Digital Lift
-            formula = "(Market Digital Readiness × Platform Premium) " + (isInternational ? "× Global Lift" : "");
-            if (activeTargets.includes('digital')) {
-                formula = "Strategic Priority Target Alignment (Target Fit)";
-            }
-            factor.impact = multiplier > 1.2 ? "Social Reach Premium" : "Platform Standard";
-            if (isInternational) factor.impact += " (Global)";
-        } else if (factor.id === 'multicultural') {
-            const isStrategic = activeTargets.includes('multicultural');
-            const isGlobal = isInternational || brandName === 'International Brand';
-
-            if (isStrategic || isGlobal) {
-                const benchMulticultural = benchDiversity || factor.us_avg;
-                multiplier = fanVal / benchMulticultural;
-                formula = `Fan Diversity (${(fanVal * 100).toFixed(0)}%) / Local Benchmark (${(benchMulticultural * 100).toFixed(0)}%)`;
-
-                if (isStrategic) {
-                    // LINK: Diversity Affinity Focus affects Multicultural Density
-                    const alignmentMult = (fanVal / idealDiversity) * 0.5 + 0.5;
-                    multiplier *= alignmentMult;
-
-                    if (brandName === 'International Brand') {
-                        multiplier *= 1.45;
-                        factor.impact = "International Diversity Power";
-                        formula = "(Fan vs Bench) × Int'l Brand Focus";
-                    } else if (isInternational) {
-                        multiplier *= 1.15;
-                        factor.impact = "Global Diversity Premium";
-                        formula = "(Fan vs Bench) × Global Strategic Lift";
-                    } else {
-                        multiplier *= 1.10;
-                        factor.impact = "Strategic Diversity Focus";
-                        formula = "(Fan vs Bench) × Target alignment";
-                    }
-                } else if (isInternational) {
-                    multiplier *= 1.15;
-                    factor.impact = "Global Reach Entry";
-                    formula = "(Fan vs Bench) × global Base Weight";
-                } else {
-                    factor.impact = "Diversity Growth Lift";
-                }
-            } else {
-                multiplier = 1.0;
-                formula = "Standard Alignment (Domestic Focus)";
-                factor.impact = "Neutral Base (US Market)";
-            }
-        } else {
-            // Standard target alignment for other factors (Gender, Education, Life Stage)
-            if (activeTargets.includes(factor.id)) {
-                multiplier = fanVal > marketVal ? 1.25 : 1.1;
-                formula = "Strategic Priority Target Alignment (Target Fit)";
-            } else {
-                multiplier = 1.02;
-                formula = "Standard Market Base Lift";
-            }
-        }
+        const result = calculateFactorImpact(factor, market, ctx);
+        const { multiplier, fanVal, marketVal, currentUsAvg, formula, impact } = result;
 
         totalMultiplier *= multiplier;
 
@@ -900,82 +911,18 @@ calculateValuation();
 let discoveryChartInstance = null;
 
 // Helper to calculate total multiplier for scoring without updating UI
-async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, priorityMod, assetType, fanAge, fanHhi, fanDiversity) {
+async function getMultiplierOnly(marketKey, ctx) {
     const market = await fetchCensusData(marketKey);
-    const isInternational = document.getElementById('international-toggle').checked;
-    const isEfficiency = document.getElementById('efficiency-toggle').checked;
-    const brandName = document.getElementById('target-brand').value;
-    const brand = brandProfiles[brandName] || { targets: ['hhi'], persona: "" };
-    const activeTargets = currentPersonaTargets || brand.targets;
-
-    const mode = currentContext;
-    let totalMultiplier = 1.0 * priorityMod;
+    let totalMultiplier = 1.0;
 
     factors.forEach(factor => {
-        if (factor.id === 'loyalty_ltv' && assetType !== 'In-Venue') return;
-        if (factor.id === 'digital' && assetType === 'Broadcast') return;
-        if (factor.id === 'reach' && isEfficiency) return;
-        if (factor.id === 'total_pop' && isEfficiency) return;
+        if (factor.id === 'loyalty_ltv' && ctx.assetType !== 'In-Venue') return;
+        if (factor.id === 'digital' && ctx.assetType === 'Broadcast') return;
+        if (factor.id === 'total_pop' && ctx.isEfficiency) return;
+        if (factor.id === 'reach' && ctx.isEfficiency) return;
 
-        let currentUsAvg = (factor.id === 'reach' && (assetType === 'Event' || mode === 'event')) ? 200000 : factor.us_avg;
-        let marketVal = market[factor.id] || currentUsAvg;
-
-        if (factor.id === 'reach') {
-            multiplier = marketVal / currentUsAvg;
-        } else if (factor.id === 'strategic_affluence') {
-            // Use provided fanHhi if available, otherwise estimate
-            const currentFanHhi = fanHhi || market.hhi * 1.18;
-            const w1 = Math.log(currentFanHhi / (market.hhi || 1));
-            const w2 = Math.log(currentFanHhi / idealHhi);
-            const w2Capped = Math.max(-0.35, Math.min(0.40, w2));
-            const hhiMult = Math.exp((0.6 * w2Capped) + (0.4 * w1));
-
-            const affLiftRaw = (market.affluence_burst * 1.05) / 0.06;
-            const affLift = Math.max(0.7, Math.min(1.75, affLiftRaw));
-
-            multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
-            multiplier = Math.max(0.85, Math.min(1.35, multiplier));
-
-            if (activeTargets.includes('strategic_affluence')) multiplier *= 1.10;
-        } else if (factor.id === 'hh_structure') {
-            const lsVal = market.hh_size || factor.us_avg;
-            multiplier = 1.05; // Fixed lift for discovered fans
-        } else if (factor.id === 'loyalty_ltv') {
-            const teamAtt = marketMapping[marketKey]?.avg_attendance || LEAGUE_AVERAGES.attendance;
-            multiplier = teamAtt / LEAGUE_AVERAGES.attendance;
-        } else if (factor.id === 'strategic_life_stage') {
-            // Use provided fanAge if available, otherwise estimate
-            const ageVal = fanAge || (market.age || 38.5) * 0.96;
-            const ageDiff = Math.abs(ageVal - idealAge);
-            const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.025));
-            const lsMultiplier = ((market.life_stage || 0.65) * 1.05) / 0.65;
-
-            const stabilityKeywords = ["Insurance", "Home", "Improvement", "Stability", "Real Estate", "Mortgage", "Security"];
-            const isStabilityBrand = stabilityKeywords.some(kw =>
-                brandName.toLowerCase().includes(kw.toLowerCase()) ||
-                (brand.persona && brand.persona.toLowerCase().includes(kw.toLowerCase()))
-            );
-
-            const ageWeight = isStabilityBrand ? 0.5 : 0.8;
-            const intentWeight = 1.0 - ageWeight;
-            multiplier = (ageMultiplier * ageWeight) + (lsMultiplier * intentWeight);
-            if (activeTargets.includes('strategic_life_stage')) multiplier *= 1.10;
-        } else if (factor.id === 'digital') {
-            const baseDigitalMult = (market.digital || 0.85) / LEAGUE_AVERAGES.social_engagement;
-            multiplier = baseDigitalMult * (assetType === 'Social' ? 1.25 : 1.0);
-            if (isInternational) multiplier *= 1.15;
-        } else if (factor.id === 'multicultural') {
-            const isGlobal = isInternational || brandName === 'International Brand';
-            if (isGlobal || activeTargets.includes('multicultural')) {
-                const currentFanDiversity = fanDiversity || (market.multicultural || 0.45) * 1.08 / factor.us_avg;
-                multiplier = currentFanDiversity * (isGlobal ? 1.15 : 1.0);
-            }
-        } else {
-            multiplier = 1.02;
-            if (activeTargets.includes(factor.id)) multiplier *= 1.10;
-        }
-
-        totalMultiplier *= multiplier;
+        const result = calculateFactorImpact(factor, market, ctx);
+        totalMultiplier *= result.multiplier;
     });
     return totalMultiplier;
 }
@@ -998,20 +945,43 @@ async function runDiscovery(mode) {
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
+    const idealDigital = 0.85;
 
-    // Get respective context's custom demographics
-    const fanAge = mode === 'nba' ?
-        parseFloat(document.getElementById('fan-target-age').value) :
-        parseFloat(document.getElementById('event-target-age').value);
-    const fanHhi = mode === 'nba' ?
-        parseFloat(document.getElementById('fan-target-hhi').value) :
-        parseFloat(document.getElementById('event-target-hhi').value);
-    const fanDiversity = mode === 'nba' ?
-        parseFloat(document.getElementById('fan-target-diversity').value) / 100 :
-        parseFloat(document.getElementById('event-target-diversity').value) / 100;
-
-    const priorityMod = 1.0;
+    const brandName = document.getElementById('target-brand').value;
+    const brand = brandProfiles[brandName] || { targets: ['hhi'], persona: "" };
+    const activeTargets = currentPersonaTargets || brand.targets;
     const assetType = document.getElementById('asset-name').value;
+    const isEfficiency = document.getElementById('efficiency-toggle').checked;
+    const isInternational = document.getElementById('international-toggle').checked;
+
+    let fanAgeInput, fanHhiInput, fanDiversityInput, benchAge, benchHhi, benchDiversity;
+
+    if (mode === 'nba') {
+        fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
+        fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || 85000;
+        fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
+        benchAge = 35;
+        benchHhi = 75000;
+        benchDiversity = 0.45;
+    } else {
+        const eventKey = document.getElementById('event-type').value;
+        const profile = eventProfiles[eventKey] || { idealAge: 35, idealHhi: 75000, idealDiversity: 0.45 };
+        fanAgeInput = parseFloat(document.getElementById('event-target-age').value) || profile.idealAge;
+        fanHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || profile.idealHhi;
+        fanDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
+        benchAge = profile.idealAge;
+        benchHhi = profile.idealHhi;
+        benchDiversity = profile.idealDiversity;
+    }
+
+    const ctx = {
+        assetType, mode, brandName, brand, activeTargets,
+        fanAgeInput, fanHhiInput, fanDiversityInput,
+        idealAge, idealHhi, idealDiversity, idealDigital,
+        benchAge, benchHhi, benchDiversity,
+        teamAttendance: 18324, // Placeholder for discovery loop if needed
+        isInternational, isEfficiency
+    };
 
     let marketScores = [];
 
@@ -1027,8 +997,8 @@ async function runDiscovery(mode) {
             btn.style.setProperty('--progress', `${progress}%`);
             btn.innerText = `Analyzing ${i + 1}/${total} Markets...`;
 
-            // Use the Discovery Engine to find the best market alignment for the brand
-            const score = await getMultiplierOnly(key, idealAge, idealHhi, idealDiversity, priorityMod, assetType, fanAge, fanHhi, fanDiversity);
+            // Use the Discovery Engine with unified context
+            const score = await getMultiplierOnly(key, ctx);
 
             // Map labels and colors from marketMapping if available, otherwise fallback
             const mapInfo = marketMapping[key] || { label: key.toUpperCase(), color: '#888' };
