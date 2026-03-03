@@ -26,7 +26,7 @@
                 <h1>Trajektory <span>Market Discovery</span></h1>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <p class="tagline">Strategic NBA Market Valuation powered by US Census Data</p>
+                <p class="tagline">Strategic Market Valuation powered by US Census Data</p>
                 <div style="display: flex; gap: 1rem; align-items: center;">
 
                     <div class="theme-toggle" id="theme-switch"
@@ -109,6 +109,26 @@
                                     style="flex: 1;">
                                 <span id="diversity-focus-val" class="range-val"
                                     style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">85%</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="brand-target-education">Ideal Education Level</label>
+                            <select id="brand-target-education">
+                                <option value="0.15">High School Grad</option>
+                                <option value="0.25">Some College / Associate</option>
+                                <option value="0.35" selected>Bachelor's Degree+</option>
+                                <option value="0.45">Graduate Degree+</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="brand-target-gender">Gender Target (Female Influence)</label>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <input type="range" id="brand-target-gender" min="0" max="100" value="50"
+                                    style="flex: 1;">
+                                <span id="gender-focus-val" class="range-val"
+                                    style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">50%</span>
                             </div>
                         </div>
 

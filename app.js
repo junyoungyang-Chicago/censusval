@@ -62,42 +62,54 @@ const brandProfiles = {
         persona: "Luxury Auto brands target high-net-worth individuals. They value high-fidelity income concentration ($200k+) and premium median HHI lift.",
         idealAge: 45,
         idealHhi: 125000,
-        idealDiversity: 0.85
+        idealDiversity: 0.85,
+        idealEducation: 0.45,
+        idealGender: 35
     },
     'Fintech / Crypto': {
         targets: ['diversity', 'strategic_affluence', 'strategic_life_stage'],
         persona: "Fintech disruptors seek young, tech-savvy professionals. They prioritize digital connectivity and strategic affluence concentration for market penetration.",
         idealAge: 28,
         idealHhi: 85000,
-        idealDiversity: 0.95
+        idealDiversity: 0.95,
+        idealEducation: 0.40,
+        idealGender: 40
     },
     'Mass Market Retail': {
         targets: ['reach', 'strategic_life_stage', 'hh_structure'],
         persona: "Retailers value raw volume and family density. They prioritize total 'Wallets' and middle-income stability for high-frequency low-ticket sales.",
         idealAge: 38,
         idealHhi: 55000,
-        idealDiversity: 0.70
+        idealDiversity: 0.70,
+        idealEducation: 0.25,
+        idealGender: 55
     },
     'Health & Wellness': {
         targets: ['strategic_life_stage', 'multicultural', 'education'],
         persona: "Wellness brands thrive in urban, diverse markets with high educational attainment. They target healthy, active personas with disposable income for lifestyle products.",
         idealAge: 32,
         idealHhi: 75000,
-        idealDiversity: 0.85
+        idealDiversity: 0.85,
+        idealEducation: 0.45,
+        idealGender: 65
     },
     'Global Beverage': {
         targets: ['multicultural', 'diversity', 'reach', 'strategic_life_stage'],
         persona: "Beverage giants seek maximum multicultural reach and social media 'Halo' impact to drive brand awareness across the broadest possible audience denominator.",
         idealAge: 24,
         idealHhi: 45000,
-        idealDiversity: 0.90
+        idealDiversity: 0.90,
+        idealEducation: 0.25,
+        idealGender: 50
     },
     'International Brand': {
         targets: ['multicultural', 'diversity', 'education', 'strategic_life_stage'],
         persona: "International brands focus on high-growth diversity markets. They prioritize multicultural density and educational attainment as key indicators for global scalability.",
         idealAge: 30,
         idealHhi: 65000,
-        idealDiversity: 0.88
+        idealDiversity: 0.88,
+        idealEducation: 0.45,
+        idealGender: 50
     }
 };
 
@@ -404,6 +416,22 @@ function calculateFactorImpact(factor, market, ctx) {
             formula = "Standard Alignment (Domestic Focus)";
             impact = "Neutral Base (US Market)";
         }
+    } else if (factor.id === 'gender') {
+        const genderVal = 51.0; // Default female %
+        const targetGender = ctx.idealGender || 50;
+        const genderAlign = Math.max(0.85, 1.15 - Math.abs(genderVal - targetGender) * 0.005);
+        multiplier = genderAlign;
+        formula = `Gender Alignment (Target: ${targetGender}% Female)`;
+        if (activeTargets.includes('gender')) multiplier *= 1.10;
+        impact = multiplier > 1.05 ? "Target Gender Match" : "Neutral Influence";
+    } else if (factor.id === 'education') {
+        const eduVal = market.education || 0.35;
+        const targetEdu = ctx.idealEducation || 0.35;
+        const eduAlign = Math.max(0.8, 1.20 - Math.abs(eduVal - targetEdu) * 0.5);
+        multiplier = eduAlign;
+        formula = `Educational Alignment (Target: ${(targetEdu * 100).toFixed(0)}%+)`;
+        if (activeTargets.includes('education')) multiplier *= 1.10;
+        impact = multiplier > 1.05 ? "Precision Education Fit" : "Standard Decision Power";
     } else {
         if (activeTargets.includes(factor.id)) {
             multiplier = fanVal > marketVal ? 1.25 : 1.1;
@@ -456,9 +484,13 @@ async function calculateValuation() {
 
     const brandName = document.getElementById('target-brand').value;
 
+    // BRAND IDEAL INPUTS
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
+    const idealEducation = parseFloat(document.getElementById('brand-target-education').value) || 0.35;
+    const idealGender = parseFloat(document.getElementById('brand-target-gender').value) || 50;
+
     const idealDigital = 0.85; // Default digital benchmark
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
@@ -493,7 +525,7 @@ async function calculateValuation() {
     const ctx = {
         assetType, mode, brandName, brand, activeTargets,
         fanAgeInput, fanHhiInput, fanDiversityInput,
-        idealAge, idealHhi, idealDiversity, idealDigital,
+        idealAge, idealHhi, idealDiversity, idealDigital, idealEducation, idealGender,
         benchAge, benchHhi, benchDiversity,
         teamAttendance, isInternational, isEfficiency
     };
@@ -708,6 +740,10 @@ document.getElementById('brand-target-diversity').addEventListener('input', (e) 
     document.getElementById('diversity-focus-val').innerText = e.target.value + '%';
 });
 
+document.getElementById('brand-target-gender').addEventListener('input', (e) => {
+    document.getElementById('gender-focus-val').innerText = e.target.value + '%';
+});
+
 document.getElementById('fan-target-diversity').addEventListener('input', (e) => {
     document.getElementById('fan-diversity-val').innerText = e.target.value + '%';
 });
@@ -767,6 +803,12 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
         document.getElementById('brand-target-hhi').value = brand.idealHhi;
         document.getElementById('brand-target-diversity').value = brand.idealDiversity * 100;
         document.getElementById('diversity-focus-val').innerText = (brand.idealDiversity * 100) + '%';
+
+        if (brand.idealEducation) document.getElementById('brand-target-education').value = brand.idealEducation;
+        if (brand.idealGender) {
+            document.getElementById('brand-target-gender').value = brand.idealGender;
+            document.getElementById('gender-focus-val').innerText = brand.idealGender + '%';
+        }
 
         // Removed priority auto-selection logic as UI was removed
         calculateValuation();
@@ -895,6 +937,7 @@ window.calculateValuation = calculateValuation;
 // Auto-calculate on all valuation-relevant inputs
 [
     'brand-target-age', 'brand-target-hhi', 'brand-target-diversity',
+    'brand-target-education', 'brand-target-gender',
     'fan-target-age', 'fan-target-hhi', 'fan-target-diversity',
     'event-city', 'event-target-age', 'event-target-hhi', 'event-target-diversity',
     'team-attendance'
@@ -945,6 +988,8 @@ async function runDiscovery(mode) {
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
+    const idealEducation = parseFloat(document.getElementById('brand-target-education').value) || 0.35;
+    const idealGender = parseFloat(document.getElementById('brand-target-gender').value) || 50;
     const idealDigital = 0.85;
 
     const brandName = document.getElementById('target-brand').value;
@@ -977,7 +1022,7 @@ async function runDiscovery(mode) {
     const ctx = {
         assetType, mode, brandName, brand, activeTargets,
         fanAgeInput, fanHhiInput, fanDiversityInput,
-        idealAge, idealHhi, idealDiversity, idealDigital,
+        idealAge, idealHhi, idealDiversity, idealDigital, idealEducation, idealGender,
         benchAge, benchHhi, benchDiversity,
         teamAttendance: 18324, // Placeholder for discovery loop if needed
         isInternational, isEfficiency
