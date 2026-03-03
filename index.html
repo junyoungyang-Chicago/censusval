@@ -173,6 +173,13 @@
                                     style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">70%</span>
                             </div>
                         </div>
+                        <div
+                            style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                            <button id="find-best-fit-btn" class="discovery-btn"
+                                style="width: 100%; justify-content: center;">
+                                Find Best Strategic Fit (AI Discovery)
+                            </button>
+                        </div>
                     </div>
 
                     <div class="card glass-card clickable-card" id="step-03-card">
@@ -225,36 +232,27 @@
                     </div>
                 </section>
 
-                <div class="action-bar card glass-card">
-                    <div class="button-group">
-                        <button id="calculate-btn" class="primary-btn">Recalculate Strategic Value</button>
-                        <button id="find-best-fit-btn" class="discovery-btn">
-                            Find Best Strategic Fit (AI Discovery)
-                        </button>
-                    </div>
-                    <div id="discovery-results" class="hidden">
-                        <h4
-                            style="color: var(--primary-color); margin-bottom: 1.5rem; font-size: 1rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 800;">
-                            Strategic Ranking: Top 10 Fits</h4>
-                        <div style="display: flex; gap: 3rem; align-items: flex-start;">
-                            <div id="chart-container" style="height: 350px; flex: 2; min-width: 0;">
-                                <canvas id="top-fit-chart-canvas"></canvas>
+                <div id="discovery-results" class="card glass-card hidden" style="margin-bottom: 2rem;">
+                    <h4
+                        style="color: var(--primary-color); margin-bottom: 1.5rem; font-size: 1rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 800;">
+                        Strategic Ranking: Top 10 Fits</h4>
+                    <div style="display: flex; gap: 3rem; align-items: flex-start;">
+                        <div id="chart-container" style="height: 350px; flex: 2; min-width: 0;">
+                            <canvas id="top-fit-chart-canvas"></canvas>
+                        </div>
+                        <div
+                            style="flex: 1; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; min-height: 350px;">
+                            <span
+                                style="font-size: 0.7rem; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 1rem; display: block;">Primary
+                                Strategic Match</span>
+                            <div id="winner-text"
+                                style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: #fff; line-height: 1.2;">
                             </div>
-                            <div
-                                style="flex: 1; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; min-height: 350px;">
-                                <span
-                                    style="font-size: 0.7rem; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 1rem; display: block;">Primary
-                                    Strategic Match</span>
-                                <div id="winner-text"
-                                    style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: #fff; line-height: 1.2;">
-                                </div>
-                                <p id="winner-reason"
-                                    style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;"></p>
-                            </div>
+                            <p id="winner-reason"
+                                style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;"></p>
                         </div>
                     </div>
                 </div>
-
                 <section id="results-section" class="hidden">
                     <div class="valuation-summary">
                         <div class="final-value-card">

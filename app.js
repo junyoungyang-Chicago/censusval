@@ -775,6 +775,7 @@ document.getElementById('market-dma').addEventListener('change', (e) => {
     }
 
     updateTeamBranding(marketKey);
+    calculateValuation();
 });
 
 function updateTeamBranding(marketKey) {
@@ -847,6 +848,20 @@ if (document.getElementById('asset-name').value !== 'In-Venue') {
 
 // Ensure global access for initial run
 window.calculateValuation = calculateValuation;
+
+// Auto-calculate on all valuation-relevant inputs
+[
+    'brand-target-age', 'brand-target-hhi', 'brand-target-diversity',
+    'fan-target-age', 'fan-target-hhi', 'fan-target-diversity',
+    'event-city', 'event-target-age', 'event-target-hhi', 'event-target-diversity',
+    'team-attendance'
+].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => calculateValuation());
+    }
+});
+
 calculateValuation();
 
 // --- DISCOVERY ENGINE: Find Best Strategic Fit ---
