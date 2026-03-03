@@ -1357,6 +1357,7 @@ function toggleSubRows(factorId, btn) {
     const details = document.querySelectorAll(`.${factorId}-detail`);
 
     btn.classList.toggle('expanded');
+    btn.innerText = isExpanded ? '▶' : '▼';
 
     details.forEach(row => {
         row.classList.toggle('hidden-sub-row', isExpanded);
