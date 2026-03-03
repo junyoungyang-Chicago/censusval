@@ -1766,6 +1766,9 @@ function initTeamMultiSelect() {
             section.classList.toggle('expanded');
         });
 
+        // Expand sections by default
+        section.classList.add('expanded');
+
         // League Select All logic
         const leagueCheck = section.querySelector('.league-checkbox');
         leagueCheck.addEventListener('change', (e) => {
@@ -1801,7 +1804,6 @@ function initTeamMultiSelect() {
         allSections.forEach(sec => {
             const hasVisible = Array.from(sec.querySelectorAll('.team-row')).some(r => r.style.display !== 'none');
             if (term && hasVisible) sec.classList.add('expanded');
-            else if (!term) sec.classList.remove('expanded');
         });
     });
 
