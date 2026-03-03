@@ -591,8 +591,8 @@ async function calculateValuation() {
                 <td><div class="factor-name">└ Median Household Income</div></td>
                 <td><span class="census-tag">B19013</span></td>
                 <td>${formatCurrency(market.hhi)}</td>
-                <td>${formatCurrency(market.hhi * 1.18)}</td>
-                <td>$75,000</td>
+                <td>${formatCurrency(fanHhiInput)}</td>
+                <td>${formatCurrency(benchHhi)}</td>
                 <td><span class="multiplier-val" data-formula="exp(0.6 * log(Fan/Target) + 0.4 * log(Fan/Local))">${currentHhiMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
@@ -619,8 +619,8 @@ async function calculateValuation() {
                 <td><div class="factor-name">└ Age Alignment (Fans)</div></td>
                 <td><span class="census-tag">S0101</span></td>
                 <td>${(market.age || 38.5).toFixed(1)}</td>
-                <td>${((market.age || 38.5) * 0.96).toFixed(1)}</td>
-                <td>38.5</td>
+                <td>${fanAgeInput.toFixed(1)}</td>
+                <td>${benchAge.toFixed(1)}</td>
                 <td><span class="multiplier-val" data-formula="max(0.8, 1.25 - (AgeDiff * 0.025))">${currentAgeMult.toFixed(3)}x</span></td>
                 <td>Raw Input</td>
             `;
