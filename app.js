@@ -549,7 +549,7 @@ async function calculateValuation() {
                     <div class="card-impact-badge card-impact-${multiplier > 1.2 ? 'high' : 'neutral'}">
                         ${factor.impact || 'Standard Lift'}
                     </div>
-                    <small style="text-align: center; color: var(--text-secondary); margin-top: 1rem; opacity: 0.5;">Click to flip</small>
+
                 </div>
                 <div class="factor-card-back">
                     <div class="card-title" style="font-size: 1.1rem; margin-bottom: 1.5rem;">Calculation Details</div>
@@ -575,7 +575,7 @@ async function calculateValuation() {
                         <span class="formula-label">Equation</span>
                         <div class="formula-text">${formula}</div>
                     </div>
-                    <small style="text-align: center; color: var(--text-secondary); margin-top: auto; opacity: 0.5;">Click to flip back</small>
+
                 </div>
             </div>
         `;
