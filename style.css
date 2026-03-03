@@ -1069,3 +1069,89 @@ input:focus+.slider {
     height: 100% !important;
     filter: drop-shadow(0 0 10px rgba(22, 103, 233, 0.1));
 }
+
+.hidden {
+    display: none !important;
+}
+
+/* View Toggle Switch */
+.view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--surface-border);
+}
+
+.toggle-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(14px);
+}
+
+/* Leaflet Popup Customization */
+.leaflet-popup-content-wrapper {
+    background: rgba(20, 20, 30, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px !important;
+    color: white !important;
+}
+
+.leaflet-popup-tip {
+    background: rgba(20, 20, 30, 0.95) !important;
+    border: 1px solid var(--primary-color);
+}
+
+.leaflet-container {
+    background: #0a0f1e !important;
+}

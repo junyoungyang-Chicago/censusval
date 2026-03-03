@@ -12,6 +12,10 @@
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 
 <body class="dark-theme">
@@ -276,15 +280,29 @@
                 </section>
 
                 <div id="discovery-results" class="card glass-card hidden" style="margin-bottom: 2rem;">
-                    <h4
-                        style="color: var(--primary-color); margin-bottom: 1.5rem; font-size: 1rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 800;">
-                        Strategic Ranking: Top 10 Fits</h4>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h4
+                            style="color: var(--primary-color); margin: 0; font-size: 1rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 800;">
+                            Strategic Ranking: Top 10 Fits</h4>
+                        <div class="view-toggle">
+                            <span class="toggle-label">Chart</span>
+                            <label class="switch">
+                                <input type="checkbox" id="discovery-view-toggle">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="toggle-label">Map</span>
+                        </div>
+                    </div>
                     <div style="display: flex; gap: 3rem; align-items: flex-start;">
-                        <div id="chart-container" style="height: 350px; flex: 2; min-width: 0;">
+                        <div id="chart-container" style="height: 400px; flex: 2; min-width: 0;">
                             <canvas id="top-fit-chart-canvas"></canvas>
                         </div>
+                        <div id="map-container" class="hidden"
+                            style="height: 400px; flex: 2; min-width: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--surface-border);">
+                        </div>
                         <div
-                            style="flex: 1; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; min-height: 350px;">
+                            style="flex: 1; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; min-height: 400px;">
                             <span
                                 style="font-size: 0.7rem; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 1rem; display: block;">Primary
                                 Strategic Match</span>
