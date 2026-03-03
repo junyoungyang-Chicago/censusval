@@ -417,19 +417,19 @@ function calculateFactorImpact(factor, market, ctx) {
             impact = "Neutral Base (US Market)";
         }
     } else if (factor.id === 'gender') {
-        const genderVal = 51.0; // Default female %
+        const genderVal = ctx.fanGenderInput || 51.0;
         const targetGender = ctx.idealGender || 50;
         const genderAlign = Math.max(0.85, 1.15 - Math.abs(genderVal - targetGender) * 0.005);
         multiplier = genderAlign;
-        formula = `Gender Alignment (Target: ${targetGender}% Female)`;
+        formula = `Gender Alignment (Fan Profile: ${genderVal.toFixed(0)}% vs Target: ${targetGender}% Female)`;
         if (activeTargets.includes('gender')) multiplier *= 1.10;
         impact = multiplier > 1.05 ? "Target Gender Match" : "Neutral Influence";
     } else if (factor.id === 'education') {
-        const eduVal = market.education || 0.35;
+        const eduVal = ctx.fanEduInput || market.education || 0.35;
         const targetEdu = ctx.idealEducation || 0.35;
         const eduAlign = Math.max(0.8, 1.20 - Math.abs(eduVal - targetEdu) * 0.5);
         multiplier = eduAlign;
-        formula = `Educational Alignment (Target: ${(targetEdu * 100).toFixed(0)}%+)`;
+        formula = `Educational Alignment (Fan Profile: ${(eduVal * 100).toFixed(0)}% vs Target: ${(targetEdu * 100).toFixed(0)}%+)`;
         if (activeTargets.includes('education')) multiplier *= 1.10;
         impact = multiplier > 1.05 ? "Precision Education Fit" : "Standard Decision Power";
     } else {
@@ -455,13 +455,15 @@ async function calculateValuation() {
     const mode = currentContext;
 
     // Choose correct market and fan inputs based on mode
-    let marketKey, fanAgeInput, fanHhiInput, fanDiversityInput, benchAge, benchHhi, benchDiversity;
+    let marketKey, fanAgeInput, fanHhiInput, fanDiversityInput, fanEduInput, fanGenderInput, benchAge, benchHhi, benchDiversity;
 
     if (mode === 'nba') {
         marketKey = document.getElementById('market-dma').value;
         fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
         fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || 85000;
         fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
+        fanEduInput = parseFloat(document.getElementById('fan-target-education').value) || 0.35;
+        fanGenderInput = parseFloat(document.getElementById('fan-target-gender').value) || 50;
 
         // Benchmarks for NBA are US national averages or league specific
         benchAge = 35;
@@ -475,6 +477,8 @@ async function calculateValuation() {
         fanAgeInput = parseFloat(document.getElementById('event-target-age').value) || profile.idealAge;
         fanHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || profile.idealHhi;
         fanDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
+        fanEduInput = 0.35; // Fallback for event context if UI not yet added
+        fanGenderInput = 50; // Fallback for event context if UI not yet added
 
         // Benchmarks for Event are the Property-specific base standards
         benchAge = profile.idealAge;
@@ -524,7 +528,7 @@ async function calculateValuation() {
 
     const ctx = {
         assetType, mode, brandName, brand, activeTargets,
-        fanAgeInput, fanHhiInput, fanDiversityInput,
+        fanAgeInput, fanHhiInput, fanDiversityInput, fanEduInput, fanGenderInput,
         idealAge, idealHhi, idealDiversity, idealDigital, idealEducation, idealGender,
         benchAge, benchHhi, benchDiversity,
         teamAttendance, isInternational, isEfficiency
@@ -748,6 +752,10 @@ document.getElementById('fan-target-diversity').addEventListener('input', (e) =>
     document.getElementById('fan-diversity-val').innerText = e.target.value + '%';
 });
 
+document.getElementById('fan-target-gender').addEventListener('input', (e) => {
+    document.getElementById('fan-gender-val').innerText = e.target.value + '%';
+});
+
 document.getElementById('event-target-diversity').addEventListener('input', (e) => {
     document.getElementById('event-diversity-val').innerText = e.target.value + '%';
 });
@@ -939,6 +947,7 @@ window.calculateValuation = calculateValuation;
     'brand-target-age', 'brand-target-hhi', 'brand-target-diversity',
     'brand-target-education', 'brand-target-gender',
     'fan-target-age', 'fan-target-hhi', 'fan-target-diversity',
+    'fan-target-education', 'fan-target-gender',
     'event-city', 'event-target-age', 'event-target-hhi', 'event-target-diversity',
     'team-attendance'
 ].forEach(id => {
@@ -1005,6 +1014,8 @@ async function runDiscovery(mode) {
         fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
         fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || 85000;
         fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
+        fanEduInput = parseFloat(document.getElementById('fan-target-education').value) || 0.35;
+        fanGenderInput = parseFloat(document.getElementById('fan-target-gender').value) || 50;
         benchAge = 35;
         benchHhi = 75000;
         benchDiversity = 0.45;
@@ -1014,6 +1025,8 @@ async function runDiscovery(mode) {
         fanAgeInput = parseFloat(document.getElementById('event-target-age').value) || profile.idealAge;
         fanHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || profile.idealHhi;
         fanDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
+        fanEduInput = 0.35;
+        fanGenderInput = 50;
         benchAge = profile.idealAge;
         benchHhi = profile.idealHhi;
         benchDiversity = profile.idealDiversity;
@@ -1021,7 +1034,7 @@ async function runDiscovery(mode) {
 
     const ctx = {
         assetType, mode, brandName, brand, activeTargets,
-        fanAgeInput, fanHhiInput, fanDiversityInput,
+        fanAgeInput, fanHhiInput, fanDiversityInput, fanEduInput, fanGenderInput,
         idealAge, idealHhi, idealDiversity, idealDigital, idealEducation, idealGender,
         benchAge, benchHhi, benchDiversity,
         teamAttendance: 18324, // Placeholder for discovery loop if needed
