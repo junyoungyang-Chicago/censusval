@@ -75,8 +75,24 @@
             </nav>
 
             <div id="valuator-tab" class="tab-content active">
+                <div class="context-toggle-container card glass-card" style="margin-bottom: 2rem; padding: 1.5rem;">
+                    <label style="margin-bottom: 1rem; display: block;">Select Primary Calculation Context</label>
+                    <div style="display: flex; gap: 2rem;">
+                        <label
+                            style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; text-transform: none;">
+                            <input type="radio" name="calculation-mode" value="nba" checked style="width: auto;">
+                            NBA Season Context (Step 02)
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; text-transform: none;">
+                            <input type="radio" name="calculation-mode" value="event" style="width: auto;">
+                            Major Event Context (Step 03)
+                        </label>
+                    </div>
+                </div>
+
                 <section class="input-grid">
-                    <div class="card glass-card">
+                    <div class="card glass-card" id="step-02-card">
                         <h2><span class="step-num">01</span> Brand Persona Focus</h2>
                         <div class="input-group">
                             <label for="target-brand">Global Brand Persona</label>
@@ -174,7 +190,7 @@
                         </div>
                     </div>
 
-                    <div class="card glass-card">
+                    <div class="card glass-card" id="step-03-card">
                         <h2><span class="step-num">03</span> Event Context</h2>
                         <div class="input-group">
                             <label for="event-type">Property / Event</label>
@@ -189,7 +205,17 @@
                         </div>
                         <div class="input-group">
                             <label for="event-city">Target City / Venue Market</label>
-                            <input type="text" id="event-city" placeholder="e.g. Miami, FL">
+                            <select id="event-city">
+                                <option value="miami">Miami, FL</option>
+                                <option value="austin">Austin, TX</option>
+                                <option value="lasvegas">Las Vegas, NV</option>
+                                <option value="chicago">Chicago, IL</option>
+                                <option value="sanfrancisco">San Francisco, CA</option>
+                                <option value="newyork">New York, NY</option>
+                                <option value="losangeles">Los Angeles, CA</option>
+                                <option value="phoenix">Phoenix, AZ</option>
+                                <option value="atlanta">Atlanta, GA</option>
+                            </select>
                         </div>
                         <div class="input-row">
                             <div class="input-group">

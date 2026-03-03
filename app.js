@@ -50,7 +50,9 @@ const marketMapping = {
     sanantonio: { state: '48', place: '65000', label: 'San Antonio, TX (Spurs)', avg_attendance: 18324, color: '#C4CED4', textColor: 'black' },
     saltlakecity: { state: '49', place: '67000', label: 'Salt Lake City, UT (Jazz)', avg_attendance: 18206, color: '#002B5C', textColor: 'white' },
     washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', avg_attendance: 17800, color: '#002B5C', textColor: 'white' },
-    toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777, color: '#CE1141', textColor: 'white' }
+    toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777, color: '#CE1141', textColor: 'white' },
+    austin: { state: '48', place: '05000', label: 'Austin, TX', avg_attendance: 15000, color: '#BF5700', textColor: 'white' },
+    lasvegas: { state: '32', place: '40000', label: 'Las Vegas, NV', avg_attendance: 18000, color: '#B29759', textColor: 'black' }
 };
 
 const brandProfiles = {
@@ -271,15 +273,40 @@ async function fetchCensusData(marketKey, zipCode = null) {
 }
 
 async function calculateValuation() {
-    const baseline = 1; // Default to 1 for index-based valuation
-    const marketKey = document.getElementById('market-dma').value;
+    const baseline = 1;
+    const mode = document.querySelector('input[name="calculation-mode"]:checked').value;
+
+    // Choose correct market and fan inputs based on mode
+    let marketKey, fanAgeInput, fanHhiInput, fanDiversityInput, benchAge, benchHhi, benchDiversity;
+
+    if (mode === 'nba') {
+        marketKey = document.getElementById('market-dma').value;
+        fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
+        fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || 85000;
+        fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
+
+        // Benchmarks for NBA are US national averages or league specific
+        benchAge = 35;
+        benchHhi = 75000;
+        benchDiversity = 0.45;
+    } else {
+        marketKey = document.getElementById('event-city').value;
+        fanAgeInput = parseFloat(document.getElementById('event-target-age').value) || 35;
+        fanHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || 115000;
+        fanDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
+
+        // Benchmarks for Event are the Property-specific ideals
+        benchAge = parseFloat(document.getElementById('event-target-age').value) || 35;
+        benchHhi = parseFloat(document.getElementById('event-target-hhi').value) || 75000;
+        benchDiversity = parseFloat(document.getElementById('event-target-diversity').value) / 100;
+    }
+
     const brandName = document.getElementById('target-brand').value;
 
     // BRAND IDEAL INPUTS
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
-    const priorityMod = 1.0; // Hardcoded to 1.0 after removing UI
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
     const assetType = document.getElementById('asset-name').value;
@@ -289,15 +316,10 @@ async function calculateValuation() {
 
     const market = await fetchCensusData(marketKey, zipCode && zipCode.length === 5 ? zipCode : null);
 
-    // FAN INPUTS (after market fetch for fallback)
-    const fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
-    const fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || (market.hhi * 1.18);
-    const fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
-
-    // EVENT INPUTS
-    const eventAgeInput = parseFloat(document.getElementById('event-target-age').value) || 35;
-    const eventHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || 75000;
-    const eventDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
+    // Update fanHhiInput fallback contextually if needed
+    if (mode === 'nba' && !document.getElementById('fan-target-hhi').value) {
+        fanHhiInput = market.hhi * 1.18;
+    }
     const brand = brandProfiles[brandName] || { targets: ['hhi'], persona: `${brandName} seeks high-value markets.` };
 
     // Use AI Targets if available, otherwise fallback to brand profile
@@ -308,7 +330,7 @@ async function calculateValuation() {
     matrixBody.innerHTML = '';
     cardsGrid.innerHTML = '';
 
-    let totalMultiplier = 1.0 * priorityMod;
+    let totalMultiplier = 1.0;
     let currentHhiMult = 1.0;
     let currentAffMult = 1.0;
     let currentAgeMult = 1.0;
@@ -363,11 +385,11 @@ async function calculateValuation() {
             multiplier = Math.max(0.85, Math.min(1.35, multiplier));
 
             // Weight against Event Benchmark
-            const eventHhiAlignment = (fanHhiInput / eventHhiInput) * 0.4 + 0.6;
+            const eventHhiAlignment = (fanHhiInput / benchHhi) * 0.4 + 0.6;
             multiplier *= eventHhiAlignment;
 
             factor.impact = hhiMult > 1.2 ? "High-Net-Worth Concentration" : "Affluence Precision";
-            formula = `(HHI Fit & Alignment) × Event Benchmark Alignment (${formatCurrency(eventHhiInput)})`;
+            formula = `(HHI Fit & Alignment) × Local Benchmark Alignment (${formatCurrency(benchHhi)})`;
             if (activeTargets.includes('strategic_affluence')) {
                 multiplier *= 1.10; // Strategic priority boost
                 formula = "(80/10 Composite) + Strategic Alignment";
@@ -388,7 +410,7 @@ async function calculateValuation() {
         } else if (factor.id === 'strategic_life_stage') {
             const ageVal = fanAgeInput;
             const ageDiff = Math.abs(ageVal - idealAge);
-            const eventAgeDiff = Math.abs(ageVal - eventAgeInput);
+            const eventAgeDiff = Math.abs(ageVal - benchAge);
             const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.02) - (eventAgeDiff * 0.01));
 
             const lsVal = market.life_stage || 0.65;
@@ -430,9 +452,9 @@ async function calculateValuation() {
             const isGlobal = isInternational || brandName === 'International Brand';
 
             if (isStrategic || isGlobal) {
-                const benchMulticultural = eventDiversityInput || factor.us_avg;
+                const benchMulticultural = benchDiversity || factor.us_avg;
                 multiplier = fanVal / benchMulticultural;
-                formula = `Fan Diversity (${(fanVal * 100).toFixed(0)}%) / Event Benchmark (${(benchMulticultural * 100).toFixed(0)}%)`;
+                formula = `Fan Diversity (${(fanVal * 100).toFixed(0)}%) / Local Benchmark (${(benchMulticultural * 100).toFixed(0)}%)`;
 
                 if (isStrategic) {
                     // LINK: Diversity Affinity Focus affects Multicultural Density
@@ -642,6 +664,18 @@ async function calculateValuation() {
         document.getElementById('persona-delta-text').innerText = personaText;
     }
     document.getElementById('results-section').classList.remove('hidden');
+
+    // UI: Update Card Opacity based on mode
+    const nbaCard = document.getElementById('step-02-card');
+    const eventCard = document.getElementById('step-03-card');
+
+    if (mode === 'nba') {
+        nbaCard.style.opacity = '1';
+        eventCard.style.opacity = '0.5';
+    } else {
+        nbaCard.style.opacity = '0.5';
+        eventCard.style.opacity = '1';
+    }
 }
 
 // Slider label update
@@ -655,6 +689,12 @@ document.getElementById('fan-target-diversity').addEventListener('input', (e) =>
 
 document.getElementById('event-target-diversity').addEventListener('input', (e) => {
     document.getElementById('event-diversity-val').innerText = e.target.value + '%';
+});
+
+document.querySelectorAll('input[name="calculation-mode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        calculateValuation();
+    });
 });
 
 function formatValue(id, val) {
