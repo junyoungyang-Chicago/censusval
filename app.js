@@ -109,22 +109,7 @@ const eventProfiles = {
     'INDYCAR': { idealAge: 48, idealHhi: 85000, idealDiversity: 0.35 }
 };
 
-document.getElementById('calculate-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('calculate-btn');
-    const originalText = btn.innerText;
-    btn.innerText = 'Fetching Real-Time Census Data...';
-    btn.disabled = true;
 
-    try {
-        await calculateValuation();
-    } catch (error) {
-        console.error("API Error:", error);
-        alert("Failed to fetch live Census data. Please check console for details.");
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
-});
 
 const censusCache = {};
 let currentPersonaTargets = null;
@@ -704,6 +689,24 @@ document.getElementById('step-03-card').addEventListener('click', () => {
         currentContext = 'event';
         calculateValuation();
     }
+});
+
+document.querySelectorAll('.recalculate-trigger').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const context = btn.getAttribute('data-context');
+        if (context) currentContext = context;
+
+        const originalText = btn.innerText;
+        btn.innerText = 'Processing...';
+        btn.disabled = true;
+        try {
+            await calculateValuation();
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    });
 });
 
 function formatValue(id, val) {
