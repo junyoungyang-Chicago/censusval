@@ -277,15 +277,18 @@ async function calculateValuation() {
         benchHhi = 75000;
         benchDiversity = 0.45;
     } else {
+        const eventKey = document.getElementById('event-type').value;
+        const profile = eventProfiles[eventKey] || { idealAge: 35, idealHhi: 75000, idealDiversity: 0.45 };
+
         marketKey = document.getElementById('event-city').value;
-        fanAgeInput = parseFloat(document.getElementById('event-target-age').value) || 35;
-        fanHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || 115000;
+        fanAgeInput = parseFloat(document.getElementById('event-target-age').value) || profile.idealAge;
+        fanHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || profile.idealHhi;
         fanDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
 
-        // Benchmarks for Event are the Property-specific ideals
-        benchAge = parseFloat(document.getElementById('event-target-age').value) || 35;
-        benchHhi = parseFloat(document.getElementById('event-target-hhi').value) || 75000;
-        benchDiversity = parseFloat(document.getElementById('event-target-diversity').value) / 100;
+        // Benchmarks for Event are the Property-specific base standards
+        benchAge = profile.idealAge;
+        benchHhi = profile.idealHhi;
+        benchDiversity = profile.idealDiversity;
     }
 
     const brandName = document.getElementById('target-brand').value;
@@ -643,10 +646,11 @@ async function calculateValuation() {
     // Update Fan Persona Delta
     let fanPersona = "";
     if (mode === 'nba') {
-        fanPersona = "NBA fans are diverse, urban, and socially connected. They prioritize cultural influence and digital engagement across key metropolitan markets.";
+        fanPersona = `The NBA fan persona for this calculation reflects an average age of ${fanAgeInput.toFixed(0)} with a household income of ${formatCurrency(fanHhiInput)}. This demographic profile prioritizes cultural influence and digital engagement in major markets.`;
     } else {
         const eventKey = document.getElementById('event-type').value;
-        fanPersona = eventProfiles[eventKey]?.persona || "Event fans represent a targeted demographic high-intent audience segment.";
+        const basePersona = eventProfiles[eventKey]?.persona || "Event fans represent a targeted demographic high-intent audience segment.";
+        fanPersona = `${basePersona} Analysis is based on a specific fan segment with an average age of ${fanAgeInput.toFixed(0)} and an HHI of ${formatCurrency(fanHhiInput)}.`;
     }
     const fanPersonaEl = document.getElementById('fan-persona-delta-text');
     if (fanPersonaEl) fanPersonaEl.innerText = fanPersona;
