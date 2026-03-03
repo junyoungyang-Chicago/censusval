@@ -1196,9 +1196,25 @@ input:checked+.slider:before {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--surface-border);
     border-radius: 6px;
-    padding: 6px;
+    padding: 6px 35px 6px 6px;
+    /* Space for the arrow */
     cursor: pointer;
     transition: all 0.2s;
+}
+
+.dropdown-arrow-indicator {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition: transform 0.3s;
+}
+
+.custom-multi-select.open .dropdown-arrow-indicator {
+    transform: translateY(-50%) rotate(180deg);
 }
 
 .custom-multi-select:hover {

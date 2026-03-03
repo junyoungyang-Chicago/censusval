@@ -1808,12 +1808,14 @@ function initTeamMultiSelect() {
     // Toggle dropdown
     tagsContainer.addEventListener('click', (e) => {
         if (e.target === searchInput || e.target.classList.contains('remove-tag')) return;
-        dropdown.classList.toggle('hidden');
+        const isHidden = dropdown.classList.toggle('hidden');
+        container.classList.toggle('open', !isHidden);
     });
 
     document.addEventListener('click', (e) => {
         if (!container.contains(e.target)) {
             dropdown.classList.add('hidden');
+            container.classList.remove('open');
         }
     });
 
