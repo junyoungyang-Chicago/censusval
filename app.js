@@ -1076,18 +1076,30 @@ function renderTopFitMap(topN) {
 
     const bounds = L.latLngBounds();
 
+    const coordCounts = {};
+
     topN.forEach((fit, index) => {
         const market = marketMapping[fit.key];
         if (market && market.lat) {
-            const color = market.color || '#fff';
-            // Dynamic Radius based on Multiplier
-            const dynamicRadius = Math.max(5, fit.score * 8);
+            let lat = market.lat;
+            let lng = market.lng;
+            const coordKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
 
-            const marker = L.circleMarker([market.lat, market.lng], {
+            if (coordCounts[coordKey]) {
+                const shift = coordCounts[coordKey] * 0.15;
+                lat += (index % 2 === 0 ? shift : -shift);
+                lng += (index % 2 !== 0 ? shift : -shift);
+            }
+            coordCounts[coordKey] = (coordCounts[coordKey] || 0) + 1;
+            const color = market.color || '#fff';
+            // Scale radius based on Rank (index)
+            const dynamicRadius = Math.max(6, (topN.length - index) * 0.8 + 10);
+
+            const marker = L.circleMarker([lat, lng], {
                 radius: dynamicRadius,
                 fillColor: color,
                 color: '#fff',
-                weight: 0.8, // Thinner white stroke
+                weight: 1.2, // Defined white stroke
                 opacity: 1,
                 fillOpacity: 0.85
             }).addTo(discoveryMap);
