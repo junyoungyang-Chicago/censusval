@@ -1019,9 +1019,9 @@ async function runDiscovery(mode) {
             marketScores.push({ key, score, label: mapInfo.label, color: mapInfo.color });
         }
 
-        // Sort and get Top 10 (or all if fewer)
+        // Sort and get Top 10 (or all if NBA mode)
         marketScores.sort((a, b) => b.score - a.score);
-        const topN = marketScores.slice(0, 10);
+        const topN = mode === 'nba' ? marketScores : marketScores.slice(0, 10);
         const winner = topN[0];
 
         if (winner) {
@@ -1168,13 +1168,19 @@ function renderTopFitChart(top10) {
 
     const ctx = canvas.getContext('2d');
 
+    // Dynamic height adjustment for all 30 teams
+    const isManyBars = top10.length > 15;
+    if (container) {
+        container.style.height = isManyBars ? '900px' : '400px';
+    }
+
     if (discoveryChartInstance) {
         discoveryChartInstance.destroy();
     }
 
-    // Explicitly set canvas dimensions to match container
+    // Explicitly set canvas dimensions
     canvas.width = container ? container.offsetWidth : 400;
-    canvas.height = container ? container.offsetHeight : 350;
+    canvas.height = isManyBars ? 900 : 400;
 
     const gradient = ctx.createLinearGradient(0, 0, 400, 0);
     gradient.addColorStop(0, 'rgba(22, 103, 233, 0.9)');
@@ -1194,7 +1200,7 @@ function renderTopFitChart(top10) {
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
                     borderRadius: 3,
-                    barThickness: 22
+                    barThickness: isManyBars ? 14 : 22
                 }]
             },
             options: {
