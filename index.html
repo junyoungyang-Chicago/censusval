@@ -241,8 +241,18 @@
                     </div>
 
                     <div class="matrix-container card glass-card">
-                        <h2>11-Factor Decision Matrix</h2>
-                        <div class="table-wrapper">
+                        <div class="matrix-header">
+                            <h2>11-Factor Decision Matrix</h2>
+                            <div class="view-toggle">
+                                <span class="toggle-label">Table</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="matrix-view-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">Cards</span>
+                            </div>
+                        </div>
+                        <div class="table-wrapper" id="matrix-table-view">
                             <table id="valuation-table">
                                 <thead>
                                     <tr>
