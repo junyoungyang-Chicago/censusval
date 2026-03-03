@@ -650,6 +650,8 @@ async function calculateValuation() {
         document.getElementById('persona-delta-text').innerText = personaText;
     }
     document.getElementById('results-section').classList.remove('hidden');
+    const pDelta = document.getElementById('persona-delta-section');
+    if (pDelta) pDelta.classList.remove('hidden');
 
     // UI: Update Card Opacity based on mode
     const nbaCard = document.getElementById('step-02-card');
