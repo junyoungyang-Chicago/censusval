@@ -1083,13 +1083,24 @@ function renderTopFitMap(topN) {
         if (market && market.lat) {
             const color = market.color || '#fff';
             const marker = L.circleMarker([market.lat, market.lng], {
-                radius: index === 0 ? 12 : 8,
+                radius: index === 0 ? 24 : 16,
                 fillColor: color,
                 color: '#fff',
                 weight: 2,
                 opacity: 1,
                 fillOpacity: 0.8
             }).addTo(discoveryMap);
+
+            // Hover Tooltip for instant value display
+            marker.bindTooltip(`
+                <div style="font-family: var(--font-heading); font-weight: 800; text-align: center; padding: 2px;">
+                    <div style="font-size: 0.6rem; color: #888; text-transform: uppercase;">${index + 1}. ${fit.label}</div>
+                    <div style="font-size: 1rem; color: #1667e9;">${fit.score.toFixed(2)}x</div>
+                </div>
+            `, {
+                direction: 'top',
+                offset: [0, -15]
+            });
 
             marker.bindPopup(`
                 <div style="color: #000; font-family: var(--font-body);">
