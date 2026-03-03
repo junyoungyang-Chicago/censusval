@@ -1096,8 +1096,12 @@ function renderTopFitMap(topN) {
             }
             coordCounts[coordKey] = (coordCounts[coordKey] || 0) + 1;
             const color = market.color || '#fff';
-            // Scale radius based on Rank (index)
-            const dynamicRadius = Math.max(6, (topN.length - index) * 0.8 + 10);
+
+            // Normalized range (10-35px) for maximum dynamism regardless of total items
+            const maxRadius = 35;
+            const minRadius = 10;
+            const rankRatio = topN.length > 1 ? (index / (topN.length - 1)) : 0;
+            const dynamicRadius = maxRadius - (rankRatio * (maxRadius - minRadius));
 
             const marker = L.circleMarker([lat, lng], {
                 radius: dynamicRadius,
