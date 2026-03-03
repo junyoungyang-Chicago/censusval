@@ -1102,7 +1102,7 @@ function renderTopFitMap(topN) {
                 weight: 1.2, // Defined white stroke
                 opacity: 1,
                 fillOpacity: 0.85
-            }).addTo(discoveryMap);
+            }).addTo(discoveryMap).bringToBack();
 
             // Hover Tooltip for instant value display
             marker.bindTooltip(`
