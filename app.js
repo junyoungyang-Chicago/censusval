@@ -884,7 +884,7 @@ calculateValuation();
 let discoveryChartInstance = null;
 
 // Helper to calculate total multiplier for scoring without updating UI
-async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, priorityMod, assetType) {
+async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, priorityMod, assetType, fanAge, fanHhi, fanDiversity) {
     const market = await fetchCensusData(marketKey);
     const isInternational = document.getElementById('international-toggle').checked;
     const isEfficiency = document.getElementById('efficiency-toggle').checked;
@@ -906,9 +906,10 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, 
         if (factor.id === 'reach') {
             multiplier = marketVal / LEAGUE_AVERAGES.reach;
         } else if (factor.id === 'strategic_affluence') {
-            const fanHhi = market.hhi * 1.18;
-            const w1 = Math.log(fanHhi / (market.hhi || 1));
-            const w2 = Math.log(fanHhi / idealHhi);
+            // Use provided fanHhi if available, otherwise estimate
+            const currentFanHhi = fanHhi || market.hhi * 1.18;
+            const w1 = Math.log(currentFanHhi / (market.hhi || 1));
+            const w2 = Math.log(currentFanHhi / idealHhi);
             const w2Capped = Math.max(-0.35, Math.min(0.40, w2));
             const hhiMult = Math.exp((0.6 * w2Capped) + (0.4 * w1));
 
@@ -921,13 +922,14 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, 
             if (activeTargets.includes('strategic_affluence')) multiplier *= 1.10;
         } else if (factor.id === 'hh_structure') {
             const lsVal = market.hh_size || factor.us_avg;
-            multiplier = (lsVal * 1.05) / lsVal;
+            multiplier = 1.05; // Fixed lift for discovered fans
         } else if (factor.id === 'loyalty_ltv') {
-            const teamAtt = marketMapping[marketKey].avg_attendance || LEAGUE_AVERAGES.attendance;
+            const teamAtt = marketMapping[marketKey]?.avg_attendance || LEAGUE_AVERAGES.attendance;
             multiplier = teamAtt / LEAGUE_AVERAGES.attendance;
         } else if (factor.id === 'strategic_life_stage') {
-            const ageVal = market.age || factor.us_avg;
-            const ageDiff = Math.abs((ageVal * 0.96) - idealAge);
+            // Use provided fanAge if available, otherwise estimate
+            const ageVal = fanAge || (market.age || 38.5) * 0.96;
+            const ageDiff = Math.abs(ageVal - idealAge);
             const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.025));
             const lsMultiplier = ((market.life_stage || 0.65) * 1.05) / 0.65;
 
@@ -948,12 +950,11 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, 
         } else if (factor.id === 'multicultural') {
             const isGlobal = isInternational || brandName === 'International Brand';
             if (isGlobal || activeTargets.includes('multicultural')) {
-                multiplier = ((market.multicultural || 0.45) * 1.08 / factor.us_avg) * (isGlobal ? 1.15 : 1.0);
+                const currentFanDiversity = fanDiversity || (market.multicultural || 0.45) * 1.08 / factor.us_avg;
+                multiplier = currentFanDiversity * (isGlobal ? 1.15 : 1.0);
             }
         } else {
-            // Default alignment logic for other factors
-            const fanVal = marketVal * 1.08;
-            multiplier = fanVal / (factor.us_avg || 1);
+            multiplier = 1.02;
             if (activeTargets.includes(factor.id)) multiplier *= 1.10;
         }
 
@@ -980,6 +981,18 @@ async function runDiscovery(mode) {
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
     const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
+
+    // Get respective context's custom demographics
+    const fanAge = mode === 'nba' ?
+        parseFloat(document.getElementById('fan-target-age').value) :
+        parseFloat(document.getElementById('event-target-age').value);
+    const fanHhi = mode === 'nba' ?
+        parseFloat(document.getElementById('fan-target-hhi').value) :
+        parseFloat(document.getElementById('event-target-hhi').value);
+    const fanDiversity = mode === 'nba' ?
+        parseFloat(document.getElementById('fan-target-diversity').value) / 100 :
+        parseFloat(document.getElementById('event-target-diversity').value) / 100;
+
     const priorityMod = 1.0;
     const assetType = document.getElementById('asset-name').value;
 
@@ -998,7 +1011,7 @@ async function runDiscovery(mode) {
             btn.innerText = `Analyzing ${i + 1}/${total} Markets...`;
 
             // Use the Discovery Engine to find the best market alignment for the brand
-            const score = await getMultiplierOnly(key, idealAge, idealHhi, idealDiversity, priorityMod, assetType);
+            const score = await getMultiplierOnly(key, idealAge, idealHhi, idealDiversity, priorityMod, assetType, fanAge, fanHhi, fanDiversity);
 
             // Map labels and colors from marketMapping if available, otherwise fallback
             const mapInfo = marketMapping[key] || { label: key.toUpperCase(), color: '#888' };
