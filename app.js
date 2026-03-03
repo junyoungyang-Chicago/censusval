@@ -1922,8 +1922,20 @@ function initTeamMultiSelect() {
     });
 
     // Toggle dropdown
-    tagsContainer.addEventListener('click', (e) => {
-        if (e.target === searchInput || e.target.classList.contains('remove-tag')) return;
+    container.addEventListener('click', (e) => {
+        // Don't toggle if clicking inside the dropdown content itself or on a remove-tag button
+        if (dropdown.contains(e.target) || e.target.classList.contains('remove-tag')) return;
+
+        // If clicking the search input, always ensure it's open (focus), don't toggle it closed
+        if (e.target === searchInput) {
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                container.classList.add('open');
+            }
+            return;
+        }
+
+        // Toggle for everything else (container background, arrow, tags container)
         const isHidden = dropdown.classList.toggle('hidden');
         container.classList.toggle('open', !isHidden);
     });
