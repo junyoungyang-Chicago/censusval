@@ -52,7 +52,8 @@ const marketMapping = {
     washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', avg_attendance: 17800, color: '#002B5C', textColor: 'white' },
     toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777, color: '#CE1141', textColor: 'white' },
     austin: { state: '48', place: '05000', label: 'Austin, TX', avg_attendance: 15000, color: '#BF5700', textColor: 'white' },
-    lasvegas: { state: '32', place: '40000', label: 'Las Vegas, NV', avg_attendance: 18000, color: '#B29759', textColor: 'black' }
+    lasvegas: { state: '32', place: '40000', label: 'Las Vegas, NV', avg_attendance: 18000, color: '#B29759', textColor: 'black' },
+    losangeles: { state: '06', place: '44000', label: 'Los Angeles, CA', avg_attendance: 18723, color: '#552583', textColor: 'white' }
 };
 
 const brandProfiles = {
