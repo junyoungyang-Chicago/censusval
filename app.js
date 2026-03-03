@@ -1029,15 +1029,15 @@ async function runDiscovery(mode) {
         marketScores.sort((a, b) => b.score - a.score);
 
         const avgScore = marketScores.reduce((acc, curr) => acc + curr.score, 0) / total;
-        const indexContainer = document.getElementById('strategic-index-container');
-        const indexLabel = document.getElementById('index-type-label');
-        const indexValue = document.getElementById('market-index-value');
+        const avgStats = document.getElementById('market-average-stats');
+        const avgLabel = document.getElementById('avg-label');
+        const avgValue = document.getElementById('avg-value');
         const isEfficiency = document.getElementById('efficiency-toggle').checked;
 
-        if (indexContainer) {
-            indexContainer.classList.remove('hidden');
-            indexLabel.innerText = isEfficiency ? "Team Average Strategic Index" : "City Average Strategic Index";
-            indexValue.innerText = avgScore.toFixed(2) + 'x';
+        if (avgStats) {
+            avgStats.classList.remove('hidden');
+            avgLabel.innerText = isEfficiency ? "Team Average Index" : "City Average Index";
+            avgValue.innerText = avgScore.toFixed(2) + 'x';
         }
 
         const chartData = marketScores.slice(0, 10);

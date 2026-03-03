@@ -296,11 +296,6 @@
                         </div>
                     </div>
 
-                    <div id="strategic-index-container" class="strategic-index-card hidden">
-                        <label id="index-type-label">Strategic Market Index</label>
-                        <div id="market-index-value" class="index-amount">0.00x</div>
-                    </div>
-
                     <div style="display: flex; gap: 3rem; align-items: flex-start;">
                         <div id="chart-container" style="height: 400px; flex: 2; min-width: 0;">
                             <canvas id="top-fit-chart-canvas"></canvas>
@@ -321,11 +316,21 @@
                         </div>
                     </div>
                 </div>
+
                 <section id="results-section" class="hidden">
                     <div class="valuation-summary">
                         <div class="final-value-card">
                             <label>Strategic Market Index</label>
                             <div id="final-strategic-value" class="value-amount">1.00x</div>
+                            <div id="market-average-stats" class="hidden"
+                                style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; display: flex; justify-content: space-around;">
+                                <div style="display: flex; flex-direction: column;">
+                                    <span
+                                        style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; opacity: 0.8;"
+                                        id="avg-label">City Average Index</span>
+                                    <span style="font-size: 1.5rem; font-weight: 800;" id="avg-value">1.69x</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="card glass-card persona-delta-card" id="fan-persona-delta-card">
