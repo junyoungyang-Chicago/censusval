@@ -59,7 +59,7 @@ const brandProfiles = {
         persona: "Luxury Auto brands target high-net-worth individuals. They value high-fidelity income concentration ($200k+) and premium median HHI lift.",
         idealAge: 45,
         idealHhi: 125000,
-        idealDigital: 0.85,
+        idealDiversity: 0.85,
         priority: 1.2
     },
     'Fintech / Crypto': {
@@ -67,7 +67,7 @@ const brandProfiles = {
         persona: "Fintech disruptors seek young, tech-savvy professionals. They prioritize digital connectivity and strategic affluence concentration for market penetration.",
         idealAge: 28,
         idealHhi: 85000,
-        idealDigital: 0.95,
+        idealDiversity: 0.95,
         priority: 1.2
     },
     'Mass Market Retail': {
@@ -75,7 +75,7 @@ const brandProfiles = {
         persona: "Retailers value raw volume and family density. They prioritize total 'Wallets' and middle-income stability for high-frequency low-ticket sales.",
         idealAge: 38,
         idealHhi: 55000,
-        idealDigital: 0.70,
+        idealDiversity: 0.70,
         priority: 1.0
     },
     'Health & Wellness': {
@@ -83,7 +83,7 @@ const brandProfiles = {
         persona: "Wellness brands thrive in urban, diverse markets with high educational attainment. They target healthy, active personas with disposable income for lifestyle products.",
         idealAge: 32,
         idealHhi: 75000,
-        idealDigital: 0.85,
+        idealDiversity: 0.85,
         priority: 1.1
     },
     'Global Beverage': {
@@ -91,7 +91,7 @@ const brandProfiles = {
         persona: "Beverage giants seek maximum multicultural reach and social media 'Halo' impact to drive brand awareness across the broadest possible audience denominator.",
         idealAge: 24,
         idealHhi: 45000,
-        idealDigital: 0.90,
+        idealDiversity: 0.90,
         priority: 1.0
     },
     'International Brand': {
@@ -99,7 +99,7 @@ const brandProfiles = {
         persona: "International brands focus on high-growth diversity markets. They prioritize multicultural density and educational attainment as key indicators for global scalability.",
         idealAge: 30,
         idealHhi: 65000,
-        idealDigital: 0.88,
+        idealDiversity: 0.88,
         priority: 1.3
     }
 };
@@ -275,7 +275,7 @@ async function calculateValuation() {
     // BRAND IDEAL INPUTS
     const idealAge = Math.max(1, parseFloat(document.getElementById('brand-target-age').value) || 35);
     const idealHhi = Math.max(5000, parseFloat(document.getElementById('brand-target-hhi').value) || 75000);
-    const idealDigital = parseFloat(document.getElementById('brand-target-digital').value) / 100;
+    const idealDiversity = parseFloat(document.getElementById('brand-target-diversity').value) / 100;
     const priorityMod = parseFloat(document.getElementById('brand-priority').value);
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
@@ -411,6 +411,10 @@ async function calculateValuation() {
                 formula = "Fan Minority % / US Average Benchmark";
 
                 if (isStrategic) {
+                    // LINK: Diversity Affinity Focus affects Multicultural Density
+                    const alignmentMult = (fanVal / idealDiversity) * 0.5 + 0.5;
+                    multiplier *= alignmentMult;
+
                     if (brandName === 'International Brand') {
                         multiplier *= 1.45;
                         factor.impact = "International Diversity Power";
@@ -617,8 +621,8 @@ async function calculateValuation() {
 }
 
 // Slider label update
-document.getElementById('brand-target-digital').addEventListener('input', (e) => {
-    document.getElementById('digital-focus-val').innerText = e.target.value + '%';
+document.getElementById('brand-target-diversity').addEventListener('input', (e) => {
+    document.getElementById('diversity-focus-val').innerText = e.target.value + '%';
 });
 
 function formatValue(id, val) {
@@ -637,8 +641,8 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
     if (brand) {
         document.getElementById('brand-target-age').value = brand.idealAge;
         document.getElementById('brand-target-hhi').value = brand.idealHhi;
-        document.getElementById('brand-target-digital').value = brand.idealDigital * 100;
-        document.getElementById('digital-focus-val').innerText = (brand.idealDigital * 100) + '%';
+        document.getElementById('brand-target-diversity').value = brand.idealDiversity * 100;
+        document.getElementById('diversity-focus-val').innerText = (brand.idealDiversity * 100) + '%';
 
         // Find matching priority option
         const prioritySelect = document.getElementById('brand-priority');
@@ -658,8 +662,8 @@ const initialBrand = brandProfiles[initialBrandName];
 if (initialBrand) {
     document.getElementById('brand-target-age').value = initialBrand.idealAge;
     document.getElementById('brand-target-hhi').value = initialBrand.idealHhi;
-    document.getElementById('brand-target-digital').value = initialBrand.idealDigital * 100;
-    document.getElementById('digital-focus-val').innerText = (initialBrand.idealDigital * 100) + '%';
+    document.getElementById('brand-target-diversity').value = initialBrand.idealDiversity * 100;
+    document.getElementById('diversity-focus-val').innerText = (initialBrand.idealDiversity * 100) + '%';
 }
 
 // Update team name, attendance, and branding based on selection
