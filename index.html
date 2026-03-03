@@ -173,6 +173,41 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card glass-card">
+                        <h2><span class="step-num">03</span> Event Context</h2>
+                        <div class="input-group">
+                            <label for="event-type">Property / Event</label>
+                            <select id="event-type">
+                                <option value="NBA">NBA (Default)</option>
+                                <option value="F1">F1 Racing</option>
+                                <option value="PGA">PGA Tour</option>
+                                <option value="LPGA">LPGA</option>
+                                <option value="NCAA">NCAA Basketball</option>
+                                <option value="PRORODEO">Pro Rodeo</option>
+                                <option value="INDYCAR">IndyCar</option>
+                            </select>
+                        </div>
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="event-target-age">Event Age</label>
+                                <input type="number" id="event-target-age" value="38">
+                            </div>
+                            <div class="input-group">
+                                <label for="event-target-hhi">Event HHI ($)</label>
+                                <input type="number" id="event-target-hhi" value="85000" step="5000">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="event-target-diversity">Event Diversity Focus</label>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <input type="range" id="event-target-diversity" min="0" max="100" value="50"
+                                    style="flex: 1;">
+                                <span id="event-diversity-val" class="range-val"
+                                    style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">50%</span>
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
                 <div class="action-bar card glass-card">
@@ -309,7 +344,8 @@
                             <canvas id="comparisonChart"></canvas>
                         </div>
                         <p id="comparison-insight"
-                            style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-secondary);"></p>
+                            style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-secondary);">
+                        </p>
                     </div>
 
                     <div class="comparison-matrix card glass-card">

@@ -98,6 +98,16 @@ const brandProfiles = {
     }
 };
 
+const eventProfiles = {
+    'NBA': { idealAge: 35, idealHhi: 75000, idealDiversity: 0.45 },
+    'F1': { idealAge: 34, idealHhi: 115000, idealDiversity: 0.65 },
+    'PGA': { idealAge: 52, idealHhi: 135000, idealDiversity: 0.25 },
+    'LPGA': { idealAge: 48, idealHhi: 95000, idealDiversity: 0.45 },
+    'NCAA': { idealAge: 28, idealHhi: 65000, idealDiversity: 0.55 },
+    'PRORODEO': { idealAge: 42, idealHhi: 60000, idealDiversity: 0.20 },
+    'INDYCAR': { idealAge: 48, idealHhi: 85000, idealDiversity: 0.35 }
+};
+
 document.getElementById('calculate-btn').addEventListener('click', async () => {
     const btn = document.getElementById('calculate-btn');
     const originalText = btn.innerText;
@@ -273,17 +283,22 @@ async function calculateValuation() {
     const priorityMod = 1.0; // Hardcoded to 1.0 after removing UI
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
-    // FAN INPUTS
-    const fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
-    const fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || (market.hhi * 1.18);
-    const fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
-
     const assetType = document.getElementById('asset-name').value;
     const isEfficiency = document.getElementById('efficiency-toggle').checked;
     const isInternational = document.getElementById('international-toggle').checked;
     const zipCode = isEfficiency ? document.getElementById('zip-code').value.trim() : null;
 
     const market = await fetchCensusData(marketKey, zipCode && zipCode.length === 5 ? zipCode : null);
+
+    // FAN INPUTS (after market fetch for fallback)
+    const fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
+    const fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || (market.hhi * 1.18);
+    const fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
+
+    // EVENT INPUTS
+    const eventAgeInput = parseFloat(document.getElementById('event-target-age').value) || 35;
+    const eventHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || 75000;
+    const eventDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
     const brand = brandProfiles[brandName] || { targets: ['hhi'], persona: `${brandName} seeks high-value markets.` };
 
     // Use AI Targets if available, otherwise fallback to brand profile
@@ -348,8 +363,12 @@ async function calculateValuation() {
             multiplier = (hhiMult * 0.8) + (affLift * 0.1) + 0.1;
             multiplier = Math.max(0.85, Math.min(1.35, multiplier));
 
+            // Weight against Event Benchmark
+            const eventHhiAlignment = (fanHhiInput / eventHhiInput) * 0.4 + 0.6;
+            multiplier *= eventHhiAlignment;
+
             factor.impact = hhiMult > 1.2 ? "High-Net-Worth Concentration" : "Affluence Precision";
-            formula = "(80% Median HHI Lift + 10% Luxury Conc.) + 10% Baseline";
+            formula = `(HHI Fit & Alignment) × Event Benchmark Alignment (${formatCurrency(eventHhiInput)})`;
             if (activeTargets.includes('strategic_affluence')) {
                 multiplier *= 1.10; // Strategic priority boost
                 formula = "(80/10 Composite) + Strategic Alignment";
@@ -363,14 +382,15 @@ async function calculateValuation() {
             marketVal = LEAGUE_AVERAGES.attendance;
             fanVal = teamAttendance;
             multiplier = fanVal / marketVal;
-            formula = "Team Attendance / League Average Attendance";
+            formula = `Team Attendance / Property Avg (${marketVal.toLocaleString()})`;
             if (activeTargets.includes('loyalty_ltv')) {
                 formula = "Strategic Priority Target Alignment (Target Fit)";
             }
         } else if (factor.id === 'strategic_life_stage') {
-            const ageVal = market.age || factor.us_avg;
-            const ageDiff = Math.abs((ageVal * 0.96) - idealAge);
-            const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.025));
+            const ageVal = fanAgeInput;
+            const ageDiff = Math.abs(ageVal - idealAge);
+            const eventAgeDiff = Math.abs(ageVal - eventAgeInput);
+            const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.02) - (eventAgeDiff * 0.01));
 
             const lsVal = market.life_stage || 0.65;
             const lsMultiplier = (lsVal * 1.05) / 0.65;
@@ -411,8 +431,9 @@ async function calculateValuation() {
             const isGlobal = isInternational || brandName === 'International Brand';
 
             if (isStrategic || isGlobal) {
-                multiplier = fanVal / factor.us_avg;
-                formula = "Fan Minority % / US Average Benchmark";
+                const benchMulticultural = eventDiversityInput || factor.us_avg;
+                multiplier = fanVal / benchMulticultural;
+                formula = `Fan Diversity (${(fanVal * 100).toFixed(0)}%) / Event Benchmark (${(benchMulticultural * 100).toFixed(0)}%)`;
 
                 if (isStrategic) {
                     // LINK: Diversity Affinity Focus affects Multicultural Density
@@ -633,6 +654,10 @@ document.getElementById('fan-target-diversity').addEventListener('input', (e) =>
     document.getElementById('fan-diversity-val').innerText = e.target.value + '%';
 });
 
+document.getElementById('event-target-diversity').addEventListener('input', (e) => {
+    document.getElementById('event-diversity-val').innerText = e.target.value + '%';
+});
+
 function formatValue(id, val) {
     if (id === 'hhi' || id === 'strategic_affluence') return (val > 1000) ? formatCurrency(val) : val.toFixed(3);
     if (id === 'reach' || id === 'loyalty_ltv') return val.toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -656,6 +681,28 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
         calculateValuation();
     }
 });
+
+// Event context profiles update
+document.getElementById('event-type').addEventListener('change', (e) => {
+    const profile = eventProfiles[e.target.value];
+    if (profile) {
+        document.getElementById('event-target-age').value = profile.idealAge;
+        document.getElementById('event-target-hhi').value = profile.idealHhi;
+        document.getElementById('event-target-diversity').value = profile.idealDiversity * 100;
+        document.getElementById('event-diversity-val').innerText = (profile.idealDiversity * 100) + '%';
+        calculateValuation();
+    }
+});
+
+// Initial sync for event state
+const initialEventKey = document.getElementById('event-type').value;
+const initialEvent = eventProfiles[initialEventKey];
+if (initialEvent) {
+    document.getElementById('event-target-age').value = initialEvent.idealAge;
+    document.getElementById('event-target-hhi').value = initialEvent.idealHhi;
+    document.getElementById('event-target-diversity').value = initialEvent.idealDiversity * 100;
+    document.getElementById('event-diversity-val').innerText = (initialEvent.idealDiversity * 100) + '%';
+}
 
 // Sync initial brand state
 const initialBrandName = document.getElementById('target-brand').value;
