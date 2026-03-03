@@ -11,10 +11,6 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -266,10 +262,14 @@
                             </div>
                         </div>
                         <div
-                            style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                            style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem;">
                             <button class="primary-btn recalculate-trigger" data-context="event"
-                                style="width: 100%; justify-content: center; font-size: 0.8rem; padding: 0.75rem;">
+                                style="flex: 1; justify-content: center; font-size: 0.8rem; padding: 0.75rem;">
                                 Calculate Event Value
+                            </button>
+                            <button id="find-best-event-fit-btn" class="discovery-btn"
+                                style="flex: 1.5; justify-content: center; font-size: 0.8rem; padding: 0.75rem;">
+                                Find Best Fit
                             </button>
                         </div>
                     </div>
@@ -410,13 +410,6 @@
                                 <tbody id="comparison-body"></tbody>
                             </table>
                         </div>
-                    </div>
-                </section>
-
-                <section id="map-section" class="card glass-card" style="margin-top: 3rem; margin-bottom: 3rem;">
-                    <h2 style="margin-bottom: 1.5rem; color: var(--primary-color);">Strategic Market Valuation Map</h2>
-                    <div id="valuation-map"
-                        style="height: 600px; width: 100%; border-radius: 12px; border: 1px solid var(--surface-border); background: #0b0e14;">
                     </div>
                 </section>
             </div>

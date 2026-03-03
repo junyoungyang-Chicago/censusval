@@ -21,38 +21,38 @@ const factors = [
 ];
 
 const marketMapping = {
-    atlanta: { state: '13', place: '04000', label: 'Atlanta, GA (Hawks)', lat: 33.7490, lng: -84.3880, avg_attendance: 17500, color: '#E03A3E', textColor: 'white' },
-    boston: { state: '25', place: '07000', label: 'Boston, MA (Celtics)', lat: 42.3601, lng: -71.0589, avg_attendance: 19156, color: '#007A33', textColor: 'white' },
-    brooklyn: { state: '36', county: '047', label: 'Brooklyn, NY (Nets)', lat: 40.6782, lng: -73.9442, avg_attendance: 17900, color: '#000000', textColor: 'white' },
-    charlotte: { state: '37', place: '12000', label: 'Charlotte, NC (Hornets)', lat: 35.2271, lng: -80.8431, avg_attendance: 17150, color: '#1D1160', textColor: 'white' },
-    chicago: { state: '17', place: '14000', label: 'Chicago, IL (Bulls)', lat: 41.8781, lng: -87.6298, avg_attendance: 20624, color: '#CE1141', textColor: 'white' },
-    cleveland: { state: '39', place: '16000', label: 'Cleveland, OH (Cavaliers)', lat: 41.4993, lng: -81.6944, avg_attendance: 19432, color: '#860038', textColor: 'white' },
-    dallas: { state: '48', place: '19000', label: 'Dallas, TX (Mavericks)', lat: 32.7767, lng: -96.7970, avg_attendance: 20217, color: '#00538C', textColor: 'white' },
-    denver: { state: '08', place: '20000', label: 'Denver, CO (Nuggets)', lat: 39.7392, lng: -104.9903, avg_attendance: 19688, color: '#0E2240', textColor: 'white' },
-    detroit: { state: '26', place: '22000', label: 'Detroit, MI (Pistons)', lat: 42.3314, lng: -83.0458, avg_attendance: 18150, color: '#C8102E', textColor: 'white' },
-    sanfrancisco: { state: '06', place: '67000', label: 'San Francisco, CA (Warriors)', lat: 37.7749, lng: -122.4194, avg_attendance: 18064, color: '#1D428A', textColor: 'white' },
-    houston: { state: '48', place: '35000', label: 'Houston, TX (Rockets)', lat: 29.7604, lng: -95.3698, avg_attendance: 17400, color: '#CE1141', textColor: 'white' },
-    indianapolis: { state: '18', place: '36000', label: 'Indianapolis, IN (Pacers)', lat: 39.7684, lng: -86.1581, avg_attendance: 16500, color: '#002D62', textColor: 'white' },
-    lakers: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers)', lat: 34.0522, lng: -118.2437, avg_attendance: 18997, color: '#552583', textColor: 'white', offsets: { hhi: 1.15, digital: 1.08, age: 2, attendance: 1.05, education: 1.10, life_stage: 1.05 } },
-    clippers: { state: '06', place: '44000', label: 'Los Angeles, CA (Clippers)', lat: 34.0522, lng: -118.2437, avg_attendance: 18450, color: '#C8102E', textColor: 'white', offsets: { hhi: 0.94, digital: 1.02, multicultural: 1.15, age: -3, education: 0.95, hh_size: 0.90 } },
-    memphis: { state: '47', place: '48000', label: 'Memphis, TN (Grizzlies)', lat: 35.1495, lng: -90.0490, avg_attendance: 16500, color: '#5D76A9', textColor: 'white' },
-    miami: { state: '12', place: '45000', label: 'Miami, FL (Heat)', lat: 25.7617, lng: -80.1918, avg_attendance: 19600, color: '#98002E', textColor: 'white' },
-    milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', lat: 43.0389, lng: -87.9065, avg_attendance: 17500, color: '#00471B', textColor: 'white' },
-    minneapolis: { state: '27', place: '43000', label: 'Minneapolis, MN (Timberwolves)', lat: 44.9778, lng: -93.2650, avg_attendance: 18024, color: '#0C2340', textColor: 'white' },
-    neworleans: { state: '22', place: '55000', label: 'New Orleans, LA (Pelicans)', lat: 29.9511, lng: -90.0715, avg_attendance: 16800, color: '#0C2340', textColor: 'white' },
-    newyork: { state: '36', county: '061', label: 'New York, NY (Knicks)', lat: 40.7128, lng: -74.0060, avg_attendance: 19812, color: '#006BB6', textColor: 'white' },
-    oklahomacity: { state: '40', place: '55000', label: 'Oklahoma City, OK (Thunder)', lat: 35.4676, lng: -97.5164, avg_attendance: 18203, color: '#007AC1', textColor: 'white' },
-    orlando: { state: '12', place: '53000', label: 'Orlando, FL (Magic)', lat: 28.5383, lng: -81.3792, avg_attendance: 18846, color: '#0077C0', textColor: 'white' },
-    philadelphia: { state: '42', place: '60000', label: 'Philadelphia, PA (76ers)', lat: 39.9526, lng: -75.1652, avg_attendance: 20041, color: '#006BB6', textColor: 'white' },
-    phoenix: { state: '04', place: '55000', label: 'Phoenix, AZ (Suns)', lat: 33.4484, lng: -112.0740, avg_attendance: 17071, color: '#1D1160', textColor: 'white' },
-    portland: { state: '41', place: '59000', label: 'Portland, OR (Trail Blazers)', lat: 45.5152, lng: -122.6784, avg_attendance: 18712, color: '#E03A3E', textColor: 'white' },
-    sacramento: { state: '06', place: '64000', label: 'Sacramento, CA (Kings)', lat: 38.5816, lng: -121.4944, avg_attendance: 17911, color: '#5A2D81', textColor: 'white' },
-    sanantonio: { state: '48', place: '65000', label: 'San Antonio, TX (Spurs)', lat: 29.4241, lng: -98.4936, avg_attendance: 18324, color: '#C4CED4', textColor: 'black' },
-    saltlakecity: { state: '49', place: '67000', label: 'Salt Lake City, UT (Jazz)', lat: 40.7608, lng: -111.8910, avg_attendance: 18206, color: '#002B5C', textColor: 'white' },
-    washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', lat: 38.9072, lng: -77.0369, avg_attendance: 17800, color: '#002B5C', textColor: 'white' },
-    toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', lat: 43.6532, lng: -79.3832, avg_attendance: 19777, color: '#CE1141', textColor: 'white' },
-    austin: { state: '48', place: '05000', label: 'Austin, TX', lat: 30.2672, lng: -97.7431, avg_attendance: 15000, color: '#BF5700', textColor: 'white' },
-    lasvegas: { state: '32', place: '40000', label: 'Las Vegas, NV', lat: 36.1699, lng: -115.1398, avg_attendance: 18000, color: '#B29759', textColor: 'black' }
+    atlanta: { state: '13', place: '04000', label: 'Atlanta, GA (Hawks)', avg_attendance: 17500, color: '#E03A3E', textColor: 'white' },
+    boston: { state: '25', place: '07000', label: 'Boston, MA (Celtics)', avg_attendance: 19156, color: '#007A33', textColor: 'white' },
+    brooklyn: { state: '36', county: '047', label: 'Brooklyn, NY (Nets)', avg_attendance: 17900, color: '#000000', textColor: 'white' },
+    charlotte: { state: '37', place: '12000', label: 'Charlotte, NC (Hornets)', avg_attendance: 17150, color: '#1D1160', textColor: 'white' },
+    chicago: { state: '17', place: '14000', label: 'Chicago, IL (Bulls)', avg_attendance: 20624, color: '#CE1141', textColor: 'white' },
+    cleveland: { state: '39', place: '16000', label: 'Cleveland, OH (Cavaliers)', avg_attendance: 19432, color: '#860038', textColor: 'white' },
+    dallas: { state: '48', place: '19000', label: 'Dallas, TX (Mavericks)', avg_attendance: 20217, color: '#00538C', textColor: 'white' },
+    denver: { state: '08', place: '20000', label: 'Denver, CO (Nuggets)', avg_attendance: 19688, color: '#0E2240', textColor: 'white' },
+    detroit: { state: '26', place: '22000', label: 'Detroit, MI (Pistons)', avg_attendance: 18150, color: '#C8102E', textColor: 'white' },
+    sanfrancisco: { state: '06', place: '67000', label: 'San Francisco, CA (Warriors)', avg_attendance: 18064, color: '#1D428A', textColor: 'white' },
+    houston: { state: '48', place: '35000', label: 'Houston, TX (Rockets)', avg_attendance: 17400, color: '#CE1141', textColor: 'white' },
+    indianapolis: { state: '18', place: '36000', label: 'Indianapolis, IN (Pacers)', avg_attendance: 16500, color: '#002D62', textColor: 'white' },
+    lakers: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers)', avg_attendance: 18997, color: '#552583', textColor: 'white', offsets: { hhi: 1.15, digital: 1.08, age: 2, attendance: 1.05, education: 1.10, life_stage: 1.05 } },
+    clippers: { state: '06', place: '44000', label: 'Los Angeles, CA (Clippers)', avg_attendance: 18450, color: '#C8102E', textColor: 'white', offsets: { hhi: 0.94, digital: 1.02, multicultural: 1.15, age: -3, education: 0.95, hh_size: 0.90 } },
+    memphis: { state: '47', place: '48000', label: 'Memphis, TN (Grizzlies)', avg_attendance: 16500, color: '#5D76A9', textColor: 'white' },
+    miami: { state: '12', place: '45000', label: 'Miami, FL (Heat)', avg_attendance: 19600, color: '#98002E', textColor: 'white' },
+    milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', avg_attendance: 17500, color: '#00471B', textColor: 'white' },
+    minneapolis: { state: '27', place: '43000', label: 'Minneapolis, MN (Timberwolves)', avg_attendance: 18024, color: '#0C2340', textColor: 'white' },
+    neworleans: { state: '22', place: '55000', label: 'New Orleans, LA (Pelicans)', avg_attendance: 16800, color: '#0C2340', textColor: 'white' },
+    newyork: { state: '36', county: '061', label: 'New York, NY (Knicks)', avg_attendance: 19812, color: '#006BB6', textColor: 'white' },
+    oklahomacity: { state: '40', place: '55000', label: 'Oklahoma City, OK (Thunder)', avg_attendance: 18203, color: '#007AC1', textColor: 'white' },
+    orlando: { state: '12', place: '53000', label: 'Orlando, FL (Magic)', avg_attendance: 18846, color: '#0077C0', textColor: 'white' },
+    philadelphia: { state: '42', place: '60000', label: 'Philadelphia, PA (76ers)', avg_attendance: 20041, color: '#006BB6', textColor: 'white' },
+    phoenix: { state: '04', place: '55000', label: 'Phoenix, AZ (Suns)', avg_attendance: 17071, color: '#1D1160', textColor: 'white' },
+    portland: { state: '41', place: '59000', label: 'Portland, OR (Trail Blazers)', avg_attendance: 18712, color: '#E03A3E', textColor: 'white' },
+    sacramento: { state: '06', place: '64000', label: 'Sacramento, CA (Kings)', avg_attendance: 17911, color: '#5A2D81', textColor: 'white' },
+    sanantonio: { state: '48', place: '65000', label: 'San Antonio, TX (Spurs)', avg_attendance: 18324, color: '#C4CED4', textColor: 'black' },
+    saltlakecity: { state: '49', place: '67000', label: 'Salt Lake City, UT (Jazz)', avg_attendance: 18206, color: '#002B5C', textColor: 'white' },
+    washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', avg_attendance: 17800, color: '#002B5C', textColor: 'white' },
+    toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777, color: '#CE1141', textColor: 'white' },
+    austin: { state: '48', place: '05000', label: 'Austin, TX', avg_attendance: 15000, color: '#BF5700', textColor: 'white' },
+    lasvegas: { state: '32', place: '40000', label: 'Las Vegas, NV', avg_attendance: 18000, color: '#B29759', textColor: 'black' }
 };
 
 const brandProfiles = {
@@ -664,6 +664,7 @@ async function calculateValuation() {
     const pDelta = document.getElementById('persona-delta-section');
     if (pDelta) pDelta.classList.remove('hidden');
 
+    // UI: Update Card Opacity based on mode
     const nbaCard = document.getElementById('step-02-card');
     const eventCard = document.getElementById('step-03-card');
 
@@ -674,8 +675,6 @@ async function calculateValuation() {
         nbaCard.classList.remove('active-context');
         eventCard.classList.add('active-context');
     }
-
-    updateStrategicMap();
 }
 
 // Slider label update
@@ -965,12 +964,16 @@ async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, 
 
 let topFitChart = null;
 
-document.getElementById('find-best-fit-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('find-best-fit-btn');
+document.getElementById('find-best-fit-btn').addEventListener('click', () => runDiscovery('nba'));
+document.getElementById('find-best-event-fit-btn').addEventListener('click', () => runDiscovery('event'));
+
+async function runDiscovery(mode) {
+    const btn = mode === 'nba' ? document.getElementById('find-best-fit-btn') : document.getElementById('find-best-event-fit-btn');
+    const citySelect = mode === 'nba' ? document.getElementById('market-dma') : document.getElementById('event-city');
     const resultsDiv = document.getElementById('discovery-results');
     const originalText = btn.innerText;
 
-    btn.innerText = 'Analyzing 30 NBA Markets...';
+    btn.innerText = `Analyzing ${mode === 'nba' ? '30 NBA' : 'Event'} Markets...`;
     btn.disabled = true;
     resultsDiv.classList.add('hidden');
 
@@ -983,7 +986,8 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
     let marketScores = [];
 
     try {
-        const keys = Object.keys(marketMapping);
+        // Get keys from the respective dropdown
+        const keys = Array.from(citySelect.options).map(opt => opt.value).filter(v => v !== "");
         const total = keys.length;
 
         for (let i = 0; i < total; i++) {
@@ -993,28 +997,35 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
             btn.style.setProperty('--progress', `${progress}%`);
             btn.innerText = `Analyzing ${i + 1}/${total} Markets...`;
 
+            // Use the Discovery Engine to find the best market alignment for the brand
             const score = await getMultiplierOnly(key, idealAge, idealHhi, idealDiversity, priorityMod, assetType);
-            marketScores.push({ key, score, label: marketMapping[key].label, color: marketMapping[key].color });
+
+            // Map labels and colors from marketMapping if available, otherwise fallback
+            const mapInfo = marketMapping[key] || { label: key.toUpperCase(), color: '#888' };
+            marketScores.push({ key, score, label: mapInfo.label, color: mapInfo.color });
         }
 
-        // Sort and get Top 10
+        // Sort and get Top 10 (or all if fewer)
         marketScores.sort((a, b) => b.score - a.score);
-        const top10 = marketScores.slice(0, 10);
-        const winner = top10[0];
+        const topN = marketScores.slice(0, 10);
+        const winner = topN[0];
 
         if (winner) {
-            const winningMarket = marketMapping[winner.key];
-            document.getElementById('market-dma').value = winner.key;
-            document.getElementById('market-dma').dispatchEvent(new Event('change'));
+            // Update the UI context and trigger recalculation
+            currentContext = mode;
+            citySelect.value = winner.key;
 
+            // Highlight the active card
+            updateActiveCardUI();
+
+            document.getElementById('winner-text').innerText = `Primary Match: ${winner.label}`;
             const isEfficiency = document.getElementById('efficiency-toggle').checked;
-            document.getElementById('winner-text').innerText = `Primary Match: ${winningMarket.label}`;
-            document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment with a ${winner.score.toFixed(2)}x combined multiplier.`;
+            document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment for this brand's persona with a ${winner.score.toFixed(2)}x combined multiplier.`;
+
             resultsDiv.classList.remove('hidden');
 
-            // Increase delay and use more robust sync for layout
             setTimeout(() => {
-                renderTopFitChart(top10);
+                renderTopFitChart(topN);
             }, 500);
 
             await calculateValuation();
@@ -1028,7 +1039,19 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
         btn.disabled = false;
         btn.style.setProperty('--progress', '0%');
     }
-});
+}
+
+function updateActiveCardUI() {
+    const nbaCard = document.getElementById('step-02-card');
+    const eventCard = document.getElementById('step-03-card');
+    if (currentContext === 'nba') {
+        nbaCard.classList.add('active-context');
+        eventCard.classList.remove('active-context');
+    } else {
+        nbaCard.classList.remove('active-context');
+        eventCard.classList.add('active-context');
+    }
+}
 
 function renderTopFitChart(top10) {
     if (typeof Chart === 'undefined') {
@@ -1494,128 +1517,3 @@ function toggleSubRows(factorId, btn) {
         row.classList.toggle('hidden-sub-row', isExpanded);
     });
 }
-
-// --- Strategic Map Logic ---
-let valuationMap = null;
-let mapMarkers = [];
-
-function initMap() {
-    if (valuationMap) return;
-    const mapEl = document.getElementById('valuation-map');
-    if (!mapEl) return;
-
-    valuationMap = L.map('valuation-map', {
-        center: [39.8283, -98.5795], // Center of US
-        zoom: 4,
-        zoomControl: false,
-        attributionControl: false
-    });
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
-    }).addTo(valuationMap);
-
-    L.control.zoom({ position: 'bottomright' }).addTo(valuationMap);
-}
-
-// Lightweight synchronous valuation for map visualization
-function getMapValuation(marketKey) {
-    const mode = currentContext;
-    const market = censusCache[marketKey] || {
-        hhi: 75000, age: 35, multicultural: 0.45, life_stage: 0.65,
-        education: 0.35, digital: 0.85, hh_size: 2.5, reach: 450000,
-        affluence_burst: 0.1, executive_density: 0.4
-    };
-
-    // Simple logic based on current user inputs
-    const brandName = document.getElementById('target-brand').value;
-    const brand = brandProfiles[brandName] || { targets: ['hhi'] };
-    const targets = brand.targets;
-
-    let score = 1.0;
-    targets.forEach(t => {
-        if (t === 'strategic_affluence') score *= (market.hhi / 65000);
-        if (t === 'education') score *= (market.education / 0.3);
-        if (t === 'multicultural') score *= (market.multicultural / 0.35);
-        if (t === 'loyalty_ltv' && mode === 'nba') {
-            const team = marketMapping[marketKey];
-            if (team && team.avg_attendance) score *= (team.avg_attendance / 18324);
-        }
-    });
-
-    // Apply market offsets if any
-    const mData = marketMapping[marketKey];
-    if (mData && mData.offsets) {
-        if (mData.offsets.hhi) score *= mData.offsets.hhi;
-    }
-
-    return Math.max(0.5, Math.min(score, 5.0));
-}
-
-function updateStrategicMap() {
-    if (!valuationMap) initMap();
-    if (!valuationMap) return;
-
-    // Clear existing markers
-    mapMarkers.forEach(m => valuationMap.removeLayer(m));
-    mapMarkers = [];
-
-    const mode = currentContext;
-    let marketsToMap = [];
-
-    if (mode === 'nba') {
-        marketsToMap = Object.keys(marketMapping).filter(key => {
-            const m = marketMapping[key];
-            return m.lat && m.lng && (m.label.includes('(') || key === 'toronto');
-        });
-    } else {
-        const eventSelect = document.getElementById('event-city');
-        marketsToMap = Array.from(eventSelect.options).map(o => o.value);
-    }
-
-    marketsToMap.forEach(marketKey => {
-        const mData = marketMapping[marketKey];
-        if (!mData || !mData.lat) return;
-
-        const val = getMapValuation(marketKey);
-        const radius = Math.sqrt(val) * 12; // Scale for visual impact
-
-        const circle = L.circleMarker([mData.lat, mData.lng], {
-            radius: radius,
-            fillColor: mData.color || '#1667e9',
-            color: '#fff',
-            weight: 1,
-            opacity: 0.8,
-            fillOpacity: 0.6
-        }).addTo(valuationMap);
-
-        const popupContent = `
-            <div style="font-family: inherit; color: #fff;">
-                <strong style="color: ${mData.color || '#fff'}">${mData.label}</strong><br/>
-                <span style="font-size: 1.2rem; font-weight: 800;">${val.toFixed(2)}x Index</span><br/>
-                <span style="font-size: 0.7rem; text-transform: uppercase; color: #aaa;">Target Delta Alignment</span>
-            </div>
-        `;
-
-        circle.bindPopup(popupContent, { className: 'glass-popup' });
-
-        circle.on('mouseover', function () {
-            this.setStyle({ fillOpacity: 0.9, weight: 2 });
-            this.openPopup();
-        });
-        circle.on('mouseout', function () {
-            this.setStyle({ fillOpacity: 0.6, weight: 1 });
-        });
-
-        mapMarkers.push(circle);
-    });
-
-    if (mapMarkers.length > 0) {
-        const group = new L.featureGroup(mapMarkers);
-        valuationMap.fitBounds(group.getBounds().pad(0.1));
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initMap, 500);
-});
