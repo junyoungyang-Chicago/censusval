@@ -291,7 +291,10 @@ async function calculateValuation() {
     const activeTargets = currentPersonaTargets || brand.targets;
 
     const matrixBody = document.getElementById('matrix-body');
+    const cardsGrid = document.getElementById('factor-cards-grid');
     matrixBody.innerHTML = '';
+    cardsGrid.innerHTML = '';
+
     let totalMultiplier = 1.0 * priorityMod;
     let currentHhiMult = 1.0;
     let currentAffMult = 1.0;
@@ -449,7 +452,6 @@ async function calculateValuation() {
         const row = document.createElement('tr');
         if (activeTargets.includes(factor.id)) {
             row.classList.add('ai-affected-row');
-            // Ensure even highlighted rows show the impact if they are new strategic targets
             if (currentPersonaTargets && currentPersonaTargets.includes(factor.id) && !brand.targets.includes(factor.id)) {
                 factor.impact = "Strategic AI Target";
             }
@@ -475,6 +477,72 @@ async function calculateValuation() {
             </span></td>
         `;
         matrixBody.appendChild(row);
+
+        // --- RENDER CARD ---
+        const card = document.createElement('div');
+        card.className = `factor-card ${activeTargets.includes(factor.id) ? 'ai-affected-card' : ''}`;
+        card.onclick = () => flipCard(card);
+
+        let subFactorsHtml = '';
+        if (factor.id === 'strategic_affluence') {
+            subFactorsHtml = `
+                <div class="sub-factors-list">
+                    <div class="sub-factor-item"><span>Median HHI:</span> <span>${formatCurrency(market.hhi * 1.18)}</span></div>
+                    <div class="sub-factor-item"><span>Affluence Burst:</span> <span>${(market.affluence_burst * 1.05 * 100).toFixed(1)}%</span></div>
+                </div>
+            `;
+        } else if (factor.id === 'strategic_life_stage') {
+            subFactorsHtml = `
+                <div class="sub-factors-list">
+                    <div class="sub-factor-item"><span>Age (Fans):</span> <span>${((market.age || 38.5) * 0.96).toFixed(1)}</span></div>
+                    <div class="sub-factor-item"><span>Home Ownership:</span> <span>${((market.life_stage || 0.65) * 1.05 * 100).toFixed(1)}%</span></div>
+                </div>
+            `;
+        }
+
+        card.innerHTML = `
+            <div class="factor-card-inner">
+                <div class="factor-card-front">
+                    <div class="card-title">${factor.label}</div>
+                    ${subFactorsHtml}
+                    <div class="card-multiplier">
+                        <span class="label">Multiplier</span>
+                        <div class="value">${multiplier.toFixed(3)}x</div>
+                    </div>
+                    <div class="card-impact-badge card-impact-${multiplier > 1.2 ? 'high' : 'neutral'}">
+                        ${factor.impact || 'Standard Lift'}
+                    </div>
+                    <small style="text-align: center; color: var(--text-secondary); margin-top: 1rem; opacity: 0.5;">Click to flip</small>
+                </div>
+                <div class="factor-card-back">
+                    <div class="card-title" style="font-size: 1.1rem; margin-bottom: 1.5rem;">Calculation Details</div>
+                    <div class="card-details">
+                        <div class="detail-item">
+                            <span class="label">Local Demo</span>
+                            <span class="val">${formatValue(factor.id, marketVal)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Fan Demo</span>
+                            <span class="val">${formatValue(factor.id, fanVal)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">League/US Avg</span>
+                            <span class="val">${formatValue(factor.id, factor.us_avg)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Census Table</span>
+                            <span class="census-tag">${factor.table}</span>
+                        </div>
+                    </div>
+                    <div class="formula-box">
+                        <span class="formula-label">Equation</span>
+                        <div class="formula-text">${formula}</div>
+                    </div>
+                    <small style="text-align: center; color: var(--text-secondary); margin-top: auto; opacity: 0.5;">Click to flip back</small>
+                </div>
+            </div>
+        `;
+        cardsGrid.appendChild(card);
 
         if (factor.id === 'strategic_affluence') {
             const hhiRow = document.createElement('tr');
@@ -1266,6 +1334,24 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
     }
 });
 
+// --- VIEW TOGGLE LOGIC ---
+document.getElementById('matrix-view-toggle').addEventListener('change', (e) => {
+    const tableView = document.getElementById('matrix-table-view');
+    const cardsView = document.getElementById('matrix-cards-view');
+
+    if (e.target.checked) {
+        tableView.classList.add('hidden');
+        cardsView.classList.remove('hidden');
+    } else {
+        tableView.classList.remove('hidden');
+        cardsView.classList.add('hidden');
+    }
+});
+
+function flipCard(card) {
+    card.classList.toggle('flipped');
+}
+
 function toggleSubRows(factorId, btn) {
     const isExpanded = btn.classList.contains('expanded');
     const details = document.querySelectorAll(`.${factorId}-detail`);
@@ -1273,6 +1359,6 @@ function toggleSubRows(factorId, btn) {
     btn.classList.toggle('expanded');
 
     details.forEach(row => {
-        row.classList.toggle('hidden-sub-row');
+        row.classList.toggle('hidden-sub-row', isExpanded);
     });
 }
