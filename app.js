@@ -1086,7 +1086,7 @@ function renderTopFitMap(topN) {
                 radius: index === 0 ? 24 : 16,
                 fillColor: color,
                 color: '#fff',
-                weight: 2,
+                weight: 0.5,
                 opacity: 1,
                 fillOpacity: 0.8
             }).addTo(discoveryMap);
