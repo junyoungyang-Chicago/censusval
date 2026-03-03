@@ -33,8 +33,8 @@ const marketMapping = {
     sanfrancisco: { state: '06', place: '67000', label: 'San Francisco, CA (Warriors)', avg_attendance: 18064, color: '#1D428A', textColor: 'white', lat: 37.7749, lng: -122.4194 },
     houston: { state: '48', place: '35000', label: 'Houston, TX (Rockets)', avg_attendance: 17400, color: '#CE1141', textColor: 'white', lat: 29.7604, lng: -95.3698 },
     indianapolis: { state: '18', place: '36000', label: 'Indianapolis, IN (Pacers)', avg_attendance: 16500, color: '#002D62', textColor: 'white', lat: 39.7684, lng: -86.1581 },
-    lakers: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers)', avg_attendance: 18997, color: '#552583', textColor: 'white', lat: 34.0522, lng: -118.2437, offsets: { hhi: 1.15, digital: 1.08, age: 2, attendance: 1.05, education: 1.10, life_stage: 1.05 } },
-    clippers: { state: '06', place: '44000', label: 'Los Angeles, CA (Clippers)', avg_attendance: 18450, color: '#C8102E', textColor: 'white', lat: 34.0522, lng: -118.2437, offsets: { hhi: 0.94, digital: 1.02, multicultural: 1.15, age: -3, education: 0.95, hh_size: 0.90 } },
+    lakers: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers)', avg_attendance: 18997, color: '#552583', textColor: 'white', lat: 34.0522, lng: -118.2437 },
+    clippers: { state: '06', place: '44000', label: 'Los Angeles, CA (Clippers)', avg_attendance: 18450, color: '#C8102E', textColor: 'white', lat: 34.0522, lng: -118.2437 },
     memphis: { state: '47', place: '48000', label: 'Memphis, TN (Grizzlies)', avg_attendance: 16500, color: '#5D76A9', textColor: 'white', lat: 35.1495, lng: -90.0490 },
     miami: { state: '12', place: '45000', label: 'Miami, FL (Heat)', avg_attendance: 19600, color: '#98002E', textColor: 'white', lat: 25.7617, lng: -80.1918 },
     milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', avg_attendance: 17500, color: '#00471B', textColor: 'white', lat: 43.0389, lng: -87.9065 },
@@ -55,23 +55,139 @@ const marketMapping = {
     lasvegas: { state: '32', place: '40000', label: 'Las Vegas, NV', avg_attendance: 18000, color: '#B29759', textColor: 'black', lat: 36.1699, lng: -115.1398 },
     losangeles: { state: '06', place: '44000', label: 'Los Angeles, CA', avg_attendance: 18723, color: '#552583', textColor: 'white', lat: 34.0522, lng: -118.2437 },
 
-    // MLB
-    yankees: { state: '36', county: '005', label: 'New York, NY (Yankees)', avg_attendance: 40862, color: '#003087', textColor: 'white', lat: 40.8296, lng: -73.9262 },
-    dodgers: { state: '06', place: '44000', label: 'Los Angeles, CA (Dodgers)', avg_attendance: 47371, color: '#005A9C', textColor: 'white', lat: 34.0739, lng: -118.2400 },
-    cubs: { state: '17', place: '14000', label: 'Chicago, IL (Cubs)', avg_attendance: 34261, color: '#0E3386', textColor: 'white', lat: 41.9484, lng: -87.6553 },
-    braves: { state: '13', county: '067', label: 'Atlanta, GA (Braves)', avg_attendance: 39401, color: '#13274F', textColor: 'white', lat: 33.8907, lng: -84.4678 },
+    // NFL
+    nfl_cardinals: { state: '04', place: '55000', label: 'Arizona Cardinals', color: '#97233F', textColor: 'white', lat: 33.5276, lng: -112.2626 },
+    nfl_falcons: { state: '13', place: '04000', label: 'Atlanta Falcons', color: '#A71930', textColor: 'white', lat: 33.7553, lng: -84.4006 },
+    nfl_ravens: { state: '24', place: '04000', label: 'Baltimore Ravens', color: '#241773', textColor: 'white', lat: 39.2850, lng: -76.6215 },
+    nfl_bills: { state: '36', county: '029', label: 'Buffalo Bills', color: '#00338D', textColor: 'white', lat: 42.7740, lng: -78.7870 },
+    nfl_panthers: { state: '37', place: '12000', label: 'Carolina Panthers', color: '#0085CA', textColor: 'white', lat: 35.2258, lng: -80.8528 },
+    nfl_bears: { state: '17', place: '14000', label: 'Chicago Bears', color: '#0B162A', textColor: 'white', lat: 41.8623, lng: -87.6167 },
+    nfl_bengals: { state: '39', place: '15000', label: 'Cincinnati Bengals', color: '#FB4F14', textColor: 'black', lat: 39.0955, lng: -84.5161 },
+    nfl_browns: { state: '39', place: '16000', label: 'Cleveland Browns', color: '#311D00', textColor: 'white', lat: 41.5061, lng: -81.6995 },
+    nfl_cowboys: { state: '48', place: '04000', label: 'Dallas Cowboys', color: '#003594', textColor: 'white', lat: 32.7473, lng: -97.0945 },
+    nfl_denver: { state: '08', place: '20000', label: 'Denver Broncos', color: '#FB4F14', textColor: 'white', lat: 39.7439, lng: -105.0201 },
+    nfl_lions: { state: '26', place: '22000', label: 'Detroit Lions', color: '#0076B6', textColor: 'white', lat: 42.3400, lng: -83.0456 },
+    nfl_packers: { state: '55', place: '31000', label: 'Green Bay Packers', color: '#203731', textColor: 'white', lat: 44.5013, lng: -88.0622 },
+    nfl_texans: { state: '48', place: '35000', label: 'Houston Texans', color: '#03202F', textColor: 'white', lat: 29.6847, lng: -95.4082 },
+    nfl_colts: { state: '18', place: '36000', label: 'Indianapolis Colts', color: '#002C5F', textColor: 'white', lat: 39.7601, lng: -86.1639 },
+    nfl_jaguars: { state: '12', place: '35000', label: 'Jacksonville Jaguars', color: '#006778', textColor: 'white', lat: 30.3239, lng: -81.6373 },
+    nfl_chiefs: { state: '29', place: '38000', label: 'Kansas City Chiefs', color: '#E31837', textColor: 'white', lat: 39.0489, lng: -94.4839 },
+    nfl_raiders: { state: '32', place: '40000', label: 'Las Vegas Raiders', color: '#000000', textColor: '#A5ACAF', lat: 36.0909, lng: -115.1833 },
+    nfl_chargers: { state: '06', place: '44000', label: 'LA Chargers', color: '#0080C6', textColor: 'white', lat: 33.9535, lng: -118.3390 },
+    nfl_rams: { state: '06', place: '44000', label: 'LA Rams', color: '#003594', textColor: '#FFA300', lat: 33.9535, lng: -118.3390 },
+    nfl_dolphins: { state: '12', place: '45000', label: 'Miami Dolphins', color: '#008E97', textColor: 'white', lat: 25.9581, lng: -80.2389 },
+    nfl_vikings: { state: '27', place: '43000', label: 'Minnesota Vikings', color: '#4F2683', textColor: 'white', lat: 44.9739, lng: -93.2575 },
+    nfl_patriots: { state: '25', county: '021', label: 'New England Patriots', color: '#002244', textColor: 'white', lat: 42.0909, lng: -71.2643 },
+    nfl_saints: { state: '22', place: '55000', label: 'New Orleans Saints', color: '#D3BC8D', textColor: 'black', lat: 29.9511, lng: -90.0812 },
+    nfl_nygiants: { state: '34', county: '003', label: 'New York Giants', color: '#0B2265', textColor: 'white', lat: 40.8128, lng: -74.0742 },
+    nfl_nyjets: { state: '34', county: '003', label: 'New York Jets', color: '#125740', textColor: 'white', lat: 40.8128, lng: -74.0742 },
+    nfl_philadelphia: { state: '42', place: '60000', label: 'Philadelphia Eagles', color: '#004C54', textColor: 'white', lat: 39.9012, lng: -75.1675 },
+    nfl_steelers: { state: '42', place: '61000', label: 'Pittsburgh Steelers', color: '#FFB81C', textColor: 'black', lat: 40.4468, lng: -80.0158 },
+    nfl_sanfrancisco: { state: '06', place: '68000', label: 'San Francisco 49ers', color: '#AA0000', textColor: 'white', lat: 37.4033, lng: -121.9694 },
+    nfl_seahawks: { state: '53', place: '63000', label: 'Seattle Seahawks', color: '#002244', textColor: '#69BE28', lat: 47.5952, lng: -122.3316 },
+    nfl_buccaneers: { state: '12', place: '71000', label: 'Tampa Bay Buccaneers', color: '#D50A0A', textColor: 'white', lat: 27.9759, lng: -82.5033 },
+    nfl_titans: { state: '47', place: '52014', label: 'Tennessee Titans', color: '#0C2340', textColor: 'white', lat: 36.1665, lng: -86.7713 },
+    nfl_commanders: { state: '24', place: '41000', label: 'Washington Commanders', color: '#5A1414', textColor: 'white', lat: 38.9077, lng: -76.8645 },
 
-    // MLS
-    atlantaunited: { state: '13', place: '04000', label: 'Atlanta, GA (United FC)', avg_attendance: 47526, color: '#80000A', textColor: 'white', lat: 33.7553, lng: -84.4006 },
-    intermiami: { state: '12', place: '24000', label: 'Miami, FL (Inter Miami)', avg_attendance: 17643, color: '#F7B5CD', textColor: '#231F20', lat: 26.1923, lng: -80.1610 },
-    lafc: { state: '06', place: '44000', label: 'Los Angeles, CA (LAFC)', avg_attendance: 22023, color: '#000000', textColor: '#C39E6D', lat: 34.0130, lng: -118.2847 },
-    seattlesounders: { state: '53', place: '63000', label: 'Seattle, WA (Sounders FC)', avg_attendance: 31053, color: '#5D9741', textColor: 'white', lat: 47.5952, lng: -122.3316 }
+    // MLB - Additional
+    mlb_angels: { state: '06', place: '02000', label: 'LA Angels', color: '#BA0021', textColor: 'white', lat: 33.8003, lng: -117.8827 },
+    mlb_astros: { state: '48', place: '35000', label: 'Houston Astros', color: '#002D62', textColor: 'white', lat: 29.7573, lng: -95.3559 },
+    mlb_athletics: { state: '06', place: '53000', label: 'Oakland Athletics', color: '#003831', textColor: 'white', lat: 37.7516, lng: -122.2005 },
+    mlb_bluejays: { isCanada: true, label: 'Toronto Blue Jays', color: '#134A8E', textColor: 'white', lat: 43.6414, lng: -79.3894 },
+    mlb_brewers: { state: '55', place: '53000', label: 'Milwaukee Brewers', color: '#12284B', textColor: '#FFC52F', lat: 43.0284, lng: -87.9712 },
+    mlb_cardinals: { state: '29', place: '65000', label: 'St. Louis Cardinals', color: '#C41E3A', textColor: 'white', lat: 38.6226, lng: -90.1928 },
+    mlb_diamondbacks: { state: '04', place: '55000', label: 'Arizona Diamondbacks', color: '#A71930', textColor: 'white', lat: 33.4455, lng: -112.0667 },
+    mlb_dodgers: { state: '06', place: '44000', label: 'LA Dodgers', color: '#005A9C', textColor: 'white', lat: 34.0739, lng: -118.2400 },
+    mlb_giants: { state: '06', place: '67000', label: 'SF Giants', color: '#FD5A1E', textColor: 'black', lat: 37.7786, lng: -122.3893 },
+    mlb_guardians: { state: '39', place: '16000', label: 'Cleveland Guardians', color: '#0C2340', textColor: 'white', lat: 41.4962, lng: -81.6852 },
+    mlb_mariners: { state: '53', place: '63000', label: 'Seattle Mariners', color: '#0C2C56', textColor: 'white', lat: 47.5914, lng: -122.3323 },
+    mlb_marlins: { state: '12', place: '45000', label: 'Miami Marlins', color: '#00A3E0', textColor: 'white', lat: 25.7783, lng: -80.2197 },
+    mlb_mets: { state: '36', county: '081', label: 'NY Mets', color: '#002D72', textColor: 'white', lat: 40.7571, lng: -73.8458 },
+    mlb_nationals: { state: '11', place: '50000', label: 'Washington Nationals', color: '#AB0003', textColor: 'white', lat: 38.8730, lng: -77.0074 },
+    mlb_orioles: { state: '24', place: '04000', label: 'Baltimore Orioles', color: '#DF4601', textColor: 'black', lat: 39.2840, lng: -76.6216 },
+    mlb_padres: { state: '06', place: '66000', label: 'San Diego Padres', color: '#2F241D', textColor: '#FFC72C', lat: 32.7073, lng: -117.1566 },
+    mlb_phillies: { state: '42', place: '60000', label: 'Philadelphia Phillies', color: '#E81828', textColor: 'white', lat: 39.9061, lng: -75.1665 },
+    mlb_pirates: { state: '42', place: '61000', label: 'Pittsburgh Pirates', color: '#27251F', textColor: '#FDB827', lat: 40.4473, lng: -80.0057 },
+    mlb_rangers: { state: '48', place: '04000', label: 'Texas Rangers', color: '#003278', textColor: 'white', lat: 32.7512, lng: -97.0825 },
+    mlb_rays: { state: '12', place: '63000', label: 'Tampa Bay Rays', color: '#092C5C', textColor: '#8FBCE6', lat: 27.7682, lng: -82.6501 },
+    mlb_redsox: { state: '25', place: '07000', label: 'Boston Red Sox', color: '#BD3039', textColor: 'white', lat: 42.3467, lng: -71.0972 },
+    mlb_reds: { state: '39', place: '15000', label: 'Cincinnati Reds', color: '#C6011F', textColor: 'white', lat: 39.0975, lng: -84.5071 },
+    mlb_rockies: { state: '08', place: '20000', label: 'Colorado Rockies', color: '#33006F', textColor: 'white', lat: 39.7559, lng: -104.9942 },
+    mlb_royals: { state: '29', place: '38000', label: 'Kansas City Royals', color: '#004687', textColor: 'white', lat: 39.0517, lng: -94.4803 },
+    mlb_tigers: { state: '26', place: '22000', label: 'Detroit Tigers', color: '#0C2340', textColor: 'white', lat: 42.3392, lng: -83.0485 },
+    mlb_twins: { state: '27', place: '43000', label: 'Minnesota Twins', color: '#002B5C', textColor: 'white', lat: 44.9817, lng: -93.2778 },
+    mlb_whitesox: { state: '17', place: '14000', label: 'Chicago White Sox', color: '#27251F', textColor: 'white', lat: 41.8300, lng: -87.6339 },
+    mlb_yankees: { state: '36', county: '005', label: 'NY Yankees', color: '#003087', textColor: 'white', lat: 40.8296, lng: -73.9262 },
+
+    // MLS - Additional
+    mls_atlanta: { state: '13', place: '04000', label: 'Atlanta United', color: '#80000A', textColor: 'white', lat: 33.7553, lng: -84.4006 },
+    mls_austin: { state: '48', place: '05000', label: 'Austin FC', color: '#00B140', textColor: 'black', lat: 30.3887, lng: -97.7196 },
+    mls_charlotte: { state: '37', place: '12000', label: 'Charlotte FC', color: '#1A85C8', textColor: 'white', lat: 35.2258, lng: -80.8528 },
+    mls_chicago: { state: '17', place: '14000', label: 'Chicago Fire FC', color: '#FF0000', textColor: 'white', lat: 41.8614, lng: -87.6167 },
+    mls_cincinnati: { state: '39', place: '15000', label: 'FC Cincinnati', color: '#FA4616', textColor: 'white', lat: 39.1114, lng: -84.5222 },
+    mls_colorado: { state: '08', place: '20000', label: 'Colorado Rapids', color: '#862633', textColor: 'white', lat: 39.8058, lng: -104.8918 },
+    mls_columbus: { state: '39', place: '18000', label: 'Columbus Crew', color: '#FEDD00', textColor: 'black', lat: 39.9678, lng: -83.0061 },
+    mls_dallas: { state: '48', place: '27684', label: 'FC Dallas', color: '#B01639', textColor: 'white', lat: 33.1544, lng: -96.8353 },
+    mls_dcunited: { state: '11', place: '50000', label: 'D.C. United', color: '#EF3E42', textColor: 'white', lat: 38.8681, lng: -77.0122 },
+    mls_houston: { state: '48', place: '35000', label: 'Houston Dynamo', color: '#FF6B00', textColor: 'black', lat: 29.7523, lng: -95.3524 },
+    mls_lafc: { state: '06', place: '44000', label: 'LAFC', color: '#000000', textColor: '#C3a868', lat: 34.0130, lng: -118.2847 },
+    mls_galaxy: { state: '06', place: '11530', label: 'LA Galaxy', color: '#00245D', textColor: '#FFD200', lat: 33.8644, lng: -118.2611 },
+    mls_miami: { state: '12', place: '24000', label: 'Inter Miami CF', color: '#F7B5CD', textColor: '#231F20', lat: 26.1923, lng: -80.1610 },
+    mls_minnesota: { state: '27', place: '58000', label: 'Minnesota United', color: '#8CD2F4', textColor: 'black', lat: 44.9529, lng: -93.1648 },
+    mls_montreal: { isCanada: true, label: 'CF Montréal', color: '#004E9E', textColor: 'white', lat: 45.5630, lng: -73.5539 },
+    mls_nashville: { state: '47', place: '52014', label: 'Nashville SC', color: '#EDE939', textColor: '#1F1646', lat: 36.1306, lng: -86.7631 },
+    mls_revolution: { state: '25', county: '021', label: 'New England Revolution', color: '#002E5E', textColor: 'white', lat: 42.0909, lng: -71.2643 },
+    mls_nycfc: { state: '36', county: '005', label: 'NYCFC', color: '#6CACE4', textColor: 'black', lat: 40.8296, lng: -73.9262 },
+    mls_rbny: { state: '34', county: '013', label: 'NY Red Bulls', color: '#B10B41', textColor: 'white', lat: 40.7367, lng: -74.1503 },
+    mls_orlando: { state: '12', place: '53000', label: 'Orlando City SC', color: '#633492', textColor: 'white', lat: 28.5411, lng: -81.3892 },
+    mls_philadelphia: { state: '42', place: '13208', label: 'Philadelphia Union', color: '#002D55', textColor: 'white', lat: 39.8339, lng: -75.3789 },
+    mls_portland: { state: '41', place: '59000', label: 'Portland Timbers', color: '#00482B', textColor: '#EAE827', lat: 45.5217, lng: -122.6917 },
+    mls_realsaltlake: { state: '49', place: '67440', label: 'Real Salt Lake', color: '#B30838', textColor: 'white', lat: 40.5828, lng: -111.8906 },
+    mls_sanjose: { state: '06', place: '68000', label: 'San Jose Earthquakes', color: '#0067B1', textColor: 'white', lat: 37.3512, lng: -121.9247 },
+    mls_seattle: { state: '53', place: '63000', label: 'Seattle Sounders FC', color: '#5D9741', textColor: 'white', lat: 47.5952, lng: -122.3316 },
+    mls_sportingkc: { state: '20', place: '36000', label: 'Sporting KC', color: '#91B0D7', textColor: '#002F65', lat: 39.1214, lng: -94.8231 },
+    mls_stlouis: { state: '29', place: '65000', label: 'St. Louis CITY SC', color: '#E31351', textColor: 'white', lat: 38.6300, lng: -90.2000 },
+    mls_toronto: { isCanada: true, label: 'Toronto FC', color: '#B30838', textColor: 'white', lat: 43.6331, lng: -79.4186 },
+    mls_vancouver: { isCanada: true, label: 'Vancouver Whitecaps', color: '#00245E', textColor: 'white', lat: 49.2821, lng: -123.1118 },
+
+    // WNBA
+    wnba_dream: { state: '13', place: '18536', label: 'Atlanta Dream', color: '#C8102E', textColor: 'white', lat: 33.7431, lng: -84.4539 },
+    wnba_sky: { state: '17', place: '14000', label: 'Chicago Sky', color: '#5BC2E7', textColor: 'white', lat: 41.8614, lng: -87.6167 },
+    wnba_sun: { state: '09', county: '011', label: 'Connecticut Sun', color: '#E31837', textColor: 'white', lat: 41.4883, lng: -72.0883 },
+    wnba_fever: { state: '18', place: '36000', label: 'Indiana Fever', color: '#002D62', textColor: 'white', lat: 39.7640, lng: -86.1555 },
+    wnba_liberty: { state: '36', county: '047', label: 'New York Liberty', color: '#6F2633', textColor: 'white', lat: 40.6826, lng: -73.9753 },
+    wnba_aces: { state: '32', place: '40000', label: 'Las Vegas Aces', color: '#000000', textColor: '#D0D3D4', lat: 36.0909, lng: -115.1833 },
+    wnba_sparks: { state: '06', place: '44000', label: 'LA Sparks', color: '#552583', textColor: '#FDB927', lat: 34.0430, lng: -118.2673 },
+    wnba_lynx: { state: '27', place: '43000', label: 'Minnesota Lynx', color: '#0C2340', textColor: '#236192', lat: 44.9795, lng: -93.2761 },
+    wnba_mercury: { state: '04', place: '55000', label: 'Phoenix Mercury', color: '#1D1160', textColor: 'white', lat: 33.4455, lng: -112.0667 },
+    wnba_storm: { state: '53', place: '63000', label: 'Seattle Storm', color: '#2C5234', textColor: '#FEE11A', lat: 47.6221, lng: -122.3533 },
+    wnba_mystics: { state: '11', place: '50000', label: 'Washington Mystics', color: '#002B5C', textColor: 'white', lat: 38.8681, lng: -76.9881 },
+    wnba_wings: { state: '48', place: '04000', label: 'Dallas Wings', color: '#002B5E', textColor: '#C4D600', lat: 32.7303, lng: -97.1082 },
+
+    // NWSL
+    nwsl_angelcity: { state: '06', place: '44000', label: 'Angel City FC', color: '#000000', textColor: '#F7A7A5', lat: 34.0130, lng: -118.2847 },
+    nwsl_bay: { state: '06', place: '68000', label: 'Bay FC', color: '#000000', textColor: '#B1B3B3', lat: 37.3512, lng: -121.9247 },
+    nwsl_chicago: { state: '17', place: '11000', label: 'Chicago Red Stars', color: '#053159', textColor: 'white', lat: 41.7647, lng: -87.8058 },
+    nwsl_houston: { state: '48', place: '35000', label: 'Houston Dash', color: '#F6821F', textColor: 'black', lat: 29.7523, lng: -95.3524 },
+    nwsl_kansas: { state: '29', place: '38000', label: 'Kansas City Current', color: '#E31837', textColor: 'white', lat: 39.1111, lng: -94.5778 },
+    nwsl_gotham: { state: '34', place: '30450', label: 'NJ/NY Gotham FC', color: '#000000', textColor: '#A7A9AC', lat: 40.7367, lng: -74.1503 },
+    nwsl_carolina: { state: '37', place: '10620', label: 'North Carolina Courage', color: '#132442', textColor: 'white', lat: 35.8340, lng: -78.7840 },
+    nwsl_reign: { state: '53', place: '63000', label: 'Seattle Reign FC', color: '#002D55', textColor: 'white', lat: 47.5952, lng: -122.3316 },
+    nwsl_orlando: { state: '12', place: '53000', label: 'Orlando Pride', color: '#633492', textColor: 'white', lat: 28.5411, lng: -81.3892 },
+    nwsl_louisville: { state: '21', place: '48000', label: 'Racing Louisville FC', color: '#7E2C8E', textColor: 'white', lat: 38.2527, lng: -85.7585 },
+    nwsl_sandiego: { state: '06', place: '66000', label: 'San Diego Wave FC', color: '#004C97', textColor: 'white', lat: 32.7831, lng: -117.1194 },
+    nwsl_portland: { state: '41', place: '59000', label: 'Portland Thorns FC', color: '#E31837', textColor: 'white', lat: 45.5217, lng: -122.6917 },
+    nwsl_royals: { state: '49', place: '67440', label: 'Utah Royals', color: '#B30838', textColor: '#FEE11A', lat: 40.5828, lng: -111.8906 },
+    nwsl_spirit: { state: '11', place: '50000', label: 'Washington Spirit', color: '#002B5C', textColor: 'white', lat: 38.8681, lng: -77.0122 }
 };
 
 const LEAGUES = {
+    'NFL': ['nfl_cardinals', 'nfl_falcons', 'nfl_ravens', 'nfl_bills', 'nfl_panthers', 'nfl_bears', 'nfl_bengals', 'nfl_browns', 'nfl_cowboys', 'nfl_denver', 'nfl_lions', 'nfl_packers', 'nfl_texans', 'nfl_colts', 'nfl_jaguars', 'nfl_chiefs', 'nfl_raiders', 'nfl_chargers', 'nfl_rams', 'nfl_dolphins', 'nfl_vikings', 'nfl_patriots', 'nfl_saints', 'nfl_nygiants', 'nfl_nyjets', 'nfl_philadelphia', 'nfl_steelers', 'nfl_sanfrancisco', 'nfl_seahawks', 'nfl_buccaneers', 'nfl_titans', 'nfl_commanders'],
+    'MLB': ['mlb_angels', 'mlb_astros', 'mlb_athletics', 'mlb_bluejays', 'mlb_brewers', 'mlb_cardinals', 'mlb_diamondbacks', 'mlb_dodgers', 'mlb_giants', 'mlb_guardians', 'mlb_mariners', 'mlb_marlins', 'mlb_mets', 'mlb_nationals', 'mlb_orioles', 'mlb_padres', 'mlb_phillies', 'mlb_pirates', 'mlb_rangers', 'mlb_rays', 'mlb_redsox', 'mlb_reds', 'mlb_rockies', 'mlb_royals', 'mlb_tigers', 'mlb_twins', 'mlb_whitesox', 'mlb_yankees'],
     'NBA': ['atlanta', 'boston', 'brooklyn', 'charlotte', 'chicago', 'cleveland', 'dallas', 'denver', 'detroit', 'sanfrancisco', 'houston', 'indianapolis', 'lakers', 'clippers', 'memphis', 'miami', 'milwaukee', 'minneapolis', 'neworleans', 'newyork', 'oklahomacity', 'orlando', 'philadelphia', 'phoenix', 'portland', 'sacramento', 'sanantonio', 'saltlakecity', 'toronto', 'washingtondc'],
-    'MLB': ['yankees', 'dodgers', 'cubs', 'braves'],
-    'MLS': ['atlantaunited', 'intermiami', 'lafc', 'seattlesounders']
+    'MLS': ['mls_atlanta', 'mls_austin', 'mls_charlotte', 'mls_chicago', 'mls_cincinnati', 'mls_colorado', 'mls_columbus', 'mls_dallas', 'mls_dcunited', 'mls_houston', 'mls_lafc', 'mls_galaxy', 'mls_miami', 'mls_minnesota', 'mls_montreal', 'mls_nashville', 'mls_revolution', 'mls_nycfc', 'mls_rbny', 'mls_orlando', 'mls_philadelphia', 'mls_portland', 'mls_realsaltlake', 'mls_sanjose', 'mls_seattle', 'mls_sportingkc', 'mls_stlouis', 'mls_toronto', 'mls_vancouver'],
+    'WNBA': ['wnba_dream', 'wnba_sky', 'wnba_sun', 'wnba_fever', 'wnba_liberty', 'wnba_aces', 'wnba_sparks', 'wnba_lynx', 'wnba_mercury', 'wnba_storm', 'wnba_mystics', 'wnba_wings'],
+    'NWSL': ['nwsl_angelcity', 'nwsl_bay', 'nwsl_chicago', 'nwsl_houston', 'nwsl_kansas', 'nwsl_gotham', 'nwsl_carolina', 'nwsl_reign', 'nwsl_orlando', 'nwsl_louisville', 'nwsl_sandiego', 'nwsl_portland', 'nwsl_royals', 'nwsl_spirit']
 };
 
 const brandProfiles = {
@@ -1766,9 +1882,6 @@ function initTeamMultiSelect() {
             section.classList.toggle('expanded');
         });
 
-        // Expand sections by default
-        section.classList.add('expanded');
-
         // League Select All logic
         const leagueCheck = section.querySelector('.league-checkbox');
         leagueCheck.addEventListener('change', (e) => {
@@ -1804,6 +1917,7 @@ function initTeamMultiSelect() {
         allSections.forEach(sec => {
             const hasVisible = Array.from(sec.querySelectorAll('.team-row')).some(r => r.style.display !== 'none');
             if (term && hasVisible) sec.classList.add('expanded');
+            else if (!term) sec.classList.remove('expanded');
         });
     });
 
