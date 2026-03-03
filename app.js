@@ -1019,28 +1019,26 @@ async function runDiscovery(mode) {
             marketScores.push({ key, score, label: mapInfo.label, color: mapInfo.color });
         }
 
-        // Sort and get Top 10 (or all if NBA mode)
+        // Sort results
         marketScores.sort((a, b) => b.score - a.score);
-        const topN = mode === 'nba' ? marketScores : marketScores.slice(0, 10);
-        const winner = topN[0];
+
+        const chartData = marketScores.slice(0, 10);
+        const mapData = marketScores;
+        const winner = chartData[0];
 
         if (winner) {
-            // Update the UI context and trigger recalculation
             currentContext = mode;
             citySelect.value = winner.key;
-
-            // Highlight the active card
             updateActiveCardUI();
 
             document.getElementById('winner-text').innerText = `Primary Match: ${winner.label}`;
             const isEfficiency = document.getElementById('efficiency-toggle').checked;
             document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment for this brand's persona with a ${winner.score.toFixed(2)}x combined multiplier.`;
-
             resultsDiv.classList.remove('hidden');
 
             setTimeout(() => {
-                renderTopFitChart(topN);
-                renderTopFitMap(topN);
+                renderTopFitChart(chartData);
+                renderTopFitMap(mapData);
             }, 500);
 
             await calculateValuation();
@@ -1082,13 +1080,16 @@ function renderTopFitMap(topN) {
         const market = marketMapping[fit.key];
         if (market && market.lat) {
             const color = market.color || '#fff';
+            // Dynamic Radius based on Multiplier
+            const dynamicRadius = Math.max(5, fit.score * 8);
+
             const marker = L.circleMarker([market.lat, market.lng], {
-                radius: index === 0 ? 24 : 16,
+                radius: dynamicRadius,
                 fillColor: color,
                 color: '#fff',
-                weight: 0.5,
+                weight: 0.8, // Thinner white stroke
                 opacity: 1,
-                fillOpacity: 0.8
+                fillOpacity: 0.85
             }).addTo(discoveryMap);
 
             // Hover Tooltip for instant value display
@@ -1168,10 +1169,8 @@ function renderTopFitChart(top10) {
 
     const ctx = canvas.getContext('2d');
 
-    // Dynamic height adjustment for all 30 teams
-    const isManyBars = top10.length > 15;
     if (container) {
-        container.style.height = isManyBars ? '900px' : '400px';
+        container.style.height = '400px';
     }
 
     if (discoveryChartInstance) {
@@ -1180,7 +1179,7 @@ function renderTopFitChart(top10) {
 
     // Explicitly set canvas dimensions
     canvas.width = container ? container.offsetWidth : 400;
-    canvas.height = isManyBars ? 900 : 400;
+    canvas.height = 400;
 
     const gradient = ctx.createLinearGradient(0, 0, 400, 0);
     gradient.addColorStop(0, 'rgba(22, 103, 233, 0.9)');
@@ -1200,7 +1199,7 @@ function renderTopFitChart(top10) {
                     borderColor: 'rgba(255,255,255,0.1)',
                     borderWidth: 1,
                     borderRadius: 3,
-                    barThickness: isManyBars ? 14 : 22
+                    barThickness: 22
                 }]
             },
             options: {
