@@ -260,6 +260,11 @@ async function fetchCensusData(marketKey, zipCode = null) {
 }
 
 async function calculateValuation() {
+    const mainCard = document.querySelector('.final-value-card');
+    if (mainCard) {
+        mainCard.classList.remove('discovery-avg-mode');
+        document.getElementById('valuation-label').innerText = "Strategic Market Index";
+    }
     const baseline = 1;
     const mode = currentContext;
 
@@ -1029,21 +1034,11 @@ async function runDiscovery(mode) {
         marketScores.sort((a, b) => b.score - a.score);
 
         const avgScore = marketScores.reduce((acc, curr) => acc + curr.score, 0) / total;
-        const avgStats = document.getElementById('market-average-stats');
-        const avgLabel = document.getElementById('avg-label');
-        const avgValue = document.getElementById('avg-value');
-        const isEfficiency = document.getElementById('efficiency-toggle').checked;
-
-        if (avgStats) {
-            avgStats.classList.remove('hidden');
-            avgLabel.innerText = isEfficiency ? "Team Average Index" : "City Average Index";
-            avgValue.innerText = avgScore.toFixed(2) + 'x';
-        }
-
         const chartData = marketScores.slice(0, 10);
         const mapData = marketScores;
         const winner = chartData[0];
 
+        const isEfficiency = document.getElementById('efficiency-toggle').checked;
         if (winner) {
             currentContext = mode;
             citySelect.value = winner.key;
@@ -1059,6 +1054,15 @@ async function runDiscovery(mode) {
             }, 500);
 
             await calculateValuation();
+
+            // OVERRIDE: Set card to Average Mode for Discovery Results
+            const mainCard = document.querySelector('.final-value-card');
+            if (mainCard) {
+                mainCard.classList.add('discovery-avg-mode');
+                document.getElementById('valuation-label').innerText = isEfficiency ? "Team Average Strategic Index" : "City Average Strategic Index";
+                document.getElementById('final-strategic-value').innerText = avgScore.toFixed(2) + 'x';
+            }
+
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
     } catch (err) {

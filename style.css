@@ -492,7 +492,26 @@ body.light-theme .action-bar {
 }
 
 .final-value-card label {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.5);
+    /* Black subtext for purple bg */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+}
+
+.final-value-card.discovery-avg-mode {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--surface-border);
+    color: var(--text-primary);
+}
+
+.final-value-card.discovery-avg-mode label {
+    color: var(--primary-color);
+}
+
+.final-value-card.discovery-avg-mode .value-amount {
+    color: var(--text-primary);
 }
 
 .value-amount {
