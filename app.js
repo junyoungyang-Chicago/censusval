@@ -347,7 +347,6 @@ async function calculateValuation() {
         let fanVal = marketVal * 1.08; // Default lift
         if (factor.id === 'age') fanVal = fanAgeInput;
         if (factor.id === 'multicultural') fanVal = fanDiversityInput;
-        if (factor.id === 'strategic_life_stage') fanVal = 1.0;
 
         if (factor.id === 'strategic_affluence') {
             const calcFanHhi = fanHhiInput;
@@ -409,11 +408,12 @@ async function calculateValuation() {
             const eventAgeDiff = Math.abs(ageVal - benchAge);
             const ageMultiplier = Math.max(0.8, 1.25 - (ageDiff * 0.02) - (eventAgeDiff * 0.01));
 
+            const marketAgeDiff = Math.abs((market.age || 38) - idealAge);
+            const marketAgeMult = Math.max(0.8, 1.25 - (marketAgeDiff * 0.02));
+
             const lsVal = market.life_stage || 0.65;
             const lsMultiplier = (lsVal * 1.05) / 0.65;
-
-            currentAgeMult = ageMultiplier;
-            currentLsMult = lsMultiplier;
+            const marketLsMult = lsVal / 0.65;
 
             // Brand Weighting Logic
             const stabilityKeywords = ["Insurance", "Home", "Improvement", "Stability", "Real Estate", "Mortgage", "Security"];
@@ -425,14 +425,18 @@ async function calculateValuation() {
             const weightAge = isStabilityBrand ? 0.5 : 0.8;
             const weightLs = isStabilityBrand ? 0.5 : 0.2;
 
-            multiplier = (ageMultiplier * weightAge) + (lsMultiplier * weightLs);
+            fanVal = (ageMultiplier * weightAge) + (lsMultiplier * weightLs);
+            marketVal = (marketAgeMult * weightAge) + (marketLsMult * weightLs);
+            multiplier = fanVal / marketVal;
+
             formula = isStabilityBrand ?
                 "Strategic Life Stage (50% Age Alignment / 50% Home Ownership Focus)" :
                 "Strategic Life Stage (80% Age Alignment / 20% Home Ownership Focus)";
 
             factor.impact = isStabilityBrand ? "Stability & Intent Focus" : "Generational Alignment";
             if (activeTargets.includes('strategic_life_stage')) multiplier *= 1.10;
-        } else if (factor.id === 'digital') {
+        }
+        else if (factor.id === 'digital') {
             const baseDigitalMult = marketVal >= idealDigital ? 1.2 : 0.85;
             const socialPremium = assetType === 'Social' ? 1.25 : 1.0;
             multiplier = baseDigitalMult * socialPremium;
@@ -734,7 +738,8 @@ document.querySelectorAll('.recalculate-trigger').forEach(btn => {
 });
 
 function formatValue(id, val) {
-    if (id === 'hhi' || id === 'strategic_affluence') return (val > 1000) ? formatCurrency(val) : val.toFixed(3);
+    if (id === 'strategic_life_stage' || id === 'strategic_affluence') return val.toFixed(3);
+    if (id === 'hhi') return formatCurrency(val);
     if (id === 'reach' || id === 'loyalty_ltv') return val.toLocaleString(undefined, { maximumFractionDigits: 0 });
     return (val < 1 && val > 0) ? (val * 100).toFixed(0) + '%' : val.toFixed(1);
 }
