@@ -101,12 +101,12 @@ const brandProfiles = {
 };
 
 const eventProfiles = {
-    'F1': { idealAge: 34, idealHhi: 115000, idealDiversity: 0.65 },
-    'PGA': { idealAge: 52, idealHhi: 135000, idealDiversity: 0.25 },
-    'LPGA': { idealAge: 48, idealHhi: 95000, idealDiversity: 0.45 },
-    'NCAA': { idealAge: 28, idealHhi: 65000, idealDiversity: 0.55 },
-    'PRORODEO': { idealAge: 42, idealHhi: 60000, idealDiversity: 0.20 },
-    'INDYCAR': { idealAge: 48, idealHhi: 85000, idealDiversity: 0.35 }
+    'F1': { idealAge: 34, idealHhi: 115000, idealDiversity: 0.65, persona: "F1 fans are younger, tech-forward, and globally minded. They represent high HHI concentration with a growing multicultural base." },
+    'PGA': { idealAge: 52, idealHhi: 135000, idealDiversity: 0.25, persona: "PGA fans represent established affluence and stable household life stages. High decision-maker density with traditional spending patterns." },
+    'LPGA': { idealAge: 48, idealHhi: 95000, idealDiversity: 0.45, persona: "LPGA fans are highly engaged and value inclusivity. Strong female decision-maker density with loyal, community-driven engagement." },
+    'NCAA': { idealAge: 28, idealHhi: 65000, idealDiversity: 0.55, persona: "NCAA fans are energetic and digitally native. High concentration of young professionals and university-affiliated brand loyalty." },
+    'PRORODEO': { idealAge: 42, idealHhi: 60000, idealDiversity: 0.20, persona: "Pro Rodeo fans are deeply loyal to heritage and authenticity. Strong family-unit structure with high conversion in traditional retail." },
+    'INDYCAR': { idealAge: 48, idealHhi: 85000, idealDiversity: 0.35, persona: "IndyCar fans are tech-enthusiasts with a precision-engineering focus. Balanced age demographic with loyal regional affluence hubs." }
 };
 
 
@@ -638,6 +638,17 @@ async function calculateValuation() {
     });
 
     document.getElementById('final-strategic-value').innerText = totalMultiplier.toFixed(2) + 'x';
+
+    // Update Fan Persona Delta
+    let fanPersona = "";
+    if (mode === 'nba') {
+        fanPersona = "NBA fans are diverse, urban, and socially connected. They prioritize cultural influence and digital engagement across key metropolitan markets.";
+    } else {
+        const eventKey = document.getElementById('event-type').value;
+        fanPersona = eventProfiles[eventKey]?.persona || "Event fans represent a targeted demographic high-intent audience segment.";
+    }
+    const fanPersonaEl = document.getElementById('fan-persona-delta-text');
+    if (fanPersonaEl) fanPersonaEl.innerText = fanPersona;
 
     // Only update text if NOT edited by AI
     if (!currentPersonaTargets) {
