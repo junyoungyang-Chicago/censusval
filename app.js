@@ -1028,6 +1028,18 @@ async function runDiscovery(mode) {
         // Sort results
         marketScores.sort((a, b) => b.score - a.score);
 
+        const avgScore = marketScores.reduce((acc, curr) => acc + curr.score, 0) / total;
+        const indexContainer = document.getElementById('strategic-index-container');
+        const indexLabel = document.getElementById('index-type-label');
+        const indexValue = document.getElementById('market-index-value');
+        const isEfficiency = document.getElementById('efficiency-toggle').checked;
+
+        if (indexContainer) {
+            indexContainer.classList.remove('hidden');
+            indexLabel.innerText = isEfficiency ? "Team Average Strategic Index" : "City Average Strategic Index";
+            indexValue.innerText = avgScore.toFixed(2) + 'x';
+        }
+
         const chartData = marketScores.slice(0, 10);
         const mapData = marketScores;
         const winner = chartData[0];
@@ -1038,7 +1050,6 @@ async function runDiscovery(mode) {
             updateActiveCardUI();
 
             document.getElementById('winner-text').innerText = `Primary Match: ${winner.label}`;
-            const isEfficiency = document.getElementById('efficiency-toggle').checked;
             document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment for this brand's persona with a ${winner.score.toFixed(2)}x combined multiplier.`;
             resultsDiv.classList.remove('hidden');
 

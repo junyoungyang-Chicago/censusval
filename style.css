@@ -503,6 +503,47 @@ body.light-theme .action-bar {
     letter-spacing: -0.04em;
 }
 
+.strategic-index-card {
+    background: linear-gradient(135deg, #7000ff 0%, #4a00cc 100%);
+    padding: 2.5rem;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+    box-shadow: 0 20px 40px rgba(112, 0, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 0.8s ease-out;
+}
+
+.strategic-index-card label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+    opacity: 0.9;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.strategic-index-card .index-amount {
+    font-size: 4rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    letter-spacing: -2px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .multiplier-badge {
     background: rgba(0, 0, 0, 0.1);
     padding: 0.4rem 1rem;
