@@ -77,7 +77,7 @@
             <div id="valuator-tab" class="tab-content active">
                 <section class="input-grid">
                     <div class="card glass-card">
-                        <h2><span class="step-num">01</span> Asset Baseline</h2>
+                        <h2><span class="step-num">01</span> Brand Persona Focus</h2>
                         <div class="input-group">
                             <label for="target-brand">Global Brand Persona</label>
                             <select id="target-brand">
@@ -89,26 +89,19 @@
                                 <option value="International Brand">International Brand</option>
                             </select>
                         </div>
-                        <div class="input-group">
-                            <label for="baseline-value">Raw Market Value ($)</label>
-                            <div class="currency-input">
-                                <span class="currency-symbol">$</span>
-                                <input type="number" id="baseline-value" value="200000">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card glass-card">
-                        <h2><span class="step-num">02</span> Brand Persona Focus</h2>
                         <div class="input-row">
+                            <div class="input-group">
+                                <label for="baseline-value">Raw Market Value</label>
+                                <input type="number" id="baseline-value" value="1">
+                            </div>
                             <div class="input-group">
                                 <label for="brand-target-age">Target Age</label>
                                 <input type="number" id="brand-target-age" value="34" placeholder="e.g., 34">
                             </div>
-                            <div class="input-group">
-                                <label for="brand-target-hhi">Ideal Min. HHI ($)</label>
-                                <input type="number" id="brand-target-hhi" value="70000" step="5000">
-                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="brand-target-hhi">Ideal Min. HHI ($)</label>
+                            <input type="number" id="brand-target-hhi" value="70000" step="5000">
                         </div>
                         <div class="input-group">
                             <label for="brand-target-digital">Digital Affinity Focus (%)</label>
@@ -118,7 +111,7 @@
                     </div>
 
                     <div class="card glass-card">
-                        <h2><span class="step-num">03</span> NBA Market Context</h2>
+                        <h2><span class="step-num">02</span> NBA Market Context</h2>
                         <div class="input-group">
                             <label>Strategic Priority Multiplier</label>
                             <select id="brand-priority">
@@ -210,9 +203,8 @@
                 <section id="results-section" class="hidden">
                     <div class="valuation-summary">
                         <div class="final-value-card">
-                            <label>Strategic Market Value</label>
-                            <div id="final-strategic-value" class="value-amount">$0</div>
-                            <div class="multiplier-badge" id="total-multiplier">1.0x total multiplier</div>
+                            <label>Strategic Market Index</label>
+                            <div id="final-strategic-value" class="value-amount">1.00x</div>
                         </div>
                         <div class="persona-delta-card">
                             <div

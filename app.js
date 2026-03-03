@@ -601,8 +601,7 @@ async function calculateValuation() {
         }
     });
 
-    document.getElementById('final-strategic-value').innerText = formatCurrency(baseline * totalMultiplier);
-    document.getElementById('total-multiplier').innerText = `${totalMultiplier.toFixed(2)}x combined multiplier`;
+    document.getElementById('final-strategic-value').innerText = totalMultiplier.toFixed(2) + 'x';
 
     // Only update text if NOT edited by AI
     if (!currentPersonaTargets) {
