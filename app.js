@@ -268,7 +268,7 @@ async function fetchCensusData(marketKey, zipCode = null) {
 }
 
 async function calculateValuation() {
-    const baseline = parseFloat(document.getElementById('baseline-value').value);
+    const baseline = 1; // Default to 1 for index-based valuation
     const marketKey = document.getElementById('market-dma').value;
     const brandName = document.getElementById('target-brand').value;
 
