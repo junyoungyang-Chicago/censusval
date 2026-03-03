@@ -1086,7 +1086,7 @@ function renderTopFitMap(topN) {
             const coordKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
 
             if (coordCounts[coordKey]) {
-                const shift = coordCounts[coordKey] * 0.15;
+                const shift = coordCounts[coordKey] * 0.35;
                 lat += (index % 2 === 0 ? shift : -shift);
                 lng += (index % 2 !== 0 ? shift : -shift);
             }
