@@ -259,7 +259,7 @@ async function fetchCensusData(marketKey, zipCode = null) {
     }
 }
 
-async function calculateValuation(isDiscovery = false, avgScore = null) {
+async function calculateValuation() {
     const baseline = 1;
     const mode = currentContext;
 
@@ -642,15 +642,7 @@ async function calculateValuation(isDiscovery = false, avgScore = null) {
         }
     });
 
-    const mainLabel = document.getElementById('main-index-label');
-
-    if (isDiscovery && avgScore !== null) {
-        if (mainLabel) mainLabel.innerText = isEfficiency ? "Team Average Strategic Index" : "City Average Strategic Index";
-        document.getElementById('final-strategic-value').innerText = avgScore.toFixed(2) + 'x';
-    } else {
-        if (mainLabel) mainLabel.innerText = "Strategic Market Index";
-        document.getElementById('final-strategic-value').innerText = totalMultiplier.toFixed(2) + 'x';
-    }
+    document.getElementById('final-strategic-value').innerText = totalMultiplier.toFixed(2) + 'x';
 
     // Update Fan Persona Delta
     let fanPersona = "";
@@ -1037,6 +1029,16 @@ async function runDiscovery(mode) {
         marketScores.sort((a, b) => b.score - a.score);
 
         const avgScore = marketScores.reduce((acc, curr) => acc + curr.score, 0) / total;
+        const avgStats = document.getElementById('market-average-stats');
+        const avgLabel = document.getElementById('avg-label');
+        const avgValue = document.getElementById('avg-value');
+        const isEfficiency = document.getElementById('efficiency-toggle').checked;
+
+        if (avgStats) {
+            avgStats.classList.remove('hidden');
+            avgLabel.innerText = isEfficiency ? "Team Average Index" : "City Average Index";
+            avgValue.innerText = avgScore.toFixed(2) + 'x';
+        }
 
         const chartData = marketScores.slice(0, 10);
         const mapData = marketScores;
@@ -1056,7 +1058,7 @@ async function runDiscovery(mode) {
                 renderTopFitMap(mapData);
             }, 500);
 
-            await calculateValuation(true, avgScore);
+            await calculateValuation();
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
     } catch (err) {
