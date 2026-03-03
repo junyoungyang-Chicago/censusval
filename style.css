@@ -349,7 +349,6 @@ body.light-theme .global-strategy-bar {
 
 .ai-affected-row {
     background: rgba(0, 255, 136, 0.05) !important;
-    border-left: 4px solid var(--success-color);
 }
 
 .ai-affected-row .factor-name {
@@ -916,8 +915,7 @@ input:focus+.slider {
 }
 
 .ai-affected-card {
-    border: 1px solid var(--success-color);
-    box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+    background: rgba(0, 255, 136, 0.05) !important;
 }
 
 /* Sub-factor style in cards */
