@@ -149,13 +149,28 @@
                             <label for="zip-code">Target Zip Code (Efficiency Mode)</label>
                             <input type="text" id="zip-code" placeholder="e.g. 10001" maxlength="5">
                         </div>
-                        <div class="input-group">
-                            <label for="team-name">Sports Team</label>
-                            <input type="text" id="team-name" placeholder="Auto-fills from market" disabled>
-                        </div>
                         <div id="attendance-container" class="input-group">
                             <label for="team-attendance">Avg Game Attendance</label>
                             <input type="number" id="team-attendance" value="18324">
+                        </div>
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="fan-target-age">Fan Age</label>
+                                <input type="number" id="fan-target-age" value="38">
+                            </div>
+                            <div class="input-group">
+                                <label for="fan-target-hhi">Fan HHI ($)</label>
+                                <input type="number" id="fan-target-hhi" value="85000" step="5000">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="fan-target-diversity">Fan Diversity Focus</label>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <input type="range" id="fan-target-diversity" min="0" max="100" value="70"
+                                    style="flex: 1;">
+                                <span id="fan-diversity-val" class="range-val"
+                                    style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">70%</span>
+                            </div>
                         </div>
                     </div>
                 </section>

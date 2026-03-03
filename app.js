@@ -273,6 +273,11 @@ async function calculateValuation() {
     const priorityMod = 1.0; // Hardcoded to 1.0 after removing UI
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
+    // FAN INPUTS
+    const fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
+    const fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || (market.hhi * 1.18);
+    const fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
+
     const assetType = document.getElementById('asset-name').value;
     const isEfficiency = document.getElementById('efficiency-toggle').checked;
     const isInternational = document.getElementById('international-toggle').checked;
@@ -305,13 +310,18 @@ async function calculateValuation() {
 
         let marketVal = market[factor.id] || factor.us_avg;
         if (factor.id === 'hh_structure') marketVal = market.hh_size || factor.us_avg;
-        if (factor.id === 'strategic_affluence') {
-            marketVal = ((market.hhi / 75000) * 0.7) + ((market.affluence_burst / 0.06) * 0.2) + 0.1;
-        }
 
-        let fanVal = factor.id === 'strategic_affluence' ?
-            (((market.hhi * 1.18) / 75000) * 0.8) + (((market.affluence_burst * 1.05) / 0.06) * 0.1) + 0.1 :
-            (factor.id === 'strategic_life_stage' ? 1.0 : (factor.id === 'age' ? marketVal * 0.96 : marketVal * 1.08));
+        // Base calculation for fanVal
+        let fanVal = marketVal * 1.08; // Default lift
+        if (factor.id === 'age') fanVal = fanAgeInput;
+        if (factor.id === 'multicultural') fanVal = fanDiversityInput;
+        if (factor.id === 'strategic_life_stage') fanVal = 1.0;
+
+        if (factor.id === 'strategic_affluence') {
+            const calcFanHhi = fanHhiInput;
+            marketVal = ((market.hhi / 75000) * 0.7) + ((market.affluence_burst / 0.06) * 0.2) + 0.1;
+            fanVal = ((calcFanHhi / 75000) * 0.8) + (((market.affluence_burst * 1.05) / 0.06) * 0.1) + 0.1;
+        }
 
         if (factor.id === 'hh_structure') fanVal = marketVal * 1.05;
 
@@ -323,9 +333,9 @@ async function calculateValuation() {
             multiplier = marketVal / LEAGUE_AVERAGES.reach;
             formula = "Local Households / League Average Households";
         } else if (factor.id === 'strategic_affluence') {
-            const fanHhi = market.hhi * 1.18;
-            const w1 = Math.log(fanHhi / (market.hhi || 1)); // Wealth Position
-            const w2 = Math.log(fanHhi / idealHhi);        // Brand Fit
+            const currentFanHhi = fanHhiInput;
+            const w1 = Math.log(currentFanHhi / (market.hhi || 1)); // Wealth Position
+            const w2 = Math.log(currentFanHhi / idealHhi);        // Brand Fit
             const w2Capped = Math.max(-0.35, Math.min(0.40, w2)); // Capped Brand Fit
             const hhiMult = Math.exp((0.6 * w2Capped) + (0.4 * w1));
 
@@ -619,6 +629,10 @@ document.getElementById('brand-target-diversity').addEventListener('input', (e) 
     document.getElementById('diversity-focus-val').innerText = e.target.value + '%';
 });
 
+document.getElementById('fan-target-diversity').addEventListener('input', (e) => {
+    document.getElementById('fan-diversity-val').innerText = e.target.value + '%';
+});
+
 function formatValue(id, val) {
     if (id === 'hhi' || id === 'strategic_affluence') return (val > 1000) ? formatCurrency(val) : val.toFixed(3);
     if (id === 'reach' || id === 'loyalty_ltv') return val.toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -659,7 +673,7 @@ document.getElementById('market-dma').addEventListener('change', (e) => {
     const market = marketMapping[marketKey];
     const label = e.target.options[e.target.selectedIndex].text;
     const team = label.match(/\((.*?)\)/)?.[1] || "";
-    document.getElementById('team-name').value = team;
+    // Sports Team input removed
 
     if (market && market.avg_attendance) {
         document.getElementById('team-attendance').value = market.avg_attendance;
@@ -692,7 +706,7 @@ function updateTeamBranding(marketKey) {
 const initialMarketKey = document.getElementById('market-dma').value;
 const initialMarket = marketMapping[initialMarketKey];
 const initialLabel = document.getElementById('market-dma').options[document.getElementById('market-dma').selectedIndex].text;
-document.getElementById('team-name').value = initialLabel.match(/\((.*?)\)/)?.[1] || "";
+// Sports Team input removed
 if (initialMarket && initialMarket.avg_attendance) {
     document.getElementById('team-attendance').value = initialMarket.avg_attendance;
 }
@@ -744,7 +758,7 @@ calculateValuation();
 let discoveryChartInstance = null;
 
 // Helper to calculate total multiplier for scoring without updating UI
-async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDigital, priorityMod, assetType) {
+async function getMultiplierOnly(marketKey, idealAge, idealHhi, idealDiversity, priorityMod, assetType) {
     const market = await fetchCensusData(marketKey);
     const isInternational = document.getElementById('international-toggle').checked;
     const isEfficiency = document.getElementById('efficiency-toggle').checked;
@@ -852,7 +866,7 @@ document.getElementById('find-best-fit-btn').addEventListener('click', async () 
             btn.style.setProperty('--progress', `${progress}%`);
             btn.innerText = `Analyzing ${i + 1}/${total} Markets...`;
 
-            const score = await getMultiplierOnly(key, idealAge, idealHhi, idealDigital, priorityMod, assetType);
+            const score = await getMultiplierOnly(key, idealAge, idealHhi, idealDiversity, priorityMod, assetType);
             marketScores.push({ key, score, label: marketMapping[key].label, color: marketMapping[key].color });
         }
 
