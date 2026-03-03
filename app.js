@@ -128,6 +128,7 @@ document.getElementById('calculate-btn').addEventListener('click', async () => {
 
 const censusCache = {};
 let currentPersonaTargets = null;
+let currentContext = 'nba'; // 'nba' or 'event'
 let aiDebounceTimer = null;
 
 async function fetchCensusData(marketKey, zipCode = null) {
@@ -274,7 +275,7 @@ async function fetchCensusData(marketKey, zipCode = null) {
 
 async function calculateValuation() {
     const baseline = 1;
-    const mode = document.querySelector('input[name="calculation-mode"]:checked').value;
+    const mode = currentContext;
 
     // Choose correct market and fan inputs based on mode
     let marketKey, fanAgeInput, fanHhiInput, fanDiversityInput, benchAge, benchHhi, benchDiversity;
@@ -669,12 +670,12 @@ async function calculateValuation() {
     const nbaCard = document.getElementById('step-02-card');
     const eventCard = document.getElementById('step-03-card');
 
-    if (mode === 'nba') {
-        nbaCard.style.opacity = '1';
-        eventCard.style.opacity = '0.5';
+    if (currentContext === 'nba') {
+        nbaCard.classList.add('active-context');
+        eventCard.classList.remove('active-context');
     } else {
-        nbaCard.style.opacity = '0.5';
-        eventCard.style.opacity = '1';
+        nbaCard.classList.remove('active-context');
+        eventCard.classList.add('active-context');
     }
 }
 
@@ -691,10 +692,18 @@ document.getElementById('event-target-diversity').addEventListener('input', (e) 
     document.getElementById('event-diversity-val').innerText = e.target.value + '%';
 });
 
-document.querySelectorAll('input[name="calculation-mode"]').forEach(radio => {
-    radio.addEventListener('change', () => {
+document.getElementById('step-02-card').addEventListener('click', () => {
+    if (currentContext !== 'nba') {
+        currentContext = 'nba';
         calculateValuation();
-    });
+    }
+});
+
+document.getElementById('step-03-card').addEventListener('click', () => {
+    if (currentContext !== 'event') {
+        currentContext = 'event';
+        calculateValuation();
+    }
 });
 
 function formatValue(id, val) {

@@ -75,24 +75,8 @@
             </nav>
 
             <div id="valuator-tab" class="tab-content active">
-                <div class="context-toggle-container card glass-card" style="margin-bottom: 2rem; padding: 1.5rem;">
-                    <label style="margin-bottom: 1rem; display: block;">Select Primary Calculation Context</label>
-                    <div style="display: flex; gap: 2rem;">
-                        <label
-                            style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; text-transform: none;">
-                            <input type="radio" name="calculation-mode" value="nba" checked style="width: auto;">
-                            NBA Season Context (Step 02)
-                        </label>
-                        <label
-                            style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; text-transform: none;">
-                            <input type="radio" name="calculation-mode" value="event" style="width: auto;">
-                            Major Event Context (Step 03)
-                        </label>
-                    </div>
-                </div>
-
                 <section class="input-grid">
-                    <div class="card glass-card" id="step-02-card">
+                    <div class="card glass-card" id="brand-persona-card">
                         <h2><span class="step-num">01</span> Brand Persona Focus</h2>
                         <div class="input-group">
                             <label for="target-brand">Global Brand Persona</label>
@@ -124,7 +108,8 @@
                         </div>
                     </div>
 
-                    <div class="card glass-card">
+                    <div class="card glass-card clickable-card active-context" id="step-02-card">
+                        <div class="context-badge">Active Context</div>
                         <h2><span class="step-num">02</span> NBA Market Context</h2>
                         <div class="input-group">
                             <label for="market-dma">Target NBA Market</label>
@@ -190,7 +175,8 @@
                         </div>
                     </div>
 
-                    <div class="card glass-card" id="step-03-card">
+                    <div class="card glass-card clickable-card" id="step-03-card">
+                        <div class="context-badge">Active Context</div>
                         <h2><span class="step-num">03</span> Event Context</h2>
                         <div class="input-group">
                             <label for="event-type">Property / Event</label>
