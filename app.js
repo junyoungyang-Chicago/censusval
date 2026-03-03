@@ -99,7 +99,6 @@ const brandProfiles = {
 };
 
 const eventProfiles = {
-    'NBA': { idealAge: 35, idealHhi: 75000, idealDiversity: 0.45 },
     'F1': { idealAge: 34, idealHhi: 115000, idealDiversity: 0.65 },
     'PGA': { idealAge: 52, idealHhi: 135000, idealDiversity: 0.25 },
     'LPGA': { idealAge: 48, idealHhi: 95000, idealDiversity: 0.45 },
