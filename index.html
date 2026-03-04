@@ -67,6 +67,14 @@
                             </select>
                         </div>
                         <div class="input-group">
+                            <label for="compare-option">Compare</label>
+                            <select id="compare-option">
+                                <option value="properties" selected>Properties</option>
+                                <option value="leagues">Leagues</option>
+                                <option value="assets">Assets</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
                             <label>Efficiency Value Mode</label>
                             <div class="toggle-group" style="padding: 0; border: none; margin: 0;">
                                 <span class="toggle-label">Exclude scale factors</span>
@@ -333,7 +341,7 @@
 
                     <div class="matrix-container card glass-card">
                         <div class="matrix-header">
-                            <h2>11-Factor Decision Matrix</h2>
+                            <h2 id="matrix-title">11-Factor Decision Matrix</h2>
                             <div class="view-toggle">
                                 <span class="toggle-label">Table</span>
                                 <label class="switch">
@@ -368,15 +376,15 @@
 
             <div id="comparison-tab" class="tab-content">
                 <section class="card glass-card compare-inputs">
-                    <h2>Market Benchmark Comparison</h2>
+                    <h2 id="comparison-main-header">Market Benchmark Comparison</h2>
                     <div class="compare-grid">
                         <div class="input-group">
-                            <label>Market A (Benchmark)</label>
+                            <label id="compare-market-a-label">Market A (Benchmark)</label>
                             <select id="compare-market-a" class="market-selector"></select>
                         </div>
                         <div class="compare-vs">VS</div>
                         <div class="input-group">
-                            <label>Market B (Target)</label>
+                            <label id="compare-market-b-label">Market B (Target)</label>
                             <select id="compare-market-b" class="market-selector"></select>
                         </div>
                     </div>

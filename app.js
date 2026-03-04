@@ -598,6 +598,24 @@ async function calculateValuation() {
         mainCard.classList.remove('discovery-avg-mode');
         document.getElementById('valuation-label').innerText = "Strategic Market Index";
     }
+
+    // Update Matrix Title
+    const matrixTitle = document.getElementById('matrix-title');
+    const marketKeyInput = document.getElementById('market-dma').value;
+    const marketsToFetchList = marketKeyInput.split(',').filter(k => k);
+
+    if (matrixTitle) {
+        if (marketsToFetchList.length > 1) {
+            matrixTitle.innerText = "11-Factor Decision Matrix - Portfolio Analysis";
+        } else if (marketsToFetchList.length === 1) {
+            let label = marketMapping[marketsToFetchList[0]]?.label || marketsToFetchList[0];
+            const teamMatch = label.match(/\((.*?)\)/);
+            if (teamMatch) label = teamMatch[1];
+            matrixTitle.innerText = `11-Factor Decision Matrix - ${label}`;
+        } else {
+            matrixTitle.innerText = "11-Factor Decision Matrix";
+        }
+    }
     const baseline = 1;
     const mode = 'nba'; // Hardcode mode to 'nba'
 
@@ -1276,7 +1294,8 @@ async function runDiscovery(teamKeys = null) {
 
     try {
         // Use provided keys or fallback to all available options if none selected
-        const keys = teamKeys && teamKeys.length > 0 ? teamKeys : Array.from(citySelect.options).map(opt => opt.value).filter(v => v !== "");
+        const citySelect = document.getElementById('market-dma');
+        const keys = teamKeys && teamKeys.length > 0 ? teamKeys : Array.from(citySelect ? citySelect.options || [] : []).map(opt => opt.value).filter(v => v !== "");
         const total = keys.length;
 
         for (let i = 0; i < total; i++) {
@@ -1438,17 +1457,7 @@ document.getElementById('discovery-view-toggle').addEventListener('change', (e) 
     }
 });
 
-function updateActiveCardUI() {
-    const nbaCard = document.getElementById('step-02-card');
-    const eventCard = document.getElementById('step-03-card');
-    if (currentContext === 'nba') {
-        nbaCard.classList.add('active-context');
-        eventCard.classList.remove('active-context');
-    } else {
-        nbaCard.classList.remove('active-context');
-        eventCard.classList.add('active-context');
-    }
-}
+// updateActiveCardUI duplicate removed
 
 function renderTopFitChart(top10) {
     if (typeof Chart === 'undefined') {
@@ -1532,6 +1541,44 @@ function renderTopFitChart(top10) {
                         }
                     }
                 },
+                onHover: (event, elements) => {
+                    const canvas = event.chart.canvas;
+                    canvas.style.cursor = elements && elements.length > 0 ? 'pointer' : 'default';
+                },
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const fit = top10[index];
+                        if (fit && fit.key) {
+                            console.log(`Trajektory: Chart interaction - Drilling down into ${fit.label}`);
+
+                            // Update the market context
+                            const marketDmaInput = document.getElementById('market-dma');
+                            marketDmaInput.value = fit.key;
+
+                            // Sync branding colors (card and UI theme)
+                            if (typeof updateTeamBranding === 'function') {
+                                updateTeamBranding(fit.key);
+                            }
+
+                            // Trigger full valuation update to refresh Matrix Table and Cards
+                            calculateValuation().then(() => {
+                                // Specific feedback on the summary card
+                                const mainCard = document.querySelector('.final-value-card');
+                                if (mainCard) {
+                                    mainCard.classList.remove('discovery-avg-mode');
+                                    document.getElementById('valuation-label').innerText = "Strategic Market Index";
+                                }
+
+                                // Visual feedback: scroll to the specific metrics
+                                const resultsSection = document.getElementById('results-section');
+                                if (resultsSection) {
+                                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            });
+                        }
+                    }
+                },
                 scales: {
                     x: {
                         grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
@@ -1577,8 +1624,53 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
+// Mode Switching Logic: Assets vs Leagues vs Properties
+document.getElementById('compare-option')?.addEventListener('change', (e) => {
+    const mode = e.target.value;
+    const discoveryBtn = document.getElementById('smart-calculate-btn');
+    const leagueContextCard = document.getElementById('step-02-card');
+
+    // Comparison Tab Elements
+    const mainHeader = document.getElementById('comparison-main-header');
+    const labelA = document.getElementById('compare-market-a-label');
+    const labelB = document.getElementById('compare-market-b-label');
+    const compareBtn = document.getElementById('compare-btn');
+
+    // Update Discovery Button Text and Card Header
+    if (mode === 'properties') {
+        discoveryBtn.innerText = 'Calculate Strategic Fit';
+        leagueContextCard.querySelector('h2').innerHTML = '<span class="step-num">02</span> League Context';
+    } else if (mode === 'leagues') {
+        discoveryBtn.innerText = 'Compare League Averages';
+        leagueContextCard.querySelector('h2').innerHTML = '<span class="step-num">02</span> Discovery Scope (Leagues)';
+    } else if (mode === 'assets') {
+        discoveryBtn.innerText = 'Compare Asset Power';
+        leagueContextCard.querySelector('h2').innerHTML = '<span class="step-num">02</span> Discovery Scope (Assets)';
+    }
+
+    // Update Comparison Tab Labels
+    if (mainHeader) {
+        if (mode === 'properties') {
+            mainHeader.innerText = 'Market Benchmark Comparison';
+            if (labelA) labelA.innerText = 'Market A (Benchmark)';
+            if (labelB) labelB.innerText = 'Market B (Target)';
+            if (compareBtn) compareBtn.innerText = 'Analyze Market Delta';
+        } else if (mode === 'leagues') {
+            mainHeader.innerText = 'League Index Comparison';
+            if (labelA) labelA.innerText = 'League A (Primary)';
+            if (labelB) labelB.innerText = 'League B (Secondary)';
+            if (compareBtn) compareBtn.innerText = 'Run League Differential';
+        } else if (mode === 'assets') {
+            mainHeader.innerText = 'Asset Performance Comparison';
+            if (labelA) labelA.innerText = 'Asset A (Primary)';
+            if (labelB) labelB.innerText = 'Asset B (Secondary)';
+            if (compareBtn) compareBtn.innerText = 'Analyze Asset Variance';
+        }
+    }
+});
+
 // Auto-refresh based on global strategy changes
-['target-brand', 'efficiency-toggle', 'international-toggle'].forEach(id => {
+['target-brand', 'efficiency-toggle', 'international-toggle', 'compare-option'].forEach(id => {
     document.getElementById(id).addEventListener('change', () => {
         const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
         if (activeTab === 'valuator') {
