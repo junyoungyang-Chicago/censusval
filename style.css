@@ -94,7 +94,7 @@ h1 span {
 
 .input-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 2rem;
     margin-bottom: 3rem;
 }
@@ -245,24 +245,7 @@ body.light-theme select {
     padding-left: 2rem;
 }
 
-.global-strategy-bar {
-    margin-bottom: 2rem;
-    padding: 1.5rem 2rem !important;
-    background: linear-gradient(135deg, rgba(112, 0, 255, 0.05) 0%, rgba(22, 103, 233, 0.05) 100%);
-    border: 1px solid rgba(0, 242, 255, 0.2);
-}
-
-body.light-theme .global-strategy-bar {
-    background: linear-gradient(135deg, rgba(112, 0, 255, 0.03) 0%, rgba(22, 103, 233, 0.03) 100%);
-    border: 1px solid rgba(22, 103, 233, 0.1);
-}
-
-.strategy-grid {
-    display: grid;
-    grid-template-columns: 2fr 1.5fr 1.5fr;
-    gap: 3rem;
-    align-items: center;
-}
+/* Global Strategy Bar Removed - Now Mode Setting Card */
 
 /* Tabs Navigation */
 .tabs {

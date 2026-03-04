@@ -40,40 +40,6 @@
         </header>
 
         <main>
-            <section class="global-strategy-bar card glass-card">
-                <div class="strategy-grid">
-                    <div class="input-group">
-                        <label for="asset-name">Asset Type / Category</label>
-                        <select id="asset-name">
-                            <option value="Broadcast" selected>Broadcast (TV/Digital)</option>
-                            <option value="In-Venue">In-Venue (Signage/LED)</option>
-                            <option value="Social">Social / Digital Halo</option>
-                            <option value="Event">Event Context</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Efficiency Value Mode</label>
-                        <div class="toggle-group" style="padding: 0; border: none; margin: 0;">
-                            <span class="toggle-label">Exclude Scale Factors</span>
-                            <label class="switch">
-                                <input type="checkbox" id="efficiency-toggle">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Non-US Brand (Global)</label>
-                        <div class="toggle-group" style="padding: 0; border: none; margin: 0;">
-                            <span class="toggle-label">Apply Global Multipliers</span>
-                            <label class="switch">
-                                <input type="checkbox" id="international-toggle">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <nav class="tabs">
                 <button class="tab-btn active" data-tab="valuator">Strategic Valuator</button>
                 <button class="tab-btn" data-tab="comparison">Market Comparison</button>
@@ -81,6 +47,38 @@
 
             <div id="valuator-tab" class="tab-content active">
                 <section class="input-grid">
+                    <div class="card glass-card" id="mode-setting-card">
+                        <h2><span class="step-num">00</span> Mode Setting</h2>
+                        <div class="input-group">
+                            <label for="asset-name">Asset Type / Category</label>
+                            <select id="asset-name">
+                                <option value="Broadcast" selected>Broadcast (TV/Digital)</option>
+                                <option value="In-Venue">In-Venue (Signage/LED)</option>
+                                <option value="Social">Social / Digital Halo</option>
+                                <option value="Event">Event Context</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Efficiency Value Mode</label>
+                            <div class="toggle-group" style="padding: 0; border: none; margin: 0;">
+                                <span class="toggle-label">Exclude Scale Factors</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="efficiency-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Non-US Brand (Global)</label>
+                            <div class="toggle-group" style="padding: 0; border: none; margin: 0;">
+                                <span class="toggle-label">Apply Global Multipliers</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="international-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card glass-card" id="brand-persona-card">
                         <h2><span class="step-num">01</span> Brand Persona Focus</h2>
                         <div class="input-group">
