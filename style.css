@@ -94,7 +94,7 @@ h1 span {
 
 .input-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
     margin-bottom: 3rem;
 }
@@ -1304,7 +1304,7 @@ input:checked+.slider:before {
 .league-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 8px;
     border-radius: 4px;
     transition: background 0.2s;
@@ -1314,8 +1314,12 @@ input:checked+.slider:before {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.league-row input[type="checkbox"] {
+.league-checkbox,
+.team-checkbox {
+    width: 20px;
+    height: 20px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .league-row label {
@@ -1324,6 +1328,7 @@ input:checked+.slider:before {
     font-size: 0.9rem;
     cursor: pointer;
     margin: 0;
+    text-transform: none;
 }
 
 .expand-icon {
@@ -1348,7 +1353,7 @@ input:checked+.slider:before {
 .team-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 6px;
     border-radius: 4px;
     transition: background 0.2s;
@@ -1359,10 +1364,12 @@ input:checked+.slider:before {
 }
 
 .team-row label {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 400;
     color: var(--text-secondary);
     cursor: pointer;
     margin: 0;
+    text-transform: none;
 }
 
 .team-row.selected label {

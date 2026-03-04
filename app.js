@@ -247,20 +247,12 @@ const brandProfiles = {
     }
 };
 
-const eventProfiles = {
-    'F1': { idealAge: 34, idealHhi: 115000, idealDiversity: 0.65, persona: "F1 fans are younger, tech-forward, and globally minded. They represent high HHI concentration with a growing multicultural base." },
-    'PGA': { idealAge: 52, idealHhi: 135000, idealDiversity: 0.25, persona: "PGA fans represent established affluence and stable household life stages. High decision-maker density with traditional spending patterns." },
-    'LPGA': { idealAge: 48, idealHhi: 95000, idealDiversity: 0.45, persona: "LPGA fans are highly engaged and value inclusivity. Strong female decision-maker density with loyal, community-driven engagement." },
-    'NCAA': { idealAge: 28, idealHhi: 65000, idealDiversity: 0.55, persona: "NCAA fans are energetic and digitally native. High concentration of young professionals and university-affiliated brand loyalty." },
-    'PRORODEO': { idealAge: 42, idealHhi: 60000, idealDiversity: 0.20, persona: "Pro Rodeo fans are deeply loyal to heritage and authenticity. Strong family-unit structure with high conversion in traditional retail." },
-    'INDYCAR': { idealAge: 48, idealHhi: 85000, idealDiversity: 0.35, persona: "IndyCar fans are tech-enthusiasts with a precision-engineering focus. Balanced age demographic with loyal regional affluence hubs." }
-};
 
 
 
 const censusCache = {};
 let currentPersonaTargets = null;
-let currentContext = 'nba'; // 'nba' or 'event'
+let currentContext = 'nba';
 let aiDebounceTimer = null;
 
 async function fetchCensusData(marketKey, zipCode = null) {
@@ -417,7 +409,7 @@ function calculateFactorImpact(factor, market, ctx) {
         teamAttendance, isInternational, isEfficiency
     } = ctx;
 
-    let currentUsAvg = (factor.id === 'reach' && (assetType === 'Event' || mode === 'event')) ? 200000 : factor.us_avg;
+    let currentUsAvg = (factor.id === 'reach') ? 200000 : factor.us_avg;
     let marketVal = market[factor.id] || currentUsAvg;
     if (factor.id === 'hh_structure') marketVal = market.hh_size || currentUsAvg;
 
@@ -586,39 +578,20 @@ async function calculateValuation() {
         document.getElementById('valuation-label').innerText = "Strategic Market Index";
     }
     const baseline = 1;
-    const mode = currentContext;
+    const mode = 'nba'; // Hardcode mode to 'nba'
 
-    // Choose correct market and fan inputs based on mode
-    let marketKey, fanAgeInput, fanHhiInput, fanDiversityInput, fanEduInput, fanGenderInput, benchAge, benchHhi, benchDiversity;
+    // Choose correct market and fan inputs (now only NBA logic)
+    const marketKey = document.getElementById('market-dma').value;
+    const fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
+    const fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || 85000;
+    const fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
+    const fanEduInput = parseFloat(document.getElementById('fan-target-education').value) || 0.35;
+    const fanGenderInput = parseFloat(document.getElementById('fan-target-gender').value) || 50;
 
-    if (mode === 'nba') {
-        marketKey = document.getElementById('market-dma').value;
-        fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
-        fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || 85000;
-        fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
-        fanEduInput = parseFloat(document.getElementById('fan-target-education').value) || 0.35;
-        fanGenderInput = parseFloat(document.getElementById('fan-target-gender').value) || 50;
-
-        // Benchmarks for NBA are US national averages or league specific
-        benchAge = 35;
-        benchHhi = 75000;
-        benchDiversity = 0.45;
-    } else {
-        const eventKey = document.getElementById('event-type').value;
-        const profile = eventProfiles[eventKey] || { idealAge: 35, idealHhi: 75000, idealDiversity: 0.45 };
-
-        marketKey = document.getElementById('event-city').value;
-        fanAgeInput = parseFloat(document.getElementById('event-target-age').value) || profile.idealAge;
-        fanHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || profile.idealHhi;
-        fanDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
-        fanEduInput = 0.35; // Fallback for event context if UI not yet added
-        fanGenderInput = 50; // Fallback for event context if UI not yet added
-
-        // Benchmarks for Event are the Property-specific base standards
-        benchAge = profile.idealAge;
-        benchHhi = profile.idealHhi;
-        benchDiversity = profile.idealDiversity;
-    }
+    // Benchmarks for NBA are US national averages or league specific
+    const benchAge = 35;
+    const benchHhi = 75000;
+    const benchDiversity = 0.45;
 
     const brandName = document.getElementById('target-brand').value;
 
@@ -666,7 +639,7 @@ async function calculateValuation() {
     }
 
     // Update fanHhiInput fallback contextually if needed
-    if (mode === 'nba' && !document.getElementById('fan-target-hhi').value) {
+    if (!document.getElementById('fan-target-hhi').value) {
         fanHhiInput = market.hhi * 1.18;
     }
     const brand = brandProfiles[brandName] || { targets: ['hhi'], persona: `${brandName} seeks high-value markets.` };
@@ -861,14 +834,7 @@ async function calculateValuation() {
     document.getElementById('final-strategic-value').innerText = totalMultiplier.toFixed(2) + 'x';
 
     // Update Fan Persona Delta
-    let fanPersona = "";
-    if (mode === 'nba') {
-        fanPersona = `The NBA fan persona for this calculation reflects an average age of ${fanAgeInput.toFixed(0)} with a household income of ${formatCurrency(fanHhiInput)}. This demographic profile prioritizes cultural influence and digital engagement in major markets.`;
-    } else {
-        const eventKey = document.getElementById('event-type').value;
-        const basePersona = eventProfiles[eventKey]?.persona || "Event fans represent a targeted demographic high-intent audience segment.";
-        fanPersona = `${basePersona} Analysis is based on a specific fan segment with an average age of ${fanAgeInput.toFixed(0)} and an HHI of ${formatCurrency(fanHhiInput)}.`;
-    }
+    let fanPersona = `The NBA fan persona for this calculation reflects an average age of ${fanAgeInput.toFixed(0)} with a household income of ${formatCurrency(fanHhiInput)}. This demographic profile prioritizes cultural influence and digital engagement in major markets.`;
     const fanPersonaEl = document.getElementById('fan-persona-delta-text');
     if (fanPersonaEl) fanPersonaEl.innerText = fanPersona;
 
@@ -886,16 +852,14 @@ async function calculateValuation() {
     const pDelta = document.getElementById('persona-delta-section');
     if (pDelta) pDelta.classList.remove('hidden');
 
-    // UI: Update Card Opacity based on mode
-    const nbaCard = document.getElementById('step-02-card');
-    const eventCard = document.getElementById('step-03-card');
+    // UI: Update Card Opacity
+    updateActiveCardUI();
+}
 
-    if (currentContext === 'nba') {
+function updateActiveCardUI() {
+    const nbaCard = document.getElementById('step-02-card');
+    if (nbaCard) {
         nbaCard.classList.add('active-context');
-        eventCard.classList.remove('active-context');
-    } else {
-        nbaCard.classList.remove('active-context');
-        eventCard.classList.add('active-context');
     }
 }
 
@@ -916,29 +880,18 @@ document.getElementById('fan-target-gender').addEventListener('input', (e) => {
     document.getElementById('fan-gender-val').innerText = e.target.value + '%';
 });
 
-document.getElementById('event-target-diversity').addEventListener('input', (e) => {
-    document.getElementById('event-diversity-val').innerText = e.target.value + '%';
-});
 
 document.getElementById('step-02-card').addEventListener('click', () => {
-    if (currentContext !== 'nba') {
-        currentContext = 'nba';
-        calculateValuation();
-    }
+    // No mode change needed, always NBA
+    calculateValuation();
 });
 
-document.getElementById('step-03-card').addEventListener('click', () => {
-    if (currentContext !== 'event') {
-        currentContext = 'event';
-        calculateValuation();
-    }
-});
 
 document.querySelectorAll('.recalculate-trigger').forEach(btn => {
     btn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const context = btn.getAttribute('data-context');
-        if (context) currentContext = context;
+        // No context parameter needed, always NBA
+        currentContext = 'nba';
 
         const originalText = btn.innerText;
         btn.innerText = 'Processing...';
@@ -983,27 +936,7 @@ document.getElementById('target-brand').addEventListener('change', (e) => {
     }
 });
 
-// Event context profiles update
-document.getElementById('event-type').addEventListener('change', (e) => {
-    const profile = eventProfiles[e.target.value];
-    if (profile) {
-        document.getElementById('event-target-age').value = profile.idealAge;
-        document.getElementById('event-target-hhi').value = profile.idealHhi;
-        document.getElementById('event-target-diversity').value = profile.idealDiversity * 100;
-        document.getElementById('event-diversity-val').innerText = (profile.idealDiversity * 100) + '%';
-        calculateValuation();
-    }
-});
 
-// Initial sync for event state
-const initialEventKey = document.getElementById('event-type').value;
-const initialEvent = eventProfiles[initialEventKey];
-if (initialEvent) {
-    document.getElementById('event-target-age').value = initialEvent.idealAge;
-    document.getElementById('event-target-hhi').value = initialEvent.idealHhi;
-    document.getElementById('event-target-diversity').value = initialEvent.idealDiversity * 100;
-    document.getElementById('event-diversity-val').innerText = (initialEvent.idealDiversity * 100) + '%';
-}
 
 // Sync initial brand state
 const initialBrandName = document.getElementById('target-brand').value;
@@ -1019,7 +952,8 @@ if (initialBrand) {
 document.getElementById('market-dma').addEventListener('change', (e) => {
     const marketKey = e.target.value;
     const market = marketMapping[marketKey];
-    const label = e.target.options[e.target.selectedIndex].text;
+    // For hidden input, we don't have .options. Use the label from marketMapping if available.
+    const label = market ? market.label : marketKey;
     const team = label.match(/\((.*?)\)/)?.[1] || "";
     // Sports Team input removed
 
@@ -1052,9 +986,13 @@ function updateTeamBranding(marketKey) {
 }
 
 // Sync initial team branding
-const initialMarketKey = document.getElementById('market-dma').value;
+const marketDmaEl = document.getElementById('market-dma');
+const initialMarketKey = marketDmaEl.value;
 const initialMarket = marketMapping[initialMarketKey];
-const initialLabel = document.getElementById('market-dma').options[document.getElementById('market-dma').selectedIndex].text;
+// Handle case where market-dma might not be a select element anymore
+const initialLabel = (marketDmaEl.tagName === 'SELECT')
+    ? marketDmaEl.options[marketDmaEl.selectedIndex].text
+    : (initialMarket ? initialMarket.label : initialMarketKey);
 // Sports Team input removed
 if (initialMarket && initialMarket.avg_attendance) {
     document.getElementById('team-attendance').value = initialMarket.avg_attendance;
@@ -1108,7 +1046,6 @@ window.calculateValuation = calculateValuation;
     'brand-target-education', 'brand-target-gender',
     'fan-target-age', 'fan-target-hhi', 'fan-target-diversity',
     'fan-target-education', 'fan-target-gender',
-    'event-city', 'event-target-age', 'event-target-hhi', 'event-target-diversity',
     'team-attendance'
 ].forEach(id => {
     const el = document.getElementById(id);
@@ -1141,16 +1078,15 @@ async function getMultiplierOnly(marketKey, ctx) {
 
 let topFitChart = null;
 
-document.getElementById('find-best-fit-btn').addEventListener('click', () => runDiscovery('nba'));
-document.getElementById('find-best-event-fit-btn').addEventListener('click', () => runDiscovery('event'));
+document.getElementById('find-best-fit-btn').addEventListener('click', () => runDiscovery()); // Removed 'nba' parameter
 
-async function runDiscovery(mode) {
-    const btn = mode === 'nba' ? document.getElementById('find-best-fit-btn') : document.getElementById('find-best-event-fit-btn');
-    const citySelect = mode === 'nba' ? document.getElementById('market-dma') : document.getElementById('event-city');
+async function runDiscovery() { // Removed mode parameter
+    const btn = document.getElementById('find-best-fit-btn');
+    const citySelect = document.getElementById('market-dma');
     const resultsDiv = document.getElementById('discovery-results');
     const originalText = btn.innerText;
 
-    btn.innerText = `Analyzing ${mode === 'nba' ? '30 NBA' : 'Event'} Markets...`;
+    btn.innerText = `Analyzing 30 NBA Markets...`;
     btn.disabled = true;
     resultsDiv.classList.add('hidden');
 
@@ -1168,32 +1104,18 @@ async function runDiscovery(mode) {
     const isEfficiency = document.getElementById('efficiency-toggle').checked;
     const isInternational = document.getElementById('international-toggle').checked;
 
-    let fanAgeInput, fanHhiInput, fanDiversityInput, benchAge, benchHhi, benchDiversity;
-
-    if (mode === 'nba') {
-        fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
-        fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || 85000;
-        fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
-        fanEduInput = parseFloat(document.getElementById('fan-target-education').value) || 0.35;
-        fanGenderInput = parseFloat(document.getElementById('fan-target-gender').value) || 50;
-        benchAge = 35;
-        benchHhi = 75000;
-        benchDiversity = 0.45;
-    } else {
-        const eventKey = document.getElementById('event-type').value;
-        const profile = eventProfiles[eventKey] || { idealAge: 35, idealHhi: 75000, idealDiversity: 0.45 };
-        fanAgeInput = parseFloat(document.getElementById('event-target-age').value) || profile.idealAge;
-        fanHhiInput = parseFloat(document.getElementById('event-target-hhi').value) || profile.idealHhi;
-        fanDiversityInput = parseFloat(document.getElementById('event-target-diversity').value) / 100;
-        fanEduInput = 0.35;
-        fanGenderInput = 50;
-        benchAge = profile.idealAge;
-        benchHhi = profile.idealHhi;
-        benchDiversity = profile.idealDiversity;
-    }
+    // Only NBA logic for fan inputs and benchmarks
+    const fanAgeInput = parseFloat(document.getElementById('fan-target-age').value) || 38;
+    const fanHhiInput = parseFloat(document.getElementById('fan-target-hhi').value) || 85000;
+    const fanDiversityInput = parseFloat(document.getElementById('fan-target-diversity').value) / 100;
+    const fanEduInput = parseFloat(document.getElementById('fan-target-education').value) || 0.35;
+    const fanGenderInput = parseFloat(document.getElementById('fan-target-gender').value) || 50;
+    const benchAge = 35;
+    const benchHhi = 75000;
+    const benchDiversity = 0.45;
 
     const ctx = {
-        assetType, mode, brandName, brand, activeTargets,
+        assetType, mode: 'nba', brandName, brand, activeTargets, // Hardcode mode to 'nba'
         fanAgeInput, fanHhiInput, fanDiversityInput, fanEduInput, fanGenderInput,
         idealAge, idealHhi, idealDiversity, idealDigital, idealEducation, idealGender,
         benchAge, benchHhi, benchDiversity,
@@ -1836,12 +1758,18 @@ document.getElementById('matrix-view-toggle').addEventListener('change', (e) => 
 let selectedTeams = ['chicago'];
 
 function initTeamMultiSelect() {
+    console.log('Trajektory: Initializing Team Multi-Select Component');
     const container = document.getElementById('team-multi-select-container');
     const searchInput = document.getElementById('team-search');
     const dropdown = document.getElementById('team-dropdown-content');
     const leagueContainer = document.getElementById('league-list-container');
     const tagsContainer = document.getElementById('selected-tags');
     const hiddenInput = document.getElementById('market-dma');
+
+    if (!container || !searchInput || !dropdown || !leagueContainer) {
+        console.warn('Trajektory Error: Multi-select elements missing from DOM', { container, searchInput, dropdown, leagueContainer });
+        return;
+    }
 
     // Build the dropdown structure
     leagueContainer.innerHTML = '';
@@ -1851,7 +1779,7 @@ function initTeamMultiSelect() {
         section.innerHTML = `
             <div class="league-row">
                 <input type="checkbox" id="league-check-${leagueName}" class="league-checkbox">
-                <label for="league-check-${leagueName}">${leagueName} Portfolio</label>
+                <label for="league-check-${leagueName}">${leagueName}</label>
                 <i class="expand-icon">▼</i>
             </div>
             <div class="team-items"></div>
