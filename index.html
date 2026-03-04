@@ -52,16 +52,24 @@
                         <div class="input-group">
                             <label for="asset-name">Asset Type / Category</label>
                             <select id="asset-name">
-                                <option value="Broadcast" selected>Broadcast (TV/Digital)</option>
+                                <option value="All Assets" selected>All Assets</option>
+                                <option value="Broadcast">Broadcast (TV/Digital)</option>
                                 <option value="In-Venue">In-Venue (Signage/LED)</option>
                                 <option value="Social">Social / Digital Halo</option>
-                                <option value="Event">Event Context</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="weighted-formula">Weighted Formula</label>
+                            <select id="weighted-formula">
+                                <option value="Balanced">Balanced</option>
+                                <option value="Trajektory Weighting" selected>Trajektory Weighting</option>
+                                <option value="Custom">Custom</option>
                             </select>
                         </div>
                         <div class="input-group">
                             <label>Efficiency Value Mode</label>
                             <div class="toggle-group" style="padding: 0; border: none; margin: 0;">
-                                <span class="toggle-label">Exclude Scale Factors</span>
+                                <span class="toggle-label">Exclude scale factors</span>
                                 <label class="switch">
                                     <input type="checkbox" id="efficiency-toggle">
                                     <span class="slider"></span>
@@ -92,41 +100,56 @@
                                 <option value="International Brand">International Brand</option>
                             </select>
                         </div>
-                        <div class="input-group">
-                            <label for="brand-target-age">Target Age</label>
-                            <input type="number" id="brand-target-age" value="34" placeholder="e.g., 34">
-                        </div>
-                        <div class="input-group">
-                            <label for="brand-target-hhi">Ideal Min. HHI ($)</label>
-                            <input type="number" id="brand-target-hhi" value="70000" step="5000">
-                        </div>
-                        <div class="input-group">
-                            <label for="brand-target-education">Ideal Education Level</label>
-                            <select id="brand-target-education">
-                                <option value="0.15">High School Grad</option>
-                                <option value="0.25">Some College / Associate</option>
-                                <option value="0.35" selected>Bachelor's Degree+</option>
-                                <option value="0.45">Graduate Degree+</option>
-                            </select>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="brand-target-diversity">Diversity Affinity Focus</label>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <input type="range" id="brand-target-diversity" min="0" max="100" value="85"
-                                    style="flex: 1;">
-                                <span id="diversity-focus-val" class="range-val"
-                                    style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">85%</span>
+                        <div id="persona-sortable-container">
+                            <div class="input-group draggable-persona-item" draggable="true"
+                                data-factor-id="strategic_life_stage">
+                                <div class="drag-handle">⠿</div>
+                                <span class="weight-badge">W:1.0</span>
+                                <label for="brand-target-age">Target Age</label>
+                                <input type="number" id="brand-target-age" value="34" placeholder="e.g., 34">
                             </div>
-                        </div>
+                            <div class="input-group draggable-persona-item" draggable="true"
+                                data-factor-id="strategic_affluence">
+                                <div class="drag-handle">⠿</div>
+                                <span class="weight-badge">W:1.0</span>
+                                <label for="brand-target-hhi">Ideal Min. HHI ($)</label>
+                                <input type="number" id="brand-target-hhi" value="70000" step="5000">
+                            </div>
+                            <div class="input-group draggable-persona-item" draggable="true" data-factor-id="education">
+                                <div class="drag-handle">⠿</div>
+                                <span class="weight-badge">W:1.0</span>
+                                <label for="brand-target-education">Ideal Education Level</label>
+                                <select id="brand-target-education">
+                                    <option value="0.15">High School Grad</option>
+                                    <option value="0.25">Some College / Associate</option>
+                                    <option value="0.35" selected>Bachelor's Degree+</option>
+                                    <option value="0.45">Graduate Degree+</option>
+                                </select>
+                            </div>
 
-                        <div class="input-group">
-                            <label for="brand-target-gender">Gender Target (Female Influence)</label>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <input type="range" id="brand-target-gender" min="0" max="100" value="50"
-                                    style="flex: 1;">
-                                <span id="gender-focus-val" class="range-val"
-                                    style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">50%</span>
+                            <div class="input-group draggable-persona-item" draggable="true"
+                                data-factor-id="multicultural">
+                                <div class="drag-handle">⠿</div>
+                                <span class="weight-badge">W:1.0</span>
+                                <label for="brand-target-diversity">Diversity Affinity Focus</label>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <input type="range" id="brand-target-diversity" min="0" max="100" value="85"
+                                        style="flex: 1;">
+                                    <span id="diversity-focus-val" class="range-val"
+                                        style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">85%</span>
+                                </div>
+                            </div>
+
+                            <div class="input-group draggable-persona-item" draggable="true" data-factor-id="gender">
+                                <div class="drag-handle">⠿</div>
+                                <span class="weight-badge">W:1.0</span>
+                                <label for="brand-target-gender">Gender Target (Female Influence)</label>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <input type="range" id="brand-target-gender" min="0" max="100" value="50"
+                                        style="flex: 1;">
+                                    <span id="gender-focus-val" class="range-val"
+                                        style="min-width: 45px; text-align: right; font-weight: 700; color: var(--primary-color);">50%</span>
+                                </div>
                             </div>
                         </div>
 
@@ -230,13 +253,9 @@
                         </div>
                         <div
                             style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem;">
-                            <button class="primary-btn recalculate-trigger" data-context="nba"
-                                style="flex: 1; justify-content: center; font-size: 0.8rem; padding: 0.75rem;">
-                                Calculate NBA Value
-                            </button>
-                            <button id="find-best-fit-btn" class="discovery-btn"
-                                style="flex: 1.5; justify-content: center; font-size: 0.8rem; padding: 0.75rem;">
-                                Find Best Fit
+                            <button id="smart-calculate-btn" class="primary-btn"
+                                style="flex: 1; justify-content: center; font-size: 0.9rem; padding: 0.85rem; font-weight: 700;">
+                                Calculate Strategic Fit
                             </button>
                         </div>
                     </div>

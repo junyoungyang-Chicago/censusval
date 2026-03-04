@@ -406,8 +406,24 @@ function calculateFactorImpact(factor, market, ctx) {
         fanAgeInput, fanHhiInput, fanDiversityInput,
         idealAge, idealHhi, idealDiversity, idealDigital,
         benchAge, benchHhi, benchDiversity,
-        teamAttendance, isInternational, isEfficiency
+        teamAttendance, isInternational, isEfficiency, weightedFormula
     } = ctx;
+
+    // CUSTOM WEIGHTING LOGIC
+    let customWeight = 1.0;
+    const container = document.getElementById('persona-sortable-container');
+
+    if (weightedFormula === 'Balanced') {
+        customWeight = 1.0; // All factors weighted equally
+    } else if (container) {
+        // Trajektory or Custom use exponential weighting based on current DOM rank
+        const items = [...container.querySelectorAll('.draggable-persona-item')];
+        const index = items.findIndex(item => item.getAttribute('data-factor-id') === factor.id);
+        if (index !== -1) {
+            // Formula: Weight = e^(-λ * rank) where λ = 0.6
+            customWeight = Math.exp(-0.6 * index);
+        }
+    }
 
     let currentUsAvg = (factor.id === 'reach') ? 200000 : factor.us_avg;
     let marketVal = market[factor.id] || currentUsAvg;
@@ -568,7 +584,12 @@ function calculateFactorImpact(factor, market, ctx) {
         }
     }
 
-    return { multiplier, fanVal, marketVal, currentUsAvg, formula, impact };
+    // Apply weighted lift model
+    // multiplier = 1 + (baseLift - 1) * weight
+    // This ensures W:0.1 reduces the impact of the lift/penalty rather than making the index 0.1x
+    const finalMultiplier = 1 + (multiplier - 1) * customWeight;
+
+    return { multiplier: finalMultiplier, fanVal, marketVal, currentUsAvg, formula, impact, baseMultiplier: multiplier };
 }
 
 async function calculateValuation() {
@@ -606,6 +627,7 @@ async function calculateValuation() {
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
     const assetType = document.getElementById('asset-name').value;
+    const weightedFormula = document.getElementById('weighted-formula')?.value || 'Trajektory Weighting';
     const isEfficiency = document.getElementById('efficiency-toggle').checked;
     const isInternational = document.getElementById('international-toggle').checked;
     const zipCode = isEfficiency ? document.getElementById('zip-code').value.trim() : null;
@@ -664,7 +686,7 @@ async function calculateValuation() {
         fanAgeInput, fanHhiInput, fanDiversityInput, fanEduInput, fanGenderInput,
         idealAge, idealHhi, idealDiversity, idealDigital, idealEducation, idealGender,
         benchAge, benchHhi, benchDiversity,
-        teamAttendance, isInternational, isEfficiency
+        teamAttendance, isInternational, isEfficiency, weightedFormula
     };
 
     factors.forEach(factor => {
@@ -1010,6 +1032,115 @@ document.getElementById('asset-name').addEventListener('change', (e) => {
     calculateValuation();
 });
 
+// Listener for formula changes
+document.getElementById('weighted-formula')?.addEventListener('change', () => {
+    updatePersonaOrder();
+    calculateValuation();
+});
+
+function updatePersonaOrder() {
+    const formula = document.getElementById('weighted-formula').value;
+    const container = document.getElementById('persona-sortable-container');
+    const items = [...container.querySelectorAll('.draggable-persona-item')];
+
+    let targetOrder = [];
+    let allowDrag = false;
+
+    if (formula === 'Balanced') {
+        targetOrder = ['strategic_life_stage', 'strategic_affluence', 'education', 'multicultural', 'gender'];
+    } else if (formula === 'Trajektory Weighting') {
+        targetOrder = ['strategic_affluence', 'strategic_life_stage', 'education', 'gender', 'multicultural'];
+    } else if (formula === 'Custom') {
+        allowDrag = true;
+    }
+
+    // Apply fixed order if not custom
+    if (!allowDrag) {
+        targetOrder.forEach(id => {
+            const item = items.find(el => el.getAttribute('data-factor-id') === id);
+            if (item) container.appendChild(item);
+        });
+    }
+
+    // Toggle drag handles and weights
+    items.forEach((item, index) => {
+        item.setAttribute('draggable', allowDrag);
+
+        // Calculate weight for display
+        let weight = 1.0;
+        if (formula !== 'Balanced') {
+            const currentItems = [...container.querySelectorAll('.draggable-persona-item')];
+            const rank = currentItems.indexOf(item);
+            weight = Math.exp(-0.6 * rank);
+        }
+
+        const weightBadge = item.querySelector('.weight-badge');
+        if (weightBadge) {
+            weightBadge.textContent = `W:${weight.toFixed(1)}`;
+        }
+
+        const handle = item.querySelector('.drag-handle');
+        if (handle) {
+            handle.style.opacity = allowDrag ? '1' : '0.2';
+            handle.style.cursor = allowDrag ? 'grab' : 'default';
+            handle.style.pointerEvents = allowDrag ? 'auto' : 'none';
+        }
+    });
+}
+
+// Call initially to set correct state
+updatePersonaOrder();
+
+// Initialize Sortable Persona Items
+function initSortablePersona() {
+    const container = document.getElementById('persona-sortable-container');
+    const items = container.querySelectorAll('.draggable-persona-item');
+
+    items.forEach(item => {
+        item.addEventListener('dragstart', () => {
+            item.classList.add('dragging');
+        });
+
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            // Update weights after reordering
+            updatePersonaOrder();
+            // Trigger recalculation
+            if (typeof calculateValuation === 'function') {
+                calculateValuation();
+            }
+        });
+
+        item.addEventListener('dragover', (e) => {
+            if (document.getElementById('weighted-formula').value !== 'Custom') return;
+            e.preventDefault();
+            const draggingItem = container.querySelector('.dragging');
+            const afterElement = getDragAfterElement(container, e.clientY);
+            if (afterElement == null) {
+                container.appendChild(draggingItem);
+            } else {
+                container.insertBefore(draggingItem, afterElement);
+            }
+        });
+    });
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.draggable-persona-item:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+initSortablePersona();
+
 // Toggle Market Scale and Zip Code based on Efficiency Value mode
 document.getElementById('efficiency-toggle').addEventListener('change', (e) => {
     const zipContainer = document.getElementById('zip-code-container');
@@ -1076,17 +1207,34 @@ async function getMultiplierOnly(marketKey, ctx) {
     return totalMultiplier;
 }
 
-let topFitChart = null;
+// Smart Calculation Routing
+document.getElementById('smart-calculate-btn')?.addEventListener('click', async (e) => {
+    const btn = e.target;
+    const originalText = btn.innerText;
 
-document.getElementById('find-best-fit-btn').addEventListener('click', () => runDiscovery()); // Removed 'nba' parameter
+    // Check selection size
+    if (selectedTeams.length > 1) {
+        await runDiscovery(selectedTeams);
+    } else {
+        btn.innerText = 'Calculating...';
+        btn.disabled = true;
+        try {
+            // Hide discovery results if showing single valuation
+            document.getElementById('discovery-results').classList.add('hidden');
+            await calculateValuation();
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+});
 
-async function runDiscovery() { // Removed mode parameter
-    const btn = document.getElementById('find-best-fit-btn');
-    const citySelect = document.getElementById('market-dma');
+async function runDiscovery(teamKeys = null) {
+    const btn = document.getElementById('smart-calculate-btn');
     const resultsDiv = document.getElementById('discovery-results');
     const originalText = btn.innerText;
 
-    btn.innerText = `Analyzing 30 NBA Markets...`;
+    btn.innerText = `Analyzing ${teamKeys ? teamKeys.length : 30} Markets...`;
     btn.disabled = true;
     resultsDiv.classList.add('hidden');
 
@@ -1114,20 +1262,21 @@ async function runDiscovery() { // Removed mode parameter
     const benchHhi = 75000;
     const benchDiversity = 0.45;
 
+    const weightedFormula = document.getElementById('weighted-formula')?.value || 'Trajektory Weighting';
     const ctx = {
         assetType, mode: 'nba', brandName, brand, activeTargets, // Hardcode mode to 'nba'
         fanAgeInput, fanHhiInput, fanDiversityInput, fanEduInput, fanGenderInput,
         idealAge, idealHhi, idealDiversity, idealDigital, idealEducation, idealGender,
         benchAge, benchHhi, benchDiversity,
         teamAttendance: 18324, // Placeholder for discovery loop if needed
-        isInternational, isEfficiency
+        isInternational, isEfficiency, weightedFormula
     };
 
     let marketScores = [];
 
     try {
-        // Get keys from the respective dropdown
-        const keys = Array.from(citySelect.options).map(opt => opt.value).filter(v => v !== "");
+        // Use provided keys or fallback to all available options if none selected
+        const keys = teamKeys && teamKeys.length > 0 ? teamKeys : Array.from(citySelect.options).map(opt => opt.value).filter(v => v !== "");
         const total = keys.length;
 
         for (let i = 0; i < total; i++) {
@@ -1153,9 +1302,9 @@ async function runDiscovery() { // Removed mode parameter
         const mapData = marketScores;
         const winner = chartData[0];
 
-        const isEfficiency = document.getElementById('efficiency-toggle').checked;
         if (winner) {
-            currentContext = mode;
+            currentContext = 'nba'; // Hardcoded context for now as per function logic
+            const citySelect = document.getElementById('market-dma');
             citySelect.value = winner.key;
             updateActiveCardUI();
 
