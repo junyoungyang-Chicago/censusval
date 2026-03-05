@@ -425,7 +425,7 @@ function calculateFactorImpact(factor, market, ctx) {
         }
     }
 
-    let currentUsAvg = (factor.id === 'reach') ? 200000 : factor.us_avg;
+    let currentUsAvg = (factor.id === 'reach') ? 450000 : factor.us_avg;
     let marketVal = market[factor.id] || currentUsAvg;
     if (factor.id === 'hh_structure') marketVal = market.hh_size || currentUsAvg;
 
@@ -977,6 +977,44 @@ async function calculateValuation() {
     // UI: Update Card Opacity
     updateActiveCardUI();
     updateBreakdownBranding(currentWinnerKey);
+    updateValueProjection(market, ctx);
+}
+
+function updateValueProjection(market, ctx) {
+    const broadcastMult = calculateAssetMultiplier('Broadcast', market, ctx);
+    const venueMult = calculateAssetMultiplier('In-Venue', market, ctx);
+    const socialMult = calculateAssetMultiplier('Social', market, ctx);
+
+    // Derived base unit value for scaling
+    const reachFactor = (market.reach || 450000) / 450000;
+    const baseUnit = 377425 * reachFactor;
+
+    const broadcastVal = (baseUnit * 1.5) * broadcastMult;
+    const venueVal = (baseUnit * 0.4) * venueMult;
+    const socialVal = (baseUnit * 0.6) * socialMult;
+
+    // Calculate Total Value as the sum of all components
+    const totalVal = broadcastVal + venueVal + socialVal;
+
+    /**
+     * Calculate Total Index using the User's requested formula:
+     * Total Index = Total Value / (Broadcast Value / Broadcast Index + In-Venue Value / In-Venue Index + Social Value / Social Index)
+     * This effectively calculates the blended multiplier based on the underlying raw values.
+     */
+    const denominator = (broadcastVal / broadcastMult) + (venueVal / venueMult) + (socialVal / socialMult);
+    const totalMult = totalVal / denominator;
+
+    document.getElementById('proj-total-value').innerText = formatCurrency(totalVal);
+    document.getElementById('proj-total-mult').innerText = totalMult.toFixed(3) + 'x';
+
+    document.getElementById('proj-broadcast-value').innerText = formatCurrency(broadcastVal);
+    document.getElementById('proj-broadcast-mult').innerText = broadcastMult.toFixed(3) + 'x';
+
+    document.getElementById('proj-venue-value').innerText = formatCurrency(venueVal);
+    document.getElementById('proj-venue-mult').innerText = venueMult.toFixed(3) + 'x';
+
+    document.getElementById('proj-social-value').innerText = formatCurrency(socialVal);
+    document.getElementById('proj-social-mult').innerText = socialMult.toFixed(3) + 'x';
 }
 
 function updateActiveCardUI() {
