@@ -21,36 +21,36 @@ const factors = [
 ];
 
 const marketMapping = {
-    atlanta: { state: '13', place: '04000', label: 'Atlanta, GA (Hawks)', avg_attendance: 17500, color: '#E03A3E', textColor: 'white', lat: 33.7490, lng: -84.3880 },
-    boston: { state: '25', place: '07000', label: 'Boston, MA (Celtics)', avg_attendance: 19156, color: '#007A33', textColor: 'white', lat: 42.3601, lng: -71.0589 },
-    brooklyn: { state: '36', county: '047', label: 'Brooklyn, NY (Nets)', avg_attendance: 17900, color: '#000000', textColor: 'white', lat: 40.6782, lng: -73.9442 },
-    charlotte: { state: '37', place: '12000', label: 'Charlotte, NC (Hornets)', avg_attendance: 17150, color: '#1D1160', textColor: 'white', lat: 35.2271, lng: -80.8431 },
-    chicago: { state: '17', place: '14000', label: 'Chicago, IL (Bulls)', avg_attendance: 20624, color: '#CE1141', textColor: 'white', lat: 41.8781, lng: -87.6298 },
-    cleveland: { state: '39', place: '16000', label: 'Cleveland, OH (Cavaliers)', avg_attendance: 19432, color: '#860038', textColor: 'white', lat: 41.4993, lng: -81.6944 },
-    dallas: { state: '48', place: '19000', label: 'Dallas, TX (Mavericks)', avg_attendance: 20217, color: '#00538C', textColor: 'white', lat: 32.7767, lng: -96.7970 },
-    denver: { state: '08', place: '20000', label: 'Denver, CO (Nuggets)', avg_attendance: 19688, color: '#0E2240', textColor: 'white', lat: 39.7392, lng: -104.9903 },
-    detroit: { state: '26', place: '22000', label: 'Detroit, MI (Pistons)', avg_attendance: 18150, color: '#C8102E', textColor: 'white', lat: 42.3314, lng: -83.0458 },
-    sanfrancisco: { state: '06', place: '67000', label: 'San Francisco, CA (Warriors)', avg_attendance: 18064, color: '#1D428A', textColor: 'white', lat: 37.7749, lng: -122.4194 },
-    houston: { state: '48', place: '35000', label: 'Houston, TX (Rockets)', avg_attendance: 17400, color: '#CE1141', textColor: 'white', lat: 29.7604, lng: -95.3698 },
-    indianapolis: { state: '18', place: '36000', label: 'Indianapolis, IN (Pacers)', avg_attendance: 16500, color: '#002D62', textColor: 'white', lat: 39.7684, lng: -86.1581 },
-    lakers: { state: '06', place: '44000', label: 'Los Angeles, CA (Lakers)', avg_attendance: 18997, color: '#552583', textColor: 'white', lat: 34.0522, lng: -118.2437 },
-    clippers: { state: '06', place: '44000', label: 'Los Angeles, CA (Clippers)', avg_attendance: 18450, color: '#C8102E', textColor: 'white', lat: 34.0522, lng: -118.2437 },
-    memphis: { state: '47', place: '48000', label: 'Memphis, TN (Grizzlies)', avg_attendance: 16500, color: '#5D76A9', textColor: 'white', lat: 35.1495, lng: -90.0490 },
-    miami: { state: '12', place: '45000', label: 'Miami, FL (Heat)', avg_attendance: 19600, color: '#98002E', textColor: 'white', lat: 25.7617, lng: -80.1918 },
-    milwaukee: { state: '55', place: '53000', label: 'Milwaukee, WI (Bucks)', avg_attendance: 17500, color: '#00471B', textColor: 'white', lat: 43.0389, lng: -87.9065 },
-    minneapolis: { state: '27', place: '43000', label: 'Minneapolis, MN (Timberwolves)', avg_attendance: 18024, color: '#0C2340', textColor: 'white', lat: 44.9778, lng: -93.2650 },
-    neworleans: { state: '22', place: '55000', label: 'New Orleans, LA (Pelicans)', avg_attendance: 16800, color: '#0C2340', textColor: 'white', lat: 29.9511, lng: -90.0715 },
-    newyork: { state: '36', county: '061', label: 'New York, NY (Knicks)', avg_attendance: 19812, color: '#006BB6', textColor: 'white', lat: 40.7128, lng: -74.0060 },
-    oklahomacity: { state: '40', place: '55000', label: 'Oklahoma City, OK (Thunder)', avg_attendance: 18203, color: '#007AC1', textColor: 'white', lat: 35.4676, lng: -97.5164 },
-    orlando: { state: '12', place: '53000', label: 'Orlando, FL (Magic)', avg_attendance: 18846, color: '#0077C0', textColor: 'white', lat: 28.5383, lng: -81.3792 },
-    philadelphia: { state: '42', place: '60000', label: 'Philadelphia, PA (76ers)', avg_attendance: 20041, color: '#006BB6', textColor: 'white', lat: 39.9526, lng: -75.1652 },
-    phoenix: { state: '04', place: '55000', label: 'Phoenix, AZ (Suns)', avg_attendance: 17071, color: '#1D1160', textColor: 'white', lat: 33.4484, lng: -112.0740 },
-    portland: { state: '41', place: '59000', label: 'Portland, OR (Trail Blazers)', avg_attendance: 18712, color: '#E03A3E', textColor: 'white', lat: 45.5152, lng: -122.6784 },
-    sacramento: { state: '06', place: '64000', label: 'Sacramento, CA (Kings)', avg_attendance: 17911, color: '#5A2D81', textColor: 'white', lat: 38.5816, lng: -121.4944 },
-    sanantonio: { state: '48', place: '65000', label: 'San Antonio, TX (Spurs)', avg_attendance: 18324, color: '#C4CED4', textColor: 'black', lat: 29.4241, lng: -98.4936 },
-    saltlakecity: { state: '49', place: '67000', label: 'Salt Lake City, UT (Jazz)', avg_attendance: 18206, color: '#002B5C', textColor: 'white', lat: 40.7608, lng: -111.8910 },
-    washingtondc: { state: '11', place: '50000', label: 'Washington, DC (Wizards)', avg_attendance: 17800, color: '#002B5C', textColor: 'white', lat: 38.9072, lng: -77.0369 },
-    toronto: { isCanada: true, label: 'Toronto, ON (Raptors)', avg_attendance: 19777, color: '#CE1141', textColor: 'white', lat: 43.6532, lng: -79.3832 },
+    atlanta: { state: '13', place: '04000', label: 'Atlanta Hawks', avg_attendance: 17500, color: '#E03A3E', textColor: 'white', lat: 33.7490, lng: -84.3880 },
+    boston: { state: '25', place: '07000', label: 'Boston Celtics', avg_attendance: 19156, color: '#007A33', textColor: 'white', lat: 42.3601, lng: -71.0589 },
+    brooklyn: { state: '36', county: '047', label: 'Brooklyn Nets', avg_attendance: 17900, color: '#000000', textColor: 'white', lat: 40.6782, lng: -73.9442 },
+    charlotte: { state: '37', place: '12000', label: 'Charlotte Hornets', avg_attendance: 17150, color: '#1D1160', textColor: 'white', lat: 35.2271, lng: -80.8431 },
+    chicago: { state: '17', place: '14000', label: 'Chicago Bulls', avg_attendance: 20624, color: '#CE1141', textColor: 'white', lat: 41.8781, lng: -87.6298 },
+    cleveland: { state: '39', place: '16000', label: 'Cleveland Cavaliers', avg_attendance: 19432, color: '#860038', textColor: 'white', lat: 41.4993, lng: -81.6944 },
+    dallas: { state: '48', place: '19000', label: 'Dallas Mavericks', avg_attendance: 20217, color: '#00538C', textColor: 'white', lat: 32.7767, lng: -96.7970 },
+    denver: { state: '08', place: '20000', label: 'Denver Nuggets', avg_attendance: 19688, color: '#0E2240', textColor: 'white', lat: 39.7392, lng: -104.9903 },
+    detroit: { state: '26', place: '22000', label: 'Detroit Pistons', avg_attendance: 18150, color: '#C8102E', textColor: 'white', lat: 42.3314, lng: -83.0458 },
+    sanfrancisco: { state: '06', place: '67000', label: 'Golden State Warriors', avg_attendance: 18064, color: '#1D428A', textColor: 'white', lat: 37.7749, lng: -122.4194 },
+    houston: { state: '48', place: '35000', label: 'Houston Rockets', avg_attendance: 17400, color: '#CE1141', textColor: 'white', lat: 29.7604, lng: -95.3698 },
+    indianapolis: { state: '18', place: '36000', label: 'Indiana Pacers', avg_attendance: 16500, color: '#002D62', textColor: 'white', lat: 39.7684, lng: -86.1581 },
+    lakers: { state: '06', place: '44000', label: 'LA Lakers', avg_attendance: 18997, color: '#552583', textColor: 'white', lat: 34.0522, lng: -118.2437 },
+    clippers: { state: '06', place: '44000', label: 'LA Clippers', avg_attendance: 18450, color: '#C8102E', textColor: 'white', lat: 34.0522, lng: -118.2437 },
+    memphis: { state: '47', place: '48000', label: 'Memphis Grizzlies', avg_attendance: 16500, color: '#5D76A9', textColor: 'white', lat: 35.1495, lng: -90.0490 },
+    miami: { state: '12', place: '45000', label: 'Miami Heat', avg_attendance: 19600, color: '#98002E', textColor: 'white', lat: 25.7617, lng: -80.1918 },
+    milwaukee: { state: '55', place: '53000', label: 'Milwaukee Bucks', avg_attendance: 17500, color: '#00471B', textColor: 'white', lat: 43.0389, lng: -87.9065 },
+    minneapolis: { state: '27', place: '43000', label: 'Minnesota Timberwolves', avg_attendance: 18024, color: '#0C2340', textColor: 'white', lat: 44.9778, lng: -93.2650 },
+    neworleans: { state: '22', place: '55000', label: 'New Orleans Pelicans', avg_attendance: 16800, color: '#0C2340', textColor: 'white', lat: 29.9511, lng: -90.0715 },
+    newyork: { state: '36', county: '061', label: 'New York Knicks', avg_attendance: 19812, color: '#006BB6', textColor: 'white', lat: 40.7128, lng: -74.0060 },
+    oklahomacity: { state: '40', place: '55000', label: 'Oklahoma City Thunder', avg_attendance: 18203, color: '#007AC1', textColor: 'white', lat: 35.4676, lng: -97.5164 },
+    orlando: { state: '12', place: '53000', label: 'Orlando Magic', avg_attendance: 18846, color: '#0077C0', textColor: 'white', lat: 28.5383, lng: -81.3792 },
+    philadelphia: { state: '42', place: '60000', label: 'Philadelphia 76ers', avg_attendance: 20041, color: '#006BB6', textColor: 'white', lat: 39.9526, lng: -75.1652 },
+    phoenix: { state: '04', place: '55000', label: 'Phoenix Suns', avg_attendance: 17071, color: '#1D1160', textColor: 'white', lat: 33.4484, lng: -112.0740 },
+    portland: { state: '41', place: '59000', label: 'Portland Trail Blazers', avg_attendance: 18712, color: '#E03A3E', textColor: 'white', lat: 45.5152, lng: -122.6784 },
+    sacramento: { state: '06', place: '64000', label: 'Sacramento Kings', avg_attendance: 17911, color: '#5A2D81', textColor: 'white', lat: 38.5816, lng: -121.4944 },
+    sanantonio: { state: '48', place: '65000', label: 'San Antonio Spurs', avg_attendance: 18324, color: '#C4CED4', textColor: 'black', lat: 29.4241, lng: -98.4936 },
+    saltlakecity: { state: '49', place: '67000', label: 'Utah Jazz', avg_attendance: 18206, color: '#002B5C', textColor: 'white', lat: 40.7608, lng: -111.8910 },
+    washingtondc: { state: '11', place: '50000', label: 'Washington Wizards', avg_attendance: 17800, color: '#002B5C', textColor: 'white', lat: 38.9072, lng: -77.0369 },
+    toronto: { isCanada: true, label: 'Toronto Raptors', avg_attendance: 19777, color: '#CE1141', textColor: 'white', lat: 43.6532, lng: -79.3832 },
     austin: { state: '48', place: '05000', label: 'Austin, TX', avg_attendance: 15000, color: '#BF5700', textColor: 'white', lat: 30.2672, lng: -97.7431 },
     lasvegas: { state: '32', place: '40000', label: 'Las Vegas, NV', avg_attendance: 18000, color: '#B29759', textColor: 'black', lat: 36.1699, lng: -115.1398 },
     losangeles: { state: '06', place: '44000', label: 'Los Angeles, CA', avg_attendance: 18723, color: '#552583', textColor: 'white', lat: 34.0522, lng: -118.2437 },
@@ -592,16 +592,66 @@ function calculateFactorImpact(factor, market, ctx) {
     return { multiplier: finalMultiplier, fanVal, marketVal, currentUsAvg, formula, impact, baseMultiplier: multiplier };
 }
 
+function calculateAssetMultiplier(targetAssetType, market, baseCtx) {
+    let totalMult = 1.0;
+    const testCtx = { ...baseCtx, assetType: targetAssetType };
+    factors.forEach(f => {
+        if (f.id === 'loyalty_ltv' && targetAssetType !== 'In-Venue') return;
+        if (f.id === 'digital' && targetAssetType === 'Broadcast') return;
+        if (f.id === 'total_pop' && testCtx.isEfficiency) return;
+        if (f.id === 'reach' && (testCtx.isEfficiency || targetAssetType === 'In-Venue' || targetAssetType === 'Social')) return;
+
+        const result = calculateFactorImpact(f, market, testCtx);
+        totalMult *= result.multiplier;
+    });
+    return totalMult;
+}
+
 async function calculateValuation() {
-    const mainCard = document.querySelector('.final-value-card');
-    if (mainCard) {
-        mainCard.classList.remove('discovery-avg-mode');
-        document.getElementById('valuation-label').innerText = "Strategic Market Index";
+    console.log("Trajektory: Running calculation breakdown (v2)");
+    const assetType = document.getElementById('asset-name').value;
+    const summaryContainer = document.getElementById('valuation-summary-container');
+    const singleDisplay = document.getElementById('single-asset-valuation');
+    const bCard = document.getElementById('breakdown-broadcast');
+    const vCard = document.getElementById('breakdown-venue');
+    const sCard = document.getElementById('breakdown-social');
+    const discoveryResults = document.getElementById('discovery-results');
+
+    // Hide strategic ranking if single team is selected
+    const marketKeyInput = document.getElementById('market-dma').value;
+    const selectedCount = (typeof selectedTeams !== 'undefined') ? selectedTeams.length : 1;
+    if (discoveryResults) {
+        if (selectedCount > 1 || selectedCount === 0) {
+            // Show if multiple teams or if we're in "all markets" discovery (0)
+            discoveryResults.classList.remove('hidden');
+        } else {
+            discoveryResults.classList.add('hidden');
+        }
+    }
+
+    if (summaryContainer) {
+        if (assetType === 'All Assets') {
+            summaryContainer.classList.add('all-assets-mode');
+            if (singleDisplay) singleDisplay.classList.add('hidden');
+            if (bCard) bCard.classList.remove('hidden');
+            if (vCard) vCard.classList.remove('hidden');
+            if (sCard) sCard.classList.remove('hidden');
+        } else {
+            summaryContainer.classList.remove('all-assets-mode');
+            if (singleDisplay) {
+                singleDisplay.classList.remove('hidden');
+                singleDisplay.classList.remove('discovery-avg-mode');
+            }
+            if (bCard) bCard.classList.add('hidden');
+            if (vCard) vCard.classList.add('hidden');
+            if (sCard) sCard.classList.add('hidden');
+            const valLabel = document.getElementById('valuation-label');
+            if (valLabel) valLabel.innerText = "Strategic Market Index";
+        }
     }
 
     // Update Matrix Title
     const matrixTitle = document.getElementById('matrix-title');
-    const marketKeyInput = document.getElementById('market-dma').value;
     const marketsToFetchList = marketKeyInput.split(',').filter(k => k);
 
     if (matrixTitle) {
@@ -644,35 +694,55 @@ async function calculateValuation() {
     const idealDigital = 0.85; // Default digital benchmark
     const teamAttendance = parseFloat(document.getElementById('team-attendance').value);
 
-    const assetType = document.getElementById('asset-name').value;
+
     const weightedFormula = document.getElementById('weighted-formula')?.value || 'Trajektory Weighting';
     const isEfficiency = document.getElementById('efficiency-toggle').checked;
     const isInternational = document.getElementById('international-toggle').checked;
     const zipCode = isEfficiency ? document.getElementById('zip-code').value.trim() : null;
 
-    // Handle Portfolio Aggregation if multiple selected
+    const ctxForScoring = {
+        assetType, mode: 'nba',
+        fanAgeInput, fanHhiInput, fanDiversityInput, fanEduInput, fanGenderInput,
+        idealAge, idealHhi, idealDiversity, idealDigital, idealEducation, idealGender,
+        benchAge, benchHhi, benchDiversity,
+        isInternational, isEfficiency, weightedFormula
+    };
+
+    // Handle Portfolio Aggregation - Find Top Fit instead of Average
     let marketsToFetch = marketKey.split(',').filter(k => k);
-    let market;
+    let currentWinnerKey = marketKey;
 
     if (marketsToFetch.length > 1) {
-        // Aggregate Mode
+        // Aggregate Mode: Find Top Team
         const results = await Promise.all(marketsToFetch.map(k => fetchCensusData(k)));
-        market = {
-            hhi: results.reduce((a, b) => a + b.hhi, 0) / results.length,
-            age: results.reduce((a, b) => a + b.age, 0) / results.length,
-            multicultural: results.reduce((a, b) => a + b.multicultural, 0) / results.length,
-            gender: results.reduce((a, b) => a + b.gender, 0) / results.length,
-            life_stage: results.reduce((a, b) => a + b.life_stage, 0) / results.length,
-            education: results.reduce((a, b) => a + b.education, 0) / results.length,
-            digital: results.reduce((a, b) => a + b.digital, 0) / results.length,
-            hh_size: results.reduce((a, b) => a + b.hh_size, 0) / results.length,
-            affluence_burst: results.reduce((a, b) => a + b.affluence_burst, 0) / results.length,
-            executive_density: results.reduce((a, b) => a + b.executive_density, 0) / results.length,
-            reach: results.reduce((a, b) => a + b.reach, 0) / results.length
-        };
-        if (mainCard) {
-            mainCard.classList.add('discovery-avg-mode');
-            document.getElementById('valuation-label').innerText = "Portfolio Strategic Index (AVG)";
+
+        // Find winner among selection
+        let bestScore = -1;
+        let winnerIndex = 0;
+
+        for (let i = 0; i < marketsToFetch.length; i++) {
+            const score = await getMultiplierOnly(marketsToFetch[i], ctxForScoring);
+            if (score > bestScore) {
+                bestScore = score;
+                winnerIndex = i;
+            }
+        }
+
+        market = results[winnerIndex];
+        currentWinnerKey = marketsToFetch[winnerIndex];
+        const winnerLabel = marketMapping[currentWinnerKey]?.label || currentWinnerKey;
+
+        if (singleDisplay) {
+            singleDisplay.classList.remove('discovery-avg-mode');
+            document.getElementById('valuation-label').innerText = "Portfolio Strategic Index (Top Fit)";
+        }
+
+        // Sync branding to top team
+        updateTeamBranding(currentWinnerKey);
+
+        // Update Matrix Title to reflect winner
+        if (matrixTitle) {
+            matrixTitle.innerText = `11-Factor Decision Matrix - Portfolio (Top Fit: ${winnerLabel})`;
         }
     } else {
         market = await fetchCensusData(marketKey, zipCode && zipCode.length === 5 ? zipCode : null);
@@ -712,7 +782,7 @@ async function calculateValuation() {
         if (factor.id === 'loyalty_ltv' && assetType !== 'In-Venue') return;
         if (factor.id === 'digital' && assetType === 'Broadcast') return;
         if (factor.id === 'total_pop' && isEfficiency) return;
-        if (factor.id === 'reach' && isEfficiency) return;
+        if (factor.id === 'reach' && (isEfficiency || assetType === 'In-Venue' || assetType === 'Social')) return;
 
         const result = calculateFactorImpact(factor, market, ctx);
         const { multiplier, fanVal, marketVal, currentUsAvg, formula, impact } = result;
@@ -799,10 +869,7 @@ async function calculateValuation() {
                             <span class="label">League/US Avg</span>
                             <span class="val">${formatValue(factor.id, currentUsAvg)}</span>
                         </div>
-                        <div class="detail-item">
-                            <span class="label">Census Table</span>
-                            <span class="census-tag">${factor.table}</span>
-                        </div>
+
                     </div>
                     <div class="formula-box">
                         <span class="formula-label">Equation</span>
@@ -871,7 +938,22 @@ async function calculateValuation() {
         }
     });
 
-    document.getElementById('final-strategic-value').innerText = totalMultiplier.toFixed(2) + 'x';
+    if (assetType === 'All Assets') {
+        const broadcastMult = calculateAssetMultiplier('Broadcast', market, ctx);
+        const venueMult = calculateAssetMultiplier('In-Venue', market, ctx);
+        const socialMult = calculateAssetMultiplier('Social', market, ctx);
+
+        const bEl = document.querySelector('#breakdown-broadcast .value-amount');
+        const vEl = document.querySelector('#breakdown-venue .value-amount');
+        const sEl = document.querySelector('#breakdown-social .value-amount');
+
+        if (bEl) bEl.innerText = broadcastMult.toFixed(2) + 'x';
+        if (vEl) vEl.innerText = venueMult.toFixed(2) + 'x';
+        if (sEl) sEl.innerText = socialMult.toFixed(2) + 'x';
+    } else {
+        const finalValEl = document.getElementById('final-strategic-value');
+        if (finalValEl) finalValEl.innerText = totalMultiplier.toFixed(2) + 'x';
+    }
 
     // Update Fan Persona Delta
     let fanPersona = `The NBA fan persona for this calculation reflects an average age of ${fanAgeInput.toFixed(0)} with a household income of ${formatCurrency(fanHhiInput)}. This demographic profile prioritizes cultural influence and digital engagement in major markets.`;
@@ -894,6 +976,7 @@ async function calculateValuation() {
 
     // UI: Update Card Opacity
     updateActiveCardUI();
+    updateBreakdownBranding(currentWinnerKey);
 }
 
 function updateActiveCardUI() {
@@ -1006,23 +1089,59 @@ document.getElementById('market-dma').addEventListener('change', (e) => {
 });
 
 function updateTeamBranding(marketKey) {
-    const market = marketMapping[marketKey];
-    const card = document.querySelector('.final-value-card');
-    if (market && card) {
-        card.style.backgroundColor = market.color || 'var(--primary-color)';
-        card.style.color = market.textColor || 'white';
-
-        const label = card.querySelector('label');
-        if (label) {
-            label.style.color = market.textColor === 'white' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
-        }
-
-        const badge = card.querySelector('.multiplier-badge');
-        if (badge) {
-            badge.style.background = market.textColor === 'white' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)';
-            badge.style.color = market.textColor || 'white';
-        }
+    const winnerCard = document.getElementById('winner-card');
+    if (winnerCard) {
+        winnerCard.style.backgroundColor = '';
+        winnerCard.style.color = '';
+        winnerCard.style.border = '';
+        const winnerLabel = winnerCard.querySelector('span');
+        if (winnerLabel) winnerLabel.style.color = '';
+        const winnerPara = winnerCard.querySelector('p');
+        if (winnerPara) winnerPara.style.color = '';
     }
+}
+
+function updateBreakdownBranding(marketKey) {
+    const market = marketMapping[marketKey];
+    const discoveryResults = document.getElementById('discovery-results');
+    const isChartVisible = discoveryResults && !discoveryResults.classList.contains('hidden');
+    const isSingleTeam = typeof selectedTeams !== 'undefined' && selectedTeams.length === 1;
+
+    const cards = document.querySelectorAll('.final-value-card');
+
+    cards.forEach(card => {
+        if ((isChartVisible || isSingleTeam) && market) {
+            card.style.backgroundColor = market.color || 'var(--primary-color)';
+            card.style.color = market.textColor || 'white';
+            const label = card.querySelector('label');
+            if (label) label.style.color = market.textColor === 'white' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
+
+            // For breakdown cards specifically
+            const badge = card.querySelector('.multiplier-badge');
+            if (badge) {
+                badge.style.background = market.textColor === 'white' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)';
+                badge.style.color = market.textColor || 'white';
+            }
+
+            // For single asset card label
+            const valLabel = card.querySelector('#valuation-label');
+            if (valLabel) valLabel.style.color = market.textColor === 'white' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
+        } else {
+            card.style.backgroundColor = '';
+            card.style.color = '';
+            const label = card.querySelector('label');
+            if (label) label.style.color = '';
+
+            const badge = card.querySelector('.multiplier-badge');
+            if (badge) {
+                badge.style.background = '';
+                badge.style.color = '';
+            }
+
+            const valLabel = card.querySelector('#valuation-label');
+            if (valLabel) valLabel.style.color = '';
+        }
+    });
 }
 
 // Sync initial team branding
@@ -1195,7 +1314,7 @@ window.calculateValuation = calculateValuation;
     'brand-target-education', 'brand-target-gender',
     'fan-target-age', 'fan-target-hhi', 'fan-target-diversity',
     'fan-target-education', 'fan-target-gender',
-    'team-attendance'
+    'team-attendance', 'asset-name'
 ].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -1217,7 +1336,7 @@ async function getMultiplierOnly(marketKey, ctx) {
         if (factor.id === 'loyalty_ltv' && ctx.assetType !== 'In-Venue') return;
         if (factor.id === 'digital' && ctx.assetType === 'Broadcast') return;
         if (factor.id === 'total_pop' && ctx.isEfficiency) return;
-        if (factor.id === 'reach' && ctx.isEfficiency) return;
+        if (factor.id === 'reach' && (ctx.isEfficiency || ctx.assetType === 'In-Venue' || ctx.assetType === 'Social')) return;
 
         const result = calculateFactorImpact(factor, market, ctx);
         totalMultiplier *= result.multiplier;
@@ -1233,6 +1352,9 @@ document.getElementById('smart-calculate-btn')?.addEventListener('click', async 
     // Check selection size
     if (selectedTeams.length > 1) {
         await runDiscovery(selectedTeams);
+    } else if (selectedTeams.length === 0) {
+        // Run full market discovery if nothing selected
+        await runDiscovery(null);
     } else {
         btn.innerText = 'Calculating...';
         btn.disabled = true;
@@ -1326,10 +1448,8 @@ async function runDiscovery(teamKeys = null) {
             const citySelect = document.getElementById('market-dma');
             citySelect.value = winner.key;
             updateActiveCardUI();
-
             document.getElementById('winner-text').innerText = `Primary Match: ${winner.label}`;
             document.getElementById('winner-reason').innerText = `${isEfficiency ? '[Efficiency Mode] ' : ''}Highest strategic alignment for this brand's persona with a ${winner.score.toFixed(2)}x combined multiplier.`;
-            resultsDiv.classList.remove('hidden');
 
             setTimeout(() => {
                 renderTopFitChart(chartData);
@@ -1337,14 +1457,7 @@ async function runDiscovery(teamKeys = null) {
             }, 500);
 
             await calculateValuation();
-
-            // OVERRIDE: Set card to Average Mode for Discovery Results
-            const mainCard = document.querySelector('.final-value-card');
-            if (mainCard) {
-                mainCard.classList.add('discovery-avg-mode');
-                document.getElementById('valuation-label').innerText = isEfficiency ? "Team Average Strategic Index" : "City Average Strategic Index";
-                document.getElementById('final-strategic-value').innerText = avgScore.toFixed(2) + 'x';
-            }
+            resultsDiv.classList.remove('hidden'); // Ensure shown if discovery was just run
 
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
@@ -1643,9 +1756,6 @@ document.getElementById('compare-option')?.addEventListener('change', (e) => {
     } else if (mode === 'leagues') {
         discoveryBtn.innerText = 'Compare League Averages';
         leagueContextCard.querySelector('h2').innerHTML = '<span class="step-num">02</span> Discovery Scope (Leagues)';
-    } else if (mode === 'assets') {
-        discoveryBtn.innerText = 'Compare Asset Power';
-        leagueContextCard.querySelector('h2').innerHTML = '<span class="step-num">02</span> Discovery Scope (Assets)';
     }
 
     // Update Comparison Tab Labels
@@ -1660,11 +1770,6 @@ document.getElementById('compare-option')?.addEventListener('change', (e) => {
             if (labelA) labelA.innerText = 'League A (Primary)';
             if (labelB) labelB.innerText = 'League B (Secondary)';
             if (compareBtn) compareBtn.innerText = 'Run League Differential';
-        } else if (mode === 'assets') {
-            mainHeader.innerText = 'Asset Performance Comparison';
-            if (labelA) labelA.innerText = 'Asset A (Primary)';
-            if (labelB) labelB.innerText = 'Asset B (Secondary)';
-            if (compareBtn) compareBtn.innerText = 'Analyze Asset Variance';
         }
     }
 });
@@ -2137,13 +2242,18 @@ function initTeamMultiSelect() {
     function updateSelectionState() {
         // Update tags
         tagsContainer.querySelectorAll('.tag-chip').forEach(tag => tag.remove());
-        selectedTeams.forEach(key => {
+
+        const displayLimit = 10;
+        const toDisplay = selectedTeams.slice(0, displayLimit);
+        const hiddenCount = selectedTeams.length - displayLimit;
+
+        toDisplay.forEach(key => {
             const team = marketMapping[key];
             if (!team) return;
             const chip = document.createElement('div');
             chip.className = 'tag-chip';
             chip.innerHTML = `
-                ${team.label.split('(')[1] ? team.label.split('(')[1].replace(')', '') : team.label.split(',')[0]}
+                ${team.label}
                 <span class="remove-tag" data-key="${key}">×</span>
             `;
             chip.querySelector('.remove-tag').addEventListener('click', (e) => {
@@ -2155,6 +2265,13 @@ function initTeamMultiSelect() {
             });
             tagsContainer.insertBefore(chip, searchInput);
         });
+
+        if (hiddenCount > 0) {
+            const moreIndicator = document.createElement('div');
+            moreIndicator.className = 'tag-chip more-indicator';
+            moreIndicator.innerText = `+${hiddenCount} more`;
+            tagsContainer.insertBefore(moreIndicator, searchInput);
+        }
 
         // Update hidden field for compatibility
         hiddenInput.value = selectedTeams.join(',');

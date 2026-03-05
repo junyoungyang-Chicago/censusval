@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=matrix-4-across">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -71,7 +71,6 @@
                             <select id="compare-option">
                                 <option value="properties" selected>Properties</option>
                                 <option value="leagues">Leagues</option>
-                                <option value="assets">Assets</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -162,7 +161,7 @@
                         </div>
 
                         <div id="persona-delta-section" class="hidden"
-                            style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                            style="display: none !important; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                                 <h3
@@ -272,36 +271,7 @@
 
 
                 <section id="results-section" class="hidden">
-                    <div class="valuation-summary">
-                        <div class="final-value-card">
-                            <label id="valuation-label">Strategic Market Index</label>
-                            <div id="final-strategic-value" class="value-amount">1.00x</div>
-                            <div id="market-average-stats" class="hidden"
-                                style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.1); width: 100%; display: flex; justify-content: space-around;">
-                                <div style="display: flex; flex-direction: column;">
-                                    <span
-                                        style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; opacity: 0.8;"
-                                        id="avg-label">City Average Index</span>
-                                    <span style="font-size: 1.5rem; font-weight: 800;" id="avg-value">1.69x</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card glass-card persona-delta-card" id="fan-persona-delta-card">
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                                <h3
-                                    style="margin: 0; font-size: 0.9rem; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px;">
-                                    Fan Persona Delta</h3>
-                                <span class="ai-status-badge">Ready</span>
-                            </div>
-                            <div id="fan-persona-delta-text"
-                                style="font-size: 1.1rem; color: var(--text-primary); font-weight: 300; line-height: 1.6;">
-                                Analyzing context-specific fan alignment...
-                            </div>
-                        </div>
-                    </div>
-
+                    <!-- Strategic Ranking: Top 10 Fits (CHART FIRST) -->
                     <div id="discovery-results" class="card glass-card hidden" style="margin-bottom: 2rem;">
                         <div
                             style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -325,7 +295,7 @@
                             <div id="map-container" class="hidden"
                                 style="height: 400px; flex: 2; min-width: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--surface-border);">
                             </div>
-                            <div
+                            <div id="winner-card"
                                 style="flex: 1; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; justify-content: center; min-height: 400px;">
                                 <span
                                     style="font-size: 0.7rem; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 1rem; display: block;">Primary
@@ -339,19 +309,62 @@
                         </div>
                     </div>
 
+                    <!-- Valuation Summary: Asset Cards and Persona (CARDS SECOND) -->
+                    <div class="valuation-summary" id="valuation-summary-container" style="margin-bottom: 2rem;">
+                        <!-- Breakdown View Cards (Hidden by default) -->
+                        <div class="final-value-card breakdown-card hidden" id="breakdown-broadcast">
+                            <label>Broadcast</label>
+                            <div class="value-amount" style="font-size: 2.2rem;">--x</div>
+                            <div class="multiplier-badge" style="font-size: 0.65rem; margin-top: 0.5rem; opacity: 0.7;">
+                                TV/Digital Focus</div>
+                        </div>
+                        <div class="final-value-card breakdown-card hidden" id="breakdown-venue">
+                            <label>In-Venue</label>
+                            <div class="value-amount" style="font-size: 2.2rem;">--x</div>
+                            <div class="multiplier-badge" style="font-size: 0.65rem; margin-top: 0.5rem; opacity: 0.7;">
+                                Physical Footprint</div>
+                        </div>
+                        <div class="final-value-card breakdown-card hidden" id="breakdown-social">
+                            <label>Social / Digital</label>
+                            <div class="value-amount" style="font-size: 2.2rem;">--x</div>
+                            <div class="multiplier-badge" style="font-size: 0.65rem; margin-top: 0.5rem; opacity: 0.7;">
+                                Social Halo / Viral</div>
+                        </div>
+
+                        <!-- Single Asset View Card (Default) -->
+                        <div class="final-value-card" id="single-asset-valuation">
+                            <label id="valuation-label">Strategic Market Index</label>
+                            <div id="final-strategic-value" class="value-amount">1.00x</div>
+                        </div>
+
+                        <!-- Fan Persona Card (Always shown) -->
+                        <div class="card glass-card persona-delta-card" id="fan-persona-delta-card">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                                <h3
+                                    style="margin: 0; font-size: 0.9rem; color: var(--primary-color); text-transform: uppercase; letter-spacing: 1px;">
+                                    Fan Persona Delta</h3>
+                                <span class="ai-status-badge">Ready</span>
+                            </div>
+                            <div id="fan-persona-delta-text" style="color: var(--text-primary); line-height: 1.6;">
+                                Analyzing context-specific fan alignment...
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="matrix-container card glass-card">
                         <div class="matrix-header">
                             <h2 id="matrix-title">11-Factor Decision Matrix</h2>
                             <div class="view-toggle">
                                 <span class="toggle-label">Table</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="matrix-view-toggle">
+                                    <input type="checkbox" id="matrix-view-toggle" checked>
                                     <span class="slider"></span>
                                 </label>
                                 <span class="toggle-label">Cards</span>
                             </div>
                         </div>
-                        <div class="table-wrapper" id="matrix-table-view">
+                        <div class="table-wrapper hidden" id="matrix-table-view">
                             <table id="valuation-table">
                                 <thead>
                                     <tr>
@@ -367,7 +380,7 @@
                                 <tbody id="matrix-body"></tbody>
                             </table>
                         </div>
-                        <div id="matrix-cards-view" class="hidden">
+                        <div id="matrix-cards-view">
                             <div id="factor-cards-grid" class="cards-grid"></div>
                         </div>
                     </div>
@@ -440,7 +453,7 @@
             <p>&copy; 2026 Trajektory. B2B Confidential.</p>
         </footer>
     </div>
-    <script src="app.js"></script>
+    <script src="app.js?v=conditional-branding-final"></script>
 </body>
 
 </html>
