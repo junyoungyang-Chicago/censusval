@@ -989,23 +989,14 @@ function updateValueProjection(market, ctx) {
     const reachFactor = (market.reach || 450000) / 450000;
     const baseUnit = 377425 * reachFactor;
 
-    const broadcastVal = (baseUnit * 1.5) * broadcastMult;
-    const venueVal = (baseUnit * 0.4) * venueMult;
-    const socialVal = (baseUnit * 0.6) * socialMult;
+    const rawBroadcastVal = (baseUnit * 1.5) * broadcastMult;
+    const rawVenueVal = (baseUnit * 0.4) * venueMult;
+    const rawSocialVal = (baseUnit * 0.6) * socialMult;
 
-    // Calculate Total Value as the sum of all components
-    const totalVal = broadcastVal + venueVal + socialVal;
-
-    /**
-     * Calculate Total Index using the User's requested formula:
-     * Total Index = Total Value / (Broadcast Value / Broadcast Index + In-Venue Value / In-Venue Index + Social Value / Social Index)
-     * This effectively calculates the blended multiplier based on the underlying raw values.
-     */
-    const denominator = (broadcastVal / broadcastMult) + (venueVal / venueMult) + (socialVal / socialMult);
-    const totalMult = totalVal / denominator;
-
-    document.getElementById('proj-total-value').innerText = formatCurrency(totalVal);
-    document.getElementById('proj-total-mult').innerText = totalMult.toFixed(3) + 'x';
+    // Apply division requested by user
+    const broadcastVal = rawBroadcastVal / 1000;
+    const venueVal = rawVenueVal / 100;
+    const socialVal = rawSocialVal / 1000;
 
     document.getElementById('proj-broadcast-value').innerText = formatCurrency(broadcastVal);
     document.getElementById('proj-broadcast-mult').innerText = broadcastMult.toFixed(3) + 'x';
