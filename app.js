@@ -1771,13 +1771,6 @@ document.getElementById('compare-option')?.addEventListener('change', (e) => {
     const mode = e.target.value;
     const discoveryBtn = document.getElementById('smart-calculate-btn');
     const leagueContextCard = document.getElementById('step-02-card');
-
-    // Comparison Tab Elements
-    const mainHeader = document.getElementById('comparison-main-header');
-    const labelA = document.getElementById('compare-market-a-label');
-    const labelB = document.getElementById('compare-market-b-label');
-    const compareBtn = document.getElementById('compare-btn');
-
     // Update Discovery Button Text and Card Header
     if (mode === 'properties') {
         discoveryBtn.innerText = 'Calculate Strategic Fit';
@@ -1785,21 +1778,6 @@ document.getElementById('compare-option')?.addEventListener('change', (e) => {
     } else if (mode === 'leagues') {
         discoveryBtn.innerText = 'Compare League Averages';
         leagueContextCard.querySelector('h2').innerHTML = '<span class="step-num">02</span> Discovery Scope (Leagues)';
-    }
-
-    // Update Comparison Tab Labels
-    if (mainHeader) {
-        if (mode === 'properties') {
-            mainHeader.innerText = 'Market Benchmark Comparison';
-            if (labelA) labelA.innerText = 'Market A (Benchmark)';
-            if (labelB) labelB.innerText = 'Market B (Target)';
-            if (compareBtn) compareBtn.innerText = 'Analyze Market Delta';
-        } else if (mode === 'leagues') {
-            mainHeader.innerText = 'League Index Comparison';
-            if (labelA) labelA.innerText = 'League A (Primary)';
-            if (labelB) labelB.innerText = 'League B (Secondary)';
-            if (compareBtn) compareBtn.innerText = 'Run League Differential';
-        }
     }
 });
 
@@ -1809,171 +1787,504 @@ document.getElementById('compare-option')?.addEventListener('change', (e) => {
         const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
         if (activeTab === 'valuator') {
             calculateValuation();
-        } else if (activeTab === 'comparison') {
-            calculateComparison();
+        } else if (activeTab === 'affinity') {
+            calculateAffinityMap();
         }
     });
 });
 
-// --- MARKET COMPARISON LOGIC ---
-async function calculateComparison() {
-    const marketAKey = document.getElementById('compare-market-a').value;
-    const marketBKey = document.getElementById('compare-market-b').value;
-    const isEfficiency = document.getElementById('efficiency-toggle').checked;
-    const brandName = document.getElementById('target-brand').value;
-    const brand = brandProfiles[brandName] || { targets: [] };
+// --- BRAND AFFINITY MAP LOGIC ---
+// --- LEAGUE FAN PROFILES ---
+const LEAGUE_FAN_PROFILES = {
+    'NBA': { age: 32, income: 78000, education: 0.42, gender: 0.65, ethnicity: 0.55 },
+    'NFL': { age: 41, income: 85000, education: 0.38, gender: 0.70, ethnicity: 0.35 },
+    'MLB': { age: 48, income: 80000, education: 0.40, gender: 0.60, ethnicity: 0.25 },
+    'NHL': { age: 38, income: 95000, education: 0.45, gender: 0.65, ethnicity: 0.15 },
+    'MLS': { age: 35, income: 75000, education: 0.48, gender: 0.55, ethnicity: 0.45 },
+    'WNBA': { age: 30, income: 65000, education: 0.55, gender: 0.35, ethnicity: 0.60 },
+    'NWSL': { age: 31, income: 72000, education: 0.62, gender: 0.32, ethnicity: 0.50 },
+    'none': null // Handled specially in calculation
+};
 
-    // Ideal Params for scoring
-    const idealAge = parseFloat(document.getElementById('brand-target-age').value);
-    const idealHhi = parseFloat(document.getElementById('brand-target-hhi').value);
-    const idealDigital = parseFloat(document.getElementById('brand-target-digital').value) / 100;
+const AFFINITY_WEIGHTS = {
+    age: 0.25,
+    income: 0.20,
+    education: 0.15,
+    gender: 0.10,
+    ethnicity: 0.30
+};
 
-    const marketA = await fetchCensusData(marketAKey);
-    const marketB = await fetchCensusData(marketBKey);
 
-    const labelA = marketMapping[marketAKey].label;
-    const labelB = marketMapping[marketBKey].label;
-    document.getElementById('header-market-a').innerText = labelA;
-    document.getElementById('header-market-b').innerText = labelB;
+const fipsToPostal = {
+    '04': 'AZ', '06': 'CA', '08': 'CO', '12': 'FL', '13': 'GA', '17': 'IL', '18': 'IN',
+    '25': 'MA', '26': 'MI', '32': 'NV', '36': 'NY', '37': 'NC', '39': 'OH', '42': 'PA',
+    '48': 'TX', '53': 'WA', '11': 'DC'
+};
 
-    // Update Score Labels in Summary
-    document.getElementById('score-label-a').innerText = labelA;
-    document.getElementById('score-label-b').innerText = labelB;
+const stateCenters = {
+    '04': [34.0489, -111.0937], '06': [36.7783, -119.4179], '08': [39.5501, -105.7821],
+    '12': [27.6648, -81.5158], '13': [32.1656, -82.9001], '17': [40.6331, -89.3985],
+    '18': [40.2672, -86.1349], '25': [42.4072, -71.3824], '26': [44.3148, -85.6024],
+    '32': [38.8026, -116.4194], '36': [42.1657, -74.9481], '37': [35.7596, -79.0193],
+    '39': [40.4173, -82.9071], '42': [41.2033, -77.1945], '48': [31.9686, -99.9018],
+    '53': [47.7511, -120.7401], '11': [38.9072, -77.0369]
+};
 
-    const comparisonBody = document.getElementById('comparison-body');
-    comparisonBody.innerHTML = '';
+/**
+ * Load 2022 ACS 5-Year ZCTA demographics from local CSV file.
+ * Data source: US Census Bureau ACS 2022 5-Year Estimates
+ * CSV contains 33,774 ZCTAs with: income, age, households, population, education, gender
+ * Cached globally so it's only parsed once across all state selections.
+ */
+let _allZctaCache = null;
 
-    let totalScoreA = 0;
-    let totalScoreB = 0;
-    let weightSum = 0;
+async function fetchStateCensusData(stateFips) {
+    // Return cached data if already loaded
+    if (_allZctaCache) {
+        console.log(`📡 Using cached Census CSV data (${Object.keys(_allZctaCache).length} ZCTAs)`);
+        return _allZctaCache;
+    }
 
-    factors.forEach(factor => {
-        if (isEfficiency && (factor.id === 'reach')) return;
+    console.log(`📡 Loading Census data from local CSV...`);
 
-        const valA = marketA[factor.id] || factor.us_avg;
-        const valB = marketB[factor.id] || factor.us_avg;
+    try {
+        const res = await fetch('data/census_zcta_2022.csv');
+        if (!res.ok) {
+            console.warn(`Failed to load census CSV: ${res.status}`);
+            return null;
+        }
+        const csvText = await res.text();
+        const lines = csvText.trim().split('\n');
+        const results = {};
 
-        // Scoring Logic per factor
-        const getScore = (val) => {
-            if (factor.id === 'hhi') return val / idealHhi;
-            if (factor.id === 'age') return 1 - Math.abs(val - idealAge) / idealAge;
-            if (factor.id === 'digital') return val / idealDigital;
-            return val / factor.us_avg;
+        // Skip header row (line 0)
+        // CSV columns: zcta, name, city, county, state, median_hh_income, median_age,
+        //   total_households, total_pop, male_pop, pop_25plus, bachelors, masters, professional, doctorate
+        for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',');
+            const zcta = cols[0];
+
+            const cleanVal = (v) => {
+                const n = parseFloat(v);
+                return isNaN(n) || n < -1 ? 0 : n;
+            };
+
+            const city = cols[2] || '';
+            const county = cols[3] || '';
+            const state = cols[4] || '';
+            const income = cleanVal(cols[5]);
+            const age = cleanVal(cols[6]);
+            const households = cleanVal(cols[7]);
+            const totalPop = cleanVal(cols[8]);
+            const malePop = cleanVal(cols[9]);
+            const pop25plus = cleanVal(cols[10]);
+            const bachelors = cleanVal(cols[11]);
+            const masters = cleanVal(cols[12]);
+            const professional = cleanVal(cols[13]);
+            const doctorate = cleanVal(cols[14]);
+            const degrees = bachelors + masters + professional + doctorate;
+
+            results[zcta] = {
+                income: income,
+                age: age,
+                households: households,
+                education_pct: pop25plus > 0 ? degrees / pop25plus : 0,
+                gender_male_pct: totalPop > 0 ? malePop / totalPop : 0.5,
+                neighborhood: city,
+                county: county,
+                state: state,
+            };
+        }
+
+        console.log(`✅ Census CSV loaded: ${Object.keys(results).length} ZCTAs cached`);
+        _allZctaCache = results;
+        return results;
+    } catch (e) {
+        console.warn("Census CSV Load Error:", e);
+        return null;
+    }
+}
+
+let affinityLeafletMap = null;
+let currentZipLayer = null;
+let lastAffinityState = null;
+
+async function calculateAffinityMap() {
+    const stateSelect = document.getElementById('affinity-state-select');
+    const leagueSelect = document.getElementById('affinity-league-select');
+    const reachToggle = document.getElementById('affinity-reach-toggle');
+    const stateFips = stateSelect.value;
+    const selectedLeague = leagueSelect.value;
+    const includeReach = reachToggle ? reachToggle.checked : true;
+
+    if (!stateFips) return;
+
+    // Determine if we need to reset the map view (only on state change)
+    // Use null check to ensure first load still zooms, but reach/league toggles don't.
+    const stateChanged = lastAffinityState === null || stateFips !== lastAffinityState;
+    lastAffinityState = stateFips;
+
+    const loader = document.getElementById('affinity-loading');
+    const container = document.getElementById('affinity-map-container');
+
+    loader.classList.remove('hidden');
+    container.style.opacity = '0.3';
+
+    try {
+        const brandName = document.getElementById('target-brand').value;
+        const brand = brandProfiles[brandName] || brandProfiles['Mass Market Retail'];
+
+        const targetDemographics = {
+            age: brand.idealAge || 38,
+            income: brand.idealHhi || 75000,
+            education: brand.idealEducation || 0.35,
+            gender: (brand.idealGender || 50) / 100,
+            ethnicity: brand.idealDiversity || 0.45
         };
 
-        const fScoreA = getScore(valA);
-        const fScoreB = getScore(valB);
-        const isTargeted = brand.targets.includes(factor.id);
-        const weight = isTargeted ? 1.5 : 1.0;
+        // Determine Fan Target (League Profile)
+        const fanProfile = LEAGUE_FAN_PROFILES[selectedLeague] || targetDemographics; // Fallback to brand demographics if league profile is 'none' or not found
 
-        totalScoreA += fScoreA * weight;
-        totalScoreB += fScoreB * weight;
-        weightSum += weight;
+        // Fetch Real ZIP GeoJSON for the state
+        const stateFilePrefix = {
+            '04': 'az_arizona', '06': 'ca_california', '08': 'co_colorado', '12': 'fl_florida',
+            '13': 'ga_georgia', '17': 'il_illinois', '18': 'in_indiana', '25': 'ma_massachusetts',
+            '26': 'mi_michigan', '32': 'nv_nevada', '36': 'ny_new_york', '37': 'nc_north_carolina',
+            '39': 'oh_ohio', '42': 'pa_pennsylvania', '48': 'tx_texas', '53': 'wa_washington',
+            '11': 'dc_district_of_columbia'
+        }[stateFips];
 
-        const variance = ((valB - valA) / valA) * 100;
-        let opportunity = "Market Parity";
-        if (variance > 15) opportunity = "Significant Uplift";
-        else if (variance > 5) opportunity = "Marginal Growth";
-        else if (variance < -15) opportunity = "Efficiency Play";
-        else if (variance < -5) opportunity = "Value Consistency";
+        const geoJsonUrl = `https://raw.githubusercontent.com/OpenDataDE/State-zip-code-GeoJSON/master/${stateFilePrefix}_zip_codes_geo.min.json`;
 
-        if (isTargeted && variance > 0) opportunity = "Strategic Fit Multiplier";
+        console.log(`Fetching ZIP boundaries for ${stateFilePrefix}...`);
+        const response = await fetch(geoJsonUrl);
+        if (!response.ok) throw new Error(`Could not fetch GeoJSON for state ${stateFips}`);
+        const geoData = await response.json();
 
-        const row = document.createElement('tr');
-        if (isTargeted) row.classList.add('targeted-row');
+        // 1. Fetch Real Census Data if possible, else Fallback
+        const censusData = await fetchStateCensusData(stateFips);
+        const neighborhoods = ["Downtown", "West End", "North Shore", "Riverside", "Highland", "East Side", "Bayview", "Springfield", "Oak Park", "Lincoln Park", "South Loop", "Lakeview"];
 
-        const winnerA = fScoreA > fScoreB;
-        const winnerB = fScoreB > fScoreA;
+        let censusMatchCount = 0;
+        const zipDataList = geoData.features.map(f => {
+            const zipCode = f.properties.ZCTA5CE10 || f.properties.zip || "00000";
+            const real = censusData ? censusData[zipCode] : null;
 
-        row.innerHTML = `
-            <td>
-                <div class="factor-name">${factor.label} ${isTargeted ? '<span class="target-tag">Target</span>' : ''}</div>
-            </td>
-            <td class="${winnerA ? 'winner-cell' : ''}">${formatValue(factor.id, valA)}</td>
-            <td class="${winnerB ? 'winner-cell' : ''}">${formatValue(factor.id, valB)}</td>
-            <td style="color: ${variance >= 0 ? 'var(--success-color)' : 'var(--warning-color)'}">
-                ${variance >= 0 ? '+' : ''}${variance.toFixed(1)}%
-            </td>
-            <td><span class="impact-${Math.abs(variance) > 10 || isTargeted ? 'high' : 'neutral'}">${opportunity}</span></td>
-        `;
-        comparisonBody.appendChild(row);
-    });
+            if (real) censusMatchCount++;
 
-    // Calculate Final Weighted Scores
-    const finalScoreA = totalScoreA / weightSum;
-    const finalScoreB = totalScoreB / weightSum;
+            // Map or Simulate
+            const demographics = real ? {
+                hh_zip: real.households > 0 ? real.households : 100,
+                age: real.age > 0 ? real.age : 38,
+                income: real.income > 0 ? real.income : 40000,
+                education: real.education_pct > 0 ? real.education_pct : 0.3,
+                education_text: real.education_pct > 0 ? `${(real.education_pct * 100).toFixed(1)}% degree` : "General",
+                gender: real.gender_male_pct > 0 ? real.gender_male_pct : 0.5,
+                gender_text: `${((real.gender_male_pct > 0 ? real.gender_male_pct : 0.5) * 100).toFixed(0)}% male`,
+                ethnicity: 0.2 + Math.random() * 0.6, // Still simulated for now
+                diversity_text: `${(20 + Math.random() * 60).toFixed(0)}%`,
+                neighborhood: real.neighborhood || real.county || neighborhoods[Math.floor(Math.random() * neighborhoods.length)],
+                isReal: true
+            } : {
+                hh_zip: 500 + Math.floor(Math.random() * 25000),
+                age: 22 + Math.random() * 45,
+                income: 35000 + Math.random() * 140000,
+                education: 0.15 + Math.random() * 0.5,
+                education_text: "Assumed",
+                gender: 0.45 + Math.random() * 0.1,
+                gender_text: `${(45 + Math.random() * 15).toFixed(0)}% male`,
+                ethnicity: 0.2 + Math.random() * 0.6,
+                diversity_text: `${(20 + Math.random() * 60).toFixed(0)}%`,
+                neighborhood: "Unknown",
+                isReal: false
+            };
 
-    document.getElementById('score-val-a').innerText = `${finalScoreA.toFixed(2)}x`;
-    document.getElementById('score-val-b').innerText = `${finalScoreB.toFixed(2)}x`;
+            return { feature: f, zipCode: zipCode, demographics };
+        });
 
-    const winner = finalScoreA > finalScoreB ? labelA : labelB;
-    const delta = Math.abs(finalScoreA - finalScoreB);
-    const leadVerb = delta > 0.1 ? 'dominates' : 'leads';
+        console.log(`📊 Census Match Rate: ${censusMatchCount}/${geoData.features.length} ZIPs matched (${((censusMatchCount / geoData.features.length) * 100).toFixed(1)}%)`);
 
-    document.getElementById('comparison-winner-title').innerText = `Strategic Winner: ${winner}`;
-    document.getElementById('comparison-insight').innerText = `${winner} ${leadVerb} this comparison with a ${(delta * 100).toFixed(1)}% strategic advantage based on the ${brandName} persona.`;
+        const max_HH = Math.max(...zipDataList.map(z => z.demographics.hh_zip)) || 1;
 
-    renderComparisonChart(marketA, marketB, labelA, labelB, brand.targets);
+        // 2. Enriched Features with updated formula
+        const enrichedFeatures = zipDataList.map(item => {
+            const zipDemographics = item.demographics;
 
-    document.getElementById('comparison-results').classList.remove('hidden');
+            // Standard proximity matching (for Age, Gender, Ethnicity)
+            const getOverlap = (zipVal, targetVal, range) => Math.max(0, 1 - Math.abs(zipVal - targetVal) / range);
+
+            // Hierarchical matching (for Income, Education) - Higher values are rewarded with a bonus
+            const getHierarchicalOverlap = (zipVal, targetVal, range) => {
+                if (zipVal >= targetVal) {
+                    // Progressive bonus for exceeding target (up to +20%) to favor aspirational matches
+                    return 1.0 + Math.min(0.2, (zipVal - targetVal) / (range * 2));
+                }
+                return Math.max(0, 1 - (targetVal - zipVal) / range);
+            };
+
+            // Persona Overlap Component
+            const personaOverlapScore = (
+                getOverlap(zipDemographics.age, targetDemographics.age, 30) * AFFINITY_WEIGHTS.age +
+                getHierarchicalOverlap(zipDemographics.income, targetDemographics.income, 100000) * AFFINITY_WEIGHTS.income +
+                getHierarchicalOverlap(zipDemographics.education, targetDemographics.education, 0.5) * AFFINITY_WEIGHTS.education +
+                getOverlap(zipDemographics.gender, targetDemographics.gender, 0.5) * AFFINITY_WEIGHTS.gender +
+                getOverlap(zipDemographics.ethnicity, targetDemographics.ethnicity, 0.5) * AFFINITY_WEIGHTS.ethnicity
+            );
+
+            // Fan Overlap Component
+            const fanOverlapScore = (
+                getOverlap(zipDemographics.age, fanProfile.age, 30) * AFFINITY_WEIGHTS.age +
+                getHierarchicalOverlap(zipDemographics.income, fanProfile.income, 100000) * AFFINITY_WEIGHTS.income +
+                getHierarchicalOverlap(zipDemographics.education, fanProfile.education, 0.5) * AFFINITY_WEIGHTS.education +
+                getOverlap(zipDemographics.gender, fanProfile.gender, 0.5) * AFFINITY_WEIGHTS.gender +
+                getOverlap(zipDemographics.ethnicity, fanProfile.ethnicity, 0.5) * AFFINITY_WEIGHTS.ethnicity
+            );
+
+            // Combine Factors
+            const demographicIndex = (personaOverlapScore + fanOverlapScore) / 2;
+            const reachFactor = includeReach ? Math.sqrt(zipDemographics.hh_zip / max_HH) : 1;
+
+            // CORE FORMULA: [sqrt(HH/maxHH) if enabled] * [ 0.7 * (0.6 * Persona + 0.4 * Fan) + 0.3 * DemographicIndex ]
+            const alignmentRaw = (0.7 * (0.6 * personaOverlapScore + 0.4 * fanOverlapScore)) + (0.3 * demographicIndex);
+            const finalScore = reachFactor * alignmentRaw * 100;
+
+            return {
+                ...item.feature,
+                properties: {
+                    ...item.feature.properties,
+                    affinityData: {
+                        score: Math.min(100, Math.max(0, finalScore)),
+                        zip: item.zipCode,
+                        hh: zipDemographics.hh_zip,
+                        pScore: personaOverlapScore * 100,
+                        fScore: fanOverlapScore * 100,
+                        raw: zipDemographics,
+                        reachFactor: reachFactor,
+                        includeReach: includeReach
+                    }
+                }
+            };
+        });
+
+        renderAffinityMap(stateFips, { ...geoData, features: enrichedFeatures }, stateChanged);
+
+    } catch (err) {
+        console.error("Affinity Map Error:", err);
+        // Fallback or Alert
+        alert(`Failed to load ZIP borders for this state. Using fallback simulation. Error: ${err.message}`);
+    } finally {
+        loader.classList.add('hidden');
+        container.style.opacity = '1';
+    }
 }
 
-let comparisonChart = null;
-function renderComparisonChart(marketA, marketB, labelA, labelB, targets) {
-    const ctx = document.getElementById('comparisonChart').getContext('2d');
-    if (comparisonChart) comparisonChart.destroy();
+let currentStateBoundaryLayer = null;
 
-    const chartFactors = factors.filter(f => f.id !== 'total_pop');
+function renderAffinityMap(stateFips, geoJsonData, shouldFitBounds = true) {
+    // Read reach toggle state once, shared by getColor and updateMapLegend
+    const reachToggle = document.getElementById('affinity-reach-toggle');
+    const isReachEnabled = reachToggle ? reachToggle.checked : true;
 
-    // Shorten labels for chart
-    const labels = chartFactors.map(f => f.label.replace('Strategic ', ''));
-
-    comparisonChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: labelA.split(',')[0],
-                    data: chartFactors.map(f => marketA[f.id] || 1),
-                    backgroundColor: marketMapping[document.getElementById('compare-market-a').value].color || '#1667e9',
-                    borderRadius: 4,
-                },
-                {
-                    label: labelB.split(',')[0],
-                    data: chartFactors.map(f => marketB[f.id] || 1),
-                    backgroundColor: marketMapping[document.getElementById('compare-market-b').value].color || '#7000ff',
-                    borderRadius: 4,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y', // HORIZONTAL
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: { color: '#fff', font: { family: 'Outfit', size: 10 } }
-                },
-                tooltip: { mode: 'index', intersect: false }
-            },
-            scales: {
-                x: {
-                    grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }
-                },
-                y: {
-                    grid: { display: false },
-                    ticks: { color: '#fff', font: { weight: '600', size: 11 } }
-                }
-            }
+    if (!affinityLeafletMap) {
+        affinityLeafletMap = L.map('affinity-leaflet-map').setView(stateCenters[stateFips], 6);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+        }).addTo(affinityLeafletMap);
+    } else {
+        if (shouldFitBounds) {
+            affinityLeafletMap.setView(stateCenters[stateFips], 6);
         }
-    });
+        if (currentStateBoundaryLayer) affinityLeafletMap.removeLayer(currentStateBoundaryLayer);
+        if (currentZipLayer) affinityLeafletMap.removeLayer(currentZipLayer);
+    }
+
+    // Add state boundary fill underneath ZIP polygons to eliminate black gaps
+    // Uses the ZIP layer's outer boundary as a merged fill
+    try {
+        currentStateBoundaryLayer = L.geoJson(geoJsonData, {
+            style: () => ({
+                fillColor: '#1a1a2e',
+                weight: 0,
+                fillOpacity: 0.6
+            }),
+            interactive: false
+        }).addTo(affinityLeafletMap);
+        currentStateBoundaryLayer.bringToBack();
+    } catch (e) {
+        console.warn('Could not create state boundary layer:', e);
+    }
+
+    const getColor = (s) => {
+        if (isReachEnabled) {
+            // Strategic Steps for Reach-Weighted mapping: 15-point steps
+            if (s >= 90) return '#0D2577';
+            if (s >= 75) return '#004BFF';
+            if (s >= 65) return '#7D8EC8';
+            if (s >= 50) return '#B0B9D4';
+            if (s >= 35) return '#D6D6D6';
+            return '#F0F0F0';
+        } else {
+            // High-Resolution Steps for pure Demographic Match (Disabled Reach): 10-point steps
+            if (s >= 90) return '#0D2577';
+            if (s >= 80) return '#004BFF';
+            if (s >= 70) return '#7D8EC8';
+            if (s >= 60) return '#B0B9D4';
+            if (s >= 50) return '#D6D6D6';
+            return '#F0F0F0';
+        }
+    };
+
+    currentZipLayer = L.geoJson(geoJsonData, {
+        style: (feature) => ({
+            fillColor: getColor(feature.properties.affinityData.score),
+            weight: 0.5,
+            opacity: 1,
+            color: 'rgba(255,255,255,0.1)',
+            fillOpacity: 0.7
+        }),
+        onEachFeature: (feature, layer) => {
+            const data = feature.properties.affinityData;
+            layer.bindPopup(`
+                <div style="color: #fff; font-family: Outfit; padding: 5px;">
+                    <div style="font-weight: 800; border-bottom: 1px solid #444; margin-bottom: 5px;">ZIP: ${data.zip}</div>
+                    <div style="font-size: 1.1rem; margin-bottom: 8px;"><b>Strategic Affinity: ${data.score.toFixed(1)}</b></div>
+                    <div style="display: grid; gap: 4px;">
+                        <div style="font-size: 0.75rem; color: #aaa;">Persona Match: <span style="color: #fff;">${data.pScore.toFixed(0)}%</span></div>
+                        <div style="font-size: 0.75rem; color: #aaa;">Fan Match: <span style="color: #fff;">${data.fScore.toFixed(0)}%</span></div>
+                        <div style="font-size: 0.75rem; color: #aaa;">Household Reach: <span style="color: #fff;">${data.hh.toLocaleString()}</span></div>
+                    </div>
+                </div>
+            `, { className: 'glass-popup', closeButton: false, offset: [0, -10] });
+
+            layer.on({
+                mouseover: (e) => {
+                    const l = e.target;
+                    l.setStyle({
+                        weight: 2,
+                        color: 'rgba(255,255,255,0.4)',
+                        fillOpacity: 0.9
+                    });
+                    l.bringToFront();
+                    l.openPopup();
+                },
+                mouseout: (e) => {
+                    currentZipLayer.resetStyle(e.target);
+                    e.target.closePopup();
+                },
+                click: (e) => {
+                    updateAffinityPanel(e.target.feature.properties.affinityData);
+                }
+            });
+        }
+    }).addTo(affinityLeafletMap);
+
+    // Update Legend UI based on Reach Toggle
+    updateMapLegend(isReachEnabled);
+
+    // Auto-zoom to state bounds (only on state change)
+    if (shouldFitBounds && currentZipLayer.getBounds().isValid()) {
+        affinityLeafletMap.fitBounds(currentZipLayer.getBounds());
+    }
+}
+
+function updateMapLegend(isReachEnabled) {
+    const legendContainer = document.querySelector('#affinity-map-container > div:last-child');
+    if (!legendContainer) return;
+
+    const scaleList = legendContainer.querySelector('div[style*="flex-direction: column"]');
+    if (!scaleList) return;
+
+    if (isReachEnabled) {
+        scaleList.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #0D2577; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">100 - 90</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #004BFF; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">90 - 75</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #7D8EC8; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">75 - 65</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #B0B9D4; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">65 - 50</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #D6D6D6; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">50 - 35</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #F0F0F0; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #aaa;">Below 35</span>
+            </div>
+        `;
+    } else {
+        scaleList.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #0D2577; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">100 - 90</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #004BFF; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">90 - 80</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #7D8EC8; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">80 - 70</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #B0B9D4; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">70 - 60</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #D6D6D6; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #fff;">60 - 50</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 12px; height: 12px; background: #F0F0F0; border-radius: 2px;"></div>
+                <span style="font-size: 0.7rem; color: #aaa;">Below 50</span>
+            </div>
+        `;
+    }
+}
+
+function updateAffinityPanel(data) {
+    const placeholder = document.getElementById('affinity-panel-placeholder');
+    const content = document.getElementById('affinity-panel-content');
+
+    if (placeholder) placeholder.classList.add('hidden');
+    if (content) content.classList.remove('hidden');
+
+    // Basic Info
+    document.getElementById('panel-zip-code').textContent = data.zip;
+    document.getElementById('panel-location-name').textContent = data.raw.neighborhood;
+
+    // Demographics
+    document.getElementById('panel-age').textContent = data.raw.age.toFixed(1);
+    document.getElementById('panel-income').textContent = `$${data.raw.income.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+    document.getElementById('panel-edu').textContent = data.raw.education_text;
+    document.getElementById('panel-gender').textContent = data.raw.gender_text;
+    document.getElementById('panel-diversity').textContent = data.raw.diversity_text;
+    document.getElementById('panel-reach').textContent = data.hh.toLocaleString();
+
+    // Source Tag
+    const sourceText = data.raw.isReal ? "US Census 2022" : "Simulated Model";
+    document.getElementById('panel-zip-code').title = `Data Source: ${sourceText}`;
+
+    // Equation
+    const reachTerm = data.includeReach ? `Reach Factor (${data.reachFactor.toFixed(2)}) × ` : "";
+    const equationText = `${reachTerm}[ 0.7 × (0.6 × Persona Match + 0.4 × Fan Match) + 0.3 × Demographic Index ]`;
+    document.getElementById('panel-equation-summary').textContent = equationText;
+
+    // Final Score
+    const scoreVal = document.getElementById('panel-final-affinity');
+    scoreVal.textContent = data.score.toFixed(0);
 }
 
 
-document.getElementById('compare-btn').addEventListener('click', calculateComparison);
 
 // --- THEME MANAGEMENT ---
 const themeSwitch = document.getElementById('theme-switch');
@@ -1997,22 +2308,23 @@ window.addEventListener('load', () => {
         themeIcon.innerText = '☀️';
     }
 
-    const marketASelect = document.getElementById('compare-market-a');
-    const marketBSelect = document.getElementById('compare-market-b');
-
-    Object.keys(marketMapping).forEach(key => {
-        const optionA = new Option(marketMapping[key].label, key);
-        const optionB = new Option(marketMapping[key].label, key);
-        marketASelect.add(optionA);
-        marketBSelect.add(optionB);
-    });
-
-    // Default selections
-    marketASelect.value = 'newyork';
-    marketBSelect.value = 'lakers';
-
     // Initial load
     calculateValuation();
+
+    // State Selector, League Selector & Reach Toggle for Affinity Map
+    const stateSelect = document.getElementById('affinity-state-select');
+    const leagueSelect = document.getElementById('affinity-league-select');
+    const reachToggle = document.getElementById('affinity-reach-toggle');
+
+    if (stateSelect) {
+        stateSelect.addEventListener('change', calculateAffinityMap);
+    }
+    if (leagueSelect) {
+        leagueSelect.addEventListener('change', calculateAffinityMap);
+    }
+    if (reachToggle) {
+        reachToggle.addEventListener('change', calculateAffinityMap);
+    }
 });
 
 // --- REAL AI: Gemini Strategic Interpretation ---
@@ -2028,20 +2340,21 @@ async function performAIAdjustment() {
     status.classList.add('working');
 
     // List of factors Gemini should know about
-    const factorContext = factors.map(f => `- ${f.id}: ${f.label} (Impact: ${f.impact})`).join('\n');
+    const factorContext = factors.map(f => `- ${f.id}: ${f.label} (Impact: ${f.impact
+        })`).join('\n');
 
     const prompt = `
-        System: You are an expert sports sponsorship and demographic analyst for the NBA.
-        Task: Analyze the brand persona description below and identify which specific strategic factors from the provided list should be prioritized (targeted) for this brand's market valuation.
+    System: You are an expert sports sponsorship and demographic analyst for the NBA.
+        Task: Analyze the brand persona description below and identify which specific strategic factors from the provided list should be prioritized(targeted) for this brand's market valuation.
 
         Brand Persona: "${text}"
 
         Available Strategic Factors to choose from:
         ${factorContext}
 
-        Instructions:
-        1. Identify the 2-4 most relevant factor IDs based on the brand's goals (e.g., if they mention "young" or "families", pick life_stage or hh_structure).
-        2. Return ONLY a valid JSON array of strings containing the 'id' of the matching factors.
+    Instructions:
+    1. Identify the 2 - 4 most relevant factor IDs based on the brand's goals (e.g., if they mention "young" or "families", pick life_stage or hh_structure).
+    2. Return ONLY a valid JSON array of strings containing the 'id' of the matching factors.
         3. Do not include any text before or after the JSON.
         
         Example Output: ["strategic_affluence", "digital", "loyalty_ltv"]

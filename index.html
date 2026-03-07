@@ -42,7 +42,7 @@
         <main>
             <nav class="tabs">
                 <button class="tab-btn active" data-tab="valuator">Strategic Valuator</button>
-                <button class="tab-btn" data-tab="comparison">Market Comparison</button>
+                <button class="tab-btn" data-tab="affinity">Brand affinity map</button>
             </nav>
 
             <div id="valuator-tab" class="tab-content active">
@@ -419,62 +419,211 @@
                 </section>
             </div>
 
-            <div id="comparison-tab" class="tab-content">
-                <section class="card glass-card compare-inputs">
-                    <h2 id="comparison-main-header">Market Benchmark Comparison</h2>
-                    <div class="compare-grid">
-                        <div class="input-group">
-                            <label id="compare-market-a-label">Market A (Benchmark)</label>
-                            <select id="compare-market-a" class="market-selector"></select>
+            <div id="affinity-tab" class="tab-content">
+                <section class="card glass-card">
+                    <div style="display: flex; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap;">
+                        <!-- LEFT AREA: Matches Map flex: 2 -->
+                        <div
+                            style="flex: 2; display: flex; justify-content: space-between; align-items: flex-end; min-width: 400px;">
+                            <div>
+                                <h2 style="margin-bottom: 0.5rem;">Brand Affinity Map</h2>
+                                <p style="color: var(--text-secondary); margin-bottom: 0;">Multi-dimensional Zip-Level
+                                    Market Alignment</p>
+                            </div>
+                            <div class="input-group" style="margin-bottom: 0; margin-left: 2rem;">
+                                <label for="affinity-state-select" style="font-size: 0.7rem;">Select Target
+                                    State</label>
+                                <select id="affinity-state-select"
+                                    style="min-width: 200px; padding: 0.6rem 1.2rem; font-size: 0.9rem;">
+                                    <option value="" disabled selected>Choose a State...</option>
+                                    <option value="04">Arizona</option>
+                                    <option value="06">California</option>
+                                    <option value="08">Colorado</option>
+                                    <option value="12">Florida</option>
+                                    <option value="13">Georgia</option>
+                                    <option value="17">Illinois</option>
+                                    <option value="18">Indiana</option>
+                                    <option value="25">Massachusetts</option>
+                                    <option value="26">Michigan</option>
+                                    <option value="32">Nevada</option>
+                                    <option value="36">New York</option>
+                                    <option value="37">North Carolina</option>
+                                    <option value="39">Ohio</option>
+                                    <option value="42">Pennsylvania</option>
+                                    <option value="48">Texas</option>
+                                    <option value="53">Washington</option>
+                                    <option value="11">Washington D.C.</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="compare-vs">VS</div>
-                        <div class="input-group">
-                            <label id="compare-market-b-label">Market B (Target)</label>
-                            <select id="compare-market-b" class="market-selector"></select>
+
+                        <!-- MIDDLE SPACE: Matches panel's 16px left margin -->
+                        <div style="flex: 0 0 16px;"></div>
+
+                        <!-- RIGHT AREA: Matches Panel flex: 0 0 320px + 16px right margin -->
+                        <div
+                            style="flex: 0 0 320px; display: flex; justify-content: space-between; align-items: flex-end; margin-right: 16px;">
+                            <div class="input-group" style="margin-bottom: 0; flex: 1; margin-right: 1.5rem;">
+                                <label for="affinity-league-select" style="font-size: 0.7rem;">Select Target
+                                    League</label>
+                                <select id="affinity-league-select"
+                                    style="min-width: 130px; padding: 0.6rem 1.2rem; font-size: 0.9rem;">
+                                    <option value="none" selected>No League</option>
+                                    <option value="NBA">NBA</option>
+                                    <option value="NFL">NFL</option>
+                                    <option value="MLB">MLB</option>
+                                    <option value="NHL">NHL</option>
+                                    <option value="MLS">MLS</option>
+                                    <option value="WNBA">WNBA</option>
+                                    <option value="NWSL">NWSL</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group" style="margin-bottom: 0; text-align: right;">
+                                <label style="margin-bottom: 0.25rem; font-size: 0.7rem;">Weight by Reach</label>
+                                <div
+                                    style="height: 38px; display: flex; align-items: center; justify-content: flex-end;">
+                                    <label class="switch"
+                                        title="When enabled, market alignment scores are weighted by household volume (Household Reach).">
+                                        <input type="checkbox" id="affinity-reach-toggle" checked>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button id="compare-btn" class="primary-btn">Analyze Market Delta</button>
-                </section>
 
-                <section id="comparison-results" class="hidden" style="margin-top: 2rem;">
-                    <div id="comparison-summary" class="card glass-card"
-                        style="margin-bottom: 2rem; text-align: center; border: 1px solid var(--primary-color);">
-                        <h2 id="comparison-winner-title">Strategic Market Leader</h2>
-                        <div class="compare-scores">
-                            <div class="score-card">
-                                <label id="score-label-a">Market A</label>
-                                <div id="score-val-a" class="score-num">0.00x</div>
-                            </div>
-                            <div class="compare-vs-small" style="margin-top: 2rem;">VS</div>
-                            <div class="score-card">
-                                <label id="score-label-b">Market B</label>
-                                <div id="score-val-b" class="score-num">0.00x</div>
-                            </div>
-                        </div>
-                        <div id="compare-chart-container" class="hidden"
-                            style="height: 300px; width: 100%; margin: 2rem 0; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 6px;">
-                            <canvas id="comparisonChart"></canvas>
-                        </div>
-                        <p id="comparison-insight"
-                            style="margin-top: 1rem; font-size: 1.1rem; color: var(--text-secondary);">
-                        </p>
+                    <div id="affinity-loading" class="hidden" style="text-align: center; padding: 2rem;">
+                        <div class="logo-icon animate-pulse" style="margin: 0 auto 1rem;">TR</div>
+                        <p>Processing ZIP-Level Demographic Surfaces...</p>
                     </div>
 
-                    <div class="comparison-matrix card glass-card">
-                        <h2>Strategic Demographic Delta</h2>
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Demographic Factor</th>
-                                        <th id="header-market-a">Market A</th>
-                                        <th id="header-market-b">Market B</th>
-                                        <th>Variance (%)</th>
-                                        <th>Strategic Opportunity</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="comparison-body"></tbody>
-                            </table>
+                    <div id="affinity-map-wrapper"
+                        style="display: flex; height: 620px; width: 100%; align-items: stretch;">
+                        <div id="affinity-map-container"
+                            style="flex: 2; height: 100%; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid var(--surface-border); position: relative; z-index: 1;">
+                            <div id="affinity-leaflet-map" style="height: 100%; width: 100%; border-radius: 12px;">
+                            </div>
+
+                            <!-- Detailed Legend -->
+                            <div
+                                style="position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: rgba(0,0,0,0.85); padding: 1.25rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(8px); min-width: 180px;">
+                                <div
+                                    style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; color: var(--text-secondary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+                                    Affinity Score Scale</div>
+
+                                <!-- Simplified Scale Legend -->
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div
+                                            style="width: 12px; height: 12px; background: #0D2577; border-radius: 2px;">
+                                        </div>
+                                        <span style="font-size: 0.7rem; color: #fff;">100 - 90</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div
+                                            style="width: 12px; height: 12px; background: #004BFF; border-radius: 2px;">
+                                        </div>
+                                        <span style="font-size: 0.7rem; color: #fff;">90 - 75</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div
+                                            style="width: 12px; height: 12px; background: #7D8EC8; border-radius: 2px;">
+                                        </div>
+                                        <span style="font-size: 0.7rem; color: #fff;">75 - 65</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div
+                                            style="width: 12px; height: 12px; background: #B0B9D4; border-radius: 2px;">
+                                        </div>
+                                        <span style="font-size: 0.7rem; color: #fff;">65 - 50</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div
+                                            style="width: 12px; height: 12px; background: #D6D6D6; border-radius: 2px;">
+                                        </div>
+                                        <span style="font-size: 0.7rem; color: #fff;">50 - 35</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div
+                                            style="width: 12px; height: 12px; background: #F0F0F0; border-radius: 2px;">
+                                        </div>
+                                        <span style="font-size: 0.7rem; color: #aaa;">Below 35</span>
+                                    </div>
+                                </div>
+                                <!-- Subtle Footer for context -->
+                                <div
+                                    style="margin-top: 0.75rem; font-size: 0.6rem; color: #888; text-align: right; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px;">
+                                    Zip Polygons Match Scale
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Brand Affinity Detail Panel -->
+                        <div id="affinity-detail-panel" class="card glass-card"
+                            style="width: 320px; flex: 0 0 320px; padding: 1.25rem; display: flex; flex-direction: column; overflow: hidden; margin: 0 0 0 16px;">
+                            <div id="affinity-panel-placeholder"
+                                style="flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">
+                                <p>Click a ZIP location on the map to view detailed demographics and affinity
+                                    calculation.</p>
+                            </div>
+                            <div id="affinity-panel-content" class="hidden"
+                                style="display: flex; flex-direction: column; height: 100%;">
+                                <div
+                                    style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem;">
+                                    <h1 id="panel-zip-code"
+                                        style="font-size: 1.8rem; margin-bottom: 0; letter-spacing: -0.5px; line-height: 1;">
+                                        00000
+                                    </h1>
+                                    <p id="panel-location-name"
+                                        style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0; opacity: 0.7; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        Neighborhood</p>
+                                </div>
+
+                                <div
+                                    style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; padding-top: 0.5rem;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                        <span style="color: var(--text-secondary);">Age:</span>
+                                        <span id="panel-age" style="font-weight: 500;">--</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                        <span style="color: var(--text-secondary);">Household income:</span>
+                                        <span id="panel-income" style="font-weight: 500;">--</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                        <span style="color: var(--text-secondary);">Education:</span>
+                                        <span id="panel-edu" style="font-weight: 500;">--</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                        <span style="color: var(--text-secondary);">Gender:</span>
+                                        <span id="panel-gender" style="font-weight: 500;">--</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                        <span style="color: var(--text-secondary);">Diversity:</span>
+                                        <span id="panel-diversity" style="font-weight: 500;">--</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                        <span style="color: var(--text-secondary);">Household Reach:</span>
+                                        <span id="panel-reach" style="font-weight: 500;">--</span>
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                                    <h3
+                                        style="font-size: 1rem; margin-bottom: 0.4rem; letter-spacing: 0.5px; color: var(--text-secondary); text-transform: uppercase; font-weight: 400;">
+                                        Affinity</h3>
+                                    <p id="panel-equation-summary"
+                                        style="font-size: 0.7rem; color: var(--text-secondary); font-style: italic; margin-bottom: 1rem; line-height: 1.4; opacity: 0.6;">
+                                        Age * weight ....... X numbers X</p>
+
+                                    <div
+                                        style="display: flex; justify-content: center; align-items: center; padding: 1.25rem; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span id="panel-final-affinity"
+                                            style="font-size: 4rem; font-weight: 800; color: var(--primary-color); line-height: 1; text-shadow: 0 0 20px rgba(22, 103, 233, 0.25);">--</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
