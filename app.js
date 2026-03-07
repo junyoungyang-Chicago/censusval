@@ -1806,13 +1806,35 @@ const LEAGUE_FAN_PROFILES = {
     'none': null // Handled specially in calculation
 };
 
-const AFFINITY_WEIGHTS = {
-    age: 0.25,
-    income: 0.20,
-    education: 0.15,
-    gender: 0.10,
-    ethnicity: 0.30
+// League-specific demographic weights for affinity mapping
+// Each league's weights sum to 1.0 (including reach)
+const LEAGUE_AFFINITY_WEIGHTS = {
+    'NBA': { age: 0.25, income: 0.10, education: 0.10, gender: 0.10, ethnicity: 0.30, reach: 0.15 },
+    'WNBA': { age: 0.20, income: 0.10, education: 0.20, gender: 0.25, ethnicity: 0.15, reach: 0.10 },
+    'NFL': { age: 0.20, income: 0.10, education: 0.05, gender: 0.15, ethnicity: 0.10, reach: 0.40 },
+    'MLB': { age: 0.20, income: 0.15, education: 0.10, gender: 0.10, ethnicity: 0.10, reach: 0.35 },
+    'NHL': { age: 0.20, income: 0.20, education: 0.15, gender: 0.10, ethnicity: 0.10, reach: 0.25 },
+    'MLS': { age: 0.25, income: 0.10, education: 0.10, gender: 0.10, ethnicity: 0.20, reach: 0.25 },
+    'NWSL': { age: 0.20, income: 0.10, education: 0.20, gender: 0.25, ethnicity: 0.10, reach: 0.15 },
+    'none': { age: 0.20, income: 0.20, education: 0.15, gender: 0.10, ethnicity: 0.20, reach: 0.15 }
 };
+
+// Helper: get normalized demo weights for a league (always sum to 1.0)
+// Reach weight is returned separately for use as a multiplicative boost
+function getAffinityWeights(league) {
+    const base = LEAGUE_AFFINITY_WEIGHTS[league] || LEAGUE_AFFINITY_WEIGHTS['none'];
+    // Normalize demo weights to sum to 1.0 (excluding reach)
+    const demoSum = base.age + base.income + base.education + base.gender + base.ethnicity;
+    const scale = 1.0 / demoSum;
+    return {
+        age: base.age * scale,
+        income: base.income * scale,
+        education: base.education * scale,
+        gender: base.gender * scale,
+        ethnicity: base.ethnicity * scale,
+        reach: base.reach  // kept as-is for boost calculation
+    };
+}
 
 
 const fipsToPostal = {
@@ -1978,7 +2000,7 @@ async function calculateAffinityMap() {
                 age: real.age > 0 ? real.age : 38,
                 income: real.income > 0 ? real.income : 40000,
                 education: real.education_pct > 0 ? real.education_pct : 0.3,
-                education_text: real.education_pct > 0 ? `${(real.education_pct * 100).toFixed(1)}% degree` : "General",
+                education_text: real.education_pct > 0.5 ? "Graduate+" : real.education_pct > 0.35 ? "College Grad" : real.education_pct > 0.2 ? "Some College" : real.education_pct > 0.1 ? "High School" : "Below Average",
                 gender: real.gender_male_pct > 0 ? real.gender_male_pct : 0.5,
                 gender_text: `${((real.gender_male_pct > 0 ? real.gender_male_pct : 0.5) * 100).toFixed(0)}% male`,
                 ethnicity: 0.2 + Math.random() * 0.6, // Still simulated for now
@@ -2022,31 +2044,40 @@ async function calculateAffinityMap() {
                 return Math.max(0, 1 - (targetVal - zipVal) / range);
             };
 
-            // Persona Overlap Component
+            // Get league-specific weights (demo weights normalized to sum to 1.0)
+            const W = getAffinityWeights(selectedLeague);
+
+            // Persona Overlap Component (weighted by league)
             const personaOverlapScore = (
-                getOverlap(zipDemographics.age, targetDemographics.age, 30) * AFFINITY_WEIGHTS.age +
-                getHierarchicalOverlap(zipDemographics.income, targetDemographics.income, 100000) * AFFINITY_WEIGHTS.income +
-                getHierarchicalOverlap(zipDemographics.education, targetDemographics.education, 0.5) * AFFINITY_WEIGHTS.education +
-                getOverlap(zipDemographics.gender, targetDemographics.gender, 0.5) * AFFINITY_WEIGHTS.gender +
-                getOverlap(zipDemographics.ethnicity, targetDemographics.ethnicity, 0.5) * AFFINITY_WEIGHTS.ethnicity
+                getOverlap(zipDemographics.age, targetDemographics.age, 30) * W.age +
+                getHierarchicalOverlap(zipDemographics.income, targetDemographics.income, 100000) * W.income +
+                getHierarchicalOverlap(zipDemographics.education, targetDemographics.education, 0.5) * W.education +
+                getOverlap(zipDemographics.gender, targetDemographics.gender, 0.5) * W.gender +
+                getOverlap(zipDemographics.ethnicity, targetDemographics.ethnicity, 0.5) * W.ethnicity
             );
 
-            // Fan Overlap Component
+            // Fan Overlap Component (weighted by league)
             const fanOverlapScore = (
-                getOverlap(zipDemographics.age, fanProfile.age, 30) * AFFINITY_WEIGHTS.age +
-                getHierarchicalOverlap(zipDemographics.income, fanProfile.income, 100000) * AFFINITY_WEIGHTS.income +
-                getHierarchicalOverlap(zipDemographics.education, fanProfile.education, 0.5) * AFFINITY_WEIGHTS.education +
-                getOverlap(zipDemographics.gender, fanProfile.gender, 0.5) * AFFINITY_WEIGHTS.gender +
-                getOverlap(zipDemographics.ethnicity, fanProfile.ethnicity, 0.5) * AFFINITY_WEIGHTS.ethnicity
+                getOverlap(zipDemographics.age, fanProfile.age, 30) * W.age +
+                getHierarchicalOverlap(zipDemographics.income, fanProfile.income, 100000) * W.income +
+                getHierarchicalOverlap(zipDemographics.education, fanProfile.education, 0.5) * W.education +
+                getOverlap(zipDemographics.gender, fanProfile.gender, 0.5) * W.gender +
+                getOverlap(zipDemographics.ethnicity, fanProfile.ethnicity, 0.5) * W.ethnicity
             );
 
-            // Combine Factors
+            // Demographic alignment core
             const demographicIndex = (personaOverlapScore + fanOverlapScore) / 2;
-            const reachFactor = includeReach ? Math.sqrt(zipDemographics.hh_zip / max_HH) : 1;
+            const demoAlignment = (0.7 * (0.6 * personaOverlapScore + 0.4 * fanOverlapScore)) + (0.3 * demographicIndex);
 
-            // CORE FORMULA: [sqrt(HH/maxHH) if enabled] * [ 0.7 * (0.6 * Persona + 0.4 * Fan) + 0.3 * DemographicIndex ]
-            const alignmentRaw = (0.7 * (0.6 * personaOverlapScore + 0.4 * fanOverlapScore)) + (0.3 * demographicIndex);
-            const finalScore = reachFactor * alignmentRaw * 100;
+            // Reach as multiplicative BOOST (not additive blend)
+            // Big cities get amplified, small towns stay at baseline
+            const reachScore = Math.sqrt(zipDemographics.hh_zip / max_HH);
+            const reachBoost = includeReach ? (1 + W.reach * reachScore) : 1.0;
+
+            // CORE FORMULA: demoAlignment * reachBoost * 100
+            // NFL (reach=0.40): Chicago gets up to ~32% boost, small town ~2%
+            // NBA (reach=0.15): Chicago gets up to ~12% boost, small town <1%
+            const finalScore = demoAlignment * reachBoost * 100;
 
             return {
                 ...item.feature,
@@ -2059,7 +2090,7 @@ async function calculateAffinityMap() {
                         pScore: personaOverlapScore * 100,
                         fScore: fanOverlapScore * 100,
                         raw: zipDemographics,
-                        reachFactor: reachFactor,
+                        reachFactor: reachScore,
                         includeReach: includeReach
                     }
                 }
@@ -2139,8 +2170,8 @@ function renderAffinityMap(stateFips, geoJsonData, shouldFitBounds = true) {
             fillColor: getColor(feature.properties.affinityData.score),
             weight: 0.5,
             opacity: 1,
-            color: 'rgba(255,255,255,0.1)',
-            fillOpacity: 0.7
+            color: 'rgba(255,255,255,0.3)',
+            fillOpacity: 0.3
         }),
         onEachFeature: (feature, layer) => {
             const data = feature.properties.affinityData;
